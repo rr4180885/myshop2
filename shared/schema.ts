@@ -31,6 +31,7 @@ export const settings = pgTable("settings", {
   customText1: text("custom_text_1").default("All goods once sold will not be taken back"),
   customText2: text("custom_text_2").default("Warranty as per manufacturer terms"),
   customText3: text("custom_text_3").default("Payment due within 30 days"),
+  logoPath: text("logo_path").default(""),
   signaturePath: text("signature_path").default(""),
   updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`),
 });

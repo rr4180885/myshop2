@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+ import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
@@ -26,6 +26,7 @@ export default function AddProductTab() {
       stock: 0,
       purchasePrice: "0",
       sellingPrice: "0",
+      maxDiscount: "0",
       gstRate: 28,
     },
   });
@@ -193,25 +194,47 @@ export default function AddProductTab() {
                 />
               </div>
 
-              <FormField
-                control={form.control}
-                name="gstRate"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>GST Rate %</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="number" 
-                        {...field} 
-                        onChange={(e) => field.onChange(parseInt(e.target.value))} 
-                        className="mt-2"
-                        data-testid="input-gst-rate" 
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid grid-cols-2 gap-6">
+                <FormField
+                  control={form.control}
+                  name="maxDiscount"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Maximum Discount % (Optional)</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="number" 
+                          placeholder="e.g., 10" 
+                          {...field} 
+                          className="mt-2"
+                          data-testid="input-max-discount" 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="gstRate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>GST Rate %</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="number" 
+                          {...field} 
+                          onChange={(e) => field.onChange(parseInt(e.target.value))} 
+                          className="mt-2"
+                          data-testid="input-gst-rate" 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
               <div className="flex gap-3 pt-4">
                 <Button 

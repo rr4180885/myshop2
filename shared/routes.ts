@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { insertUserSchema, insertProductSchema, insertInvoiceSchema, users, products, invoices } from "./schema";
+import { insertUserSchema, insertProductSchema, insertInvoiceSchema, insertSettingsSchema, users, products, invoices, settings } from "./schema";
 
 export const errorSchemas = {
   validation: z.object({
@@ -96,6 +96,24 @@ export const api = {
       },
     },
   },
+  settings: {
+    get: {
+      method: "GET" as const,
+      path: "/api/settings",
+      responses: {
+        200: z.custom<typeof settings.$inferSelect>(),
+      },
+    },
+    update: {
+      method: "PUT" as const,
+      path: "/api/settings",
+      input: insertSettingsSchema,
+      responses: {
+        200: z.custom<typeof settings.$inferSelect>(),
+        400: errorSchemas.validation,
+      },
+    },
+  },
 };
 
 export function buildUrl(path: string, params?: Record<string, string | number>): string {
@@ -114,3 +132,4 @@ export type LoginInput = z.infer<typeof api.auth.login.input>;
 export type User = typeof users.$inferSelect;
 export type Product = typeof products.$inferSelect;
 export type Invoice = typeof invoices.$inferSelect;
+export type Settings = typeof settings.$inferSelect;

@@ -3,7 +3,7 @@ import { storage } from "./storage";
 import { setupAuth } from "./auth";
 import { api } from "@shared/routes";
 import { z } from "zod";
-import { insertProductSchema, insertInvoiceSchema } from "@shared/schema";
+import { insertProductSchema, insertInvoiceSchema, insertSettingsSchema } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<void> {
   // Auth middleware
@@ -65,6 +65,28 @@ export async function registerRoutes(app: Express): Promise<void> {
       const input = insertInvoiceSchema.parse(req.body);
       const invoice = await storage.createInvoice(input);
       res.status(201).json(invoice);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({
+          message: err.errors[0].message,
+          field: err.errors[0].path.join("."),
+        });
+      }
+      throw err;
+    }
+  });
+
+  // Settings
+  app.get(api.settings.get.path, async (req, res) => {
+    const settings = await storage.getSettings();
+    res.json(settings);
+  });
+
+  app.put(api.settings.update.path, async (req, res) => {
+    try {
+      const updates = insertSettingsSchema.parse(req.body);
+      const settings = await storage.updateSettings(updates);
+      res.json(settings);
     } catch (err) {
       if (err instanceof z.ZodError) {
         return res.status(400).json({

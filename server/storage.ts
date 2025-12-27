@@ -1,4 +1,4 @@
-import { type User, type InsertUser, type Product, type InsertProduct, type Invoice, type InsertInvoice, users, products, invoices } from "@shared/schema";
+import { type User, type InsertUser, type Product, type InsertProduct, type Invoice, type InsertInvoice, type Settings, type InsertSettings, users, products, invoices, settings } from "@shared/schema";
 import { randomUUID } from "crypto";
 import session from "express-session";
 import createMemoryStore from "memorystore";
@@ -24,6 +24,10 @@ export interface IStorage {
   // Invoices
   getInvoices(): Promise<Invoice[]>;
   createInvoice(invoice: InsertInvoice): Promise<Invoice>;
+  
+  // Settings
+  getSettings(): Promise<Settings>;
+  updateSettings(updates: InsertSettings): Promise<Settings>;
   
   // Sessions
   sessionStore: session.Store;
@@ -111,6 +115,34 @@ export class DBStorage implements IStorage {
     const result = await this.db.insert(invoices).values(invoice).returning();
     return result[0];
   }
+
+  // Settings
+  async getSettings(): Promise<Settings> {
+    const result = await this.db.select().from(settings);
+    // If no settings exist, create default settings
+    if (result.length === 0) {
+      const defaultSettings = {
+        shopName: "Brothers Enterprises",
+        shopAddress: "",
+        shopPhone: "+91 98765 43210",
+        shopGSTIN: "29XXXXX1234X1Z5",
+        customText1: "All goods once sold will not be taken back",
+        customText2: "Warranty as per manufacturer terms",
+        customText3: "Payment due within 30 days",
+        logoPath: "",
+        signaturePath: "",
+      };
+      const created = await this.db.insert(settings).values(defaultSettings).returning();
+      return created[0];
+    }
+    return result[0];
+  }
+
+  async updateSettings(updates: InsertSettings): Promise<Settings> {
+    const existing = await this.getSettings();
+    const result = await this.db.update(settings).set(updates).where(eq(settings.id, existing.id)).returning();
+    return result[0];
+  }
 }
 
 // Fallback to in-memory storage
@@ -118,22 +150,36 @@ export class MemStorage implements IStorage {
   private users = new Map<string, User>();
   private products = new Map<number, Product>();
   private invoices = new Map<number, Invoice>();
+  private settings: Settings;
   private productIdCounter = 1;
   private invoiceIdCounter = 1;
   sessionStore: session.Store;
 
   constructor() {
     this.sessionStore = new MemoryStore({ checkPeriod: 86400000 });
+    this.settings = {
+      id: 1,
+      shopName: "Brothers Enterprises",
+      shopAddress: "",
+      shopPhone: "+91 98765 43210",
+      shopGSTIN: "29XXXXX1234X1Z5",
+      customText1: "All goods once sold will not be taken back",
+      customText2: "Warranty as per manufacturer terms",
+      customText3: "Payment due within 30 days",
+      logoPath: "",
+      signaturePath: "",
+      updatedAt: null,
+    };
     this.seedProducts();
   }
 
   private seedProducts() {
     const defaultProducts = [
-      { name: "Brake Pad Set", brand: "Maruti Swift", code: "BP-MS-001", hsnCode: "8708", stock: 25, purchasePrice: "450", sellingPrice: "650", gstRate: 28 },
-      { name: "Air Filter", brand: "Hyundai i20", code: "AF-HI-002", hsnCode: "8708", stock: 15, purchasePrice: "250", sellingPrice: "400", gstRate: 28 },
-      { name: "Oil Filter", brand: "Tata Nexon", code: "OF-TN-003", hsnCode: "8708", stock: 30, purchasePrice: "180", sellingPrice: "300", gstRate: 28 },
-      { name: "Headlight Bulb", brand: "Maruti Alto", code: "HB-MA-004", hsnCode: "8708", stock: 50, purchasePrice: "80", sellingPrice: "150", gstRate: 18 },
-      { name: "Wiper Blade", brand: "Honda City", code: "WB-HC-005", hsnCode: "8708", stock: 20, purchasePrice: "200", sellingPrice: "350", gstRate: 28 },
+      { name: "Brake Pad Set", brand: "Maruti Swift", code: "BP-MS-001", hsnCode: "8708", stock: 25, purchasePrice: "450", sellingPrice: "650", maxDiscount: "0", gstRate: 28 },
+      { name: "Air Filter", brand: "Hyundai i20", code: "AF-HI-002", hsnCode: "8708", stock: 15, purchasePrice: "250", sellingPrice: "400", maxDiscount: "0", gstRate: 28 },
+      { name: "Oil Filter", brand: "Tata Nexon", code: "OF-TN-003", hsnCode: "8708", stock: 30, purchasePrice: "180", sellingPrice: "300", maxDiscount: "0", gstRate: 28 },
+      { name: "Headlight Bulb", brand: "Maruti Alto", code: "HB-MA-004", hsnCode: "8708", stock: 50, purchasePrice: "80", sellingPrice: "150", maxDiscount: "0", gstRate: 18 },
+      { name: "Wiper Blade", brand: "Honda City", code: "WB-HC-005", hsnCode: "8708", stock: 20, purchasePrice: "200", sellingPrice: "350", maxDiscount: "0", gstRate: 28 },
     ];
 
     defaultProducts.forEach(p => {
@@ -179,6 +225,13 @@ export class MemStorage implements IStorage {
     const newInvoice: Invoice = { ...invoice, id } as Invoice;
     this.invoices.set(id, newInvoice);
     return newInvoice;
+  }
+
+  // Settings
+  async getSettings(): Promise<Settings> { return this.settings; }
+  async updateSettings(updates: InsertSettings): Promise<Settings> {
+    this.settings = { ...this.settings, ...updates };
+    return this.settings;
   }
 }
 
