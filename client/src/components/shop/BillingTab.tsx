@@ -49,6 +49,14 @@ export default function BillingTab() {
 
   const invoiceCounterMutation = useMutation({
     mutationFn: async (items: CartItem[]) => {
+      // Final stock validation before generating invoice
+      for (const item of items) {
+        const product = products.find((p: any) => p.id === item.id);
+        if (!product || item.quantity > product.stock) {
+          throw new Error(`Insufficient stock for ${item.name}. Only ${product?.stock || 0} units available.`);
+        }
+      }
+
       const counter = parseInt(localStorage.getItem("invoiceCounter") || "1");
       const invoiceNumber = `INV-${new Date().getFullYear()}-${String(counter).padStart(5, "0")}`;
       localStorage.setItem("invoiceCounter", String(counter + 1));
@@ -133,6 +141,15 @@ export default function BillingTab() {
   const addToCart = (product: any) => {
     const existing = cart.find(item => item.id === product.id);
     if (existing) {
+      // Check if we have enough stock before increasing quantity
+      if (existing.quantity >= product.stock) {
+        toast({ 
+          title: "Insufficient stock", 
+          description: `Only ${product.stock} units available`,
+          variant: "destructive" 
+        });
+        return;
+      }
       setCart(cart.map(item =>
         item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
       ));
@@ -161,6 +178,16 @@ export default function BillingTab() {
     if (quantity <= 0) {
       removeFromCart(id);
     } else {
+      // Check stock before updating quantity
+      const product = products.find((p: any) => p.id === id);
+      if (product && quantity > product.stock) {
+        toast({ 
+          title: "Insufficient stock", 
+          description: `Only ${product.stock} units available`,
+          variant: "destructive" 
+        });
+        return;
+      }
       setCart(cart.map(item => item.id === id ? { ...item, quantity } : item));
     }
   };
