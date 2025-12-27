@@ -1,9 +1,9 @@
 import { build as esbuild } from "esbuild";
 import { build as viteBuild } from "vite";
 import { rm, readFile } from "fs/promises";
+import path from "path";
 
-// server deps to bundle to reduce openat(2) syscalls
-// which helps cold start times
+// Dependencies that should NOT be bundled, but shipped in Lambda
 const allowlist = [
   "@google/generative-ai",
   "axios",
@@ -33,10 +33,18 @@ const allowlist = [
 ];
 
 async function buildAll() {
+  // Clean previous build
   await rm("dist", { recursive: true, force: true });
 
   console.log("building client...");
-  await viteBuild();
+  await viteBuild({
+    configFile: false,
+    root: path.resolve("client"),
+    build: {
+      outDir: path.resolve("dist/public"),
+      emptyOutDir: true,
+    },
+  });
 
   console.log("building server...");
   const pkg = JSON.parse(await readFile("package.json", "utf-8"));
@@ -59,6 +67,8 @@ async function buildAll() {
     external: externals,
     logLevel: "info",
   });
+
+  console.log("Build finished successfully.");
 }
 
 buildAll().catch((err) => {
