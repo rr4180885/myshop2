@@ -83,17 +83,19 @@ async function initialize() {
 // Initialize on startup for production
 const initPromise = initialize();
 
-// For local development
-if (process.env.NODE_ENV !== "production") {
-  const PORT = 5000;
-  initPromise.then(() => {
-    app.listen(PORT, "0.0.0.0", () => {
-      log(`Server running on port ${PORT}`);
-    });
-  });
-}
+// Start server for production (Render, Railway, etc.) or development
+const PORT = parseInt(process.env.PORT || "5000", 10);
 
-// For Vercel serverless
+initPromise.then(() => {
+  app.listen(PORT, "0.0.0.0", () => {
+    log(`Server running on port ${PORT} in ${process.env.NODE_ENV || "development"} mode`);
+  });
+}).catch((err) => {
+  console.error("Failed to initialize server:", err);
+  process.exit(1);
+});
+
+// For Vercel serverless (when deployed to Vercel)
 export default async function handler(req: any, res: any) {
   await initPromise;
   return app(req, res);

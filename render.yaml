@@ -1,0 +1,30 @@
+services:
+  # Web Service - Your Express + React app
+  - type: web
+    name: myshop-secure-login
+    runtime: node
+    env: node
+    region: singapore  # Choose closest region: oregon/frankfurt/singapore
+    plan: free  # Free tier
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: myshop-db
+          property: connectionString
+    autoDeploy: true
+    # The free tier spins down after 15 min of inactivity
+    # It will spin up automatically when accessed (takes ~30 seconds)
+
+# Optional: Render PostgreSQL Database (Free tier: 90 days, then expires)
+# Uncomment if you want to use Render's database instead of Supabase
+# databases:
+#   - name: myshop-db
+#     databaseName: myshop
+#     user: myshop_user
+#     plan: free
+#     region: singapore
