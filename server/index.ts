@@ -17,7 +17,7 @@ app.use(
     verify: (req, _res, buf) => {
       req.rawBody = buf;
     },
-  }),
+  })
 );
 app.use(express.urlencoded({ extended: false }));
 
@@ -58,7 +58,7 @@ app.use((req, res, next) => {
 // Async setup
 (async () => {
   await initializeStorage();
-  await registerRoutes(app, app);
+  await registerRoutes(app); // only pass `app`
 
   // Error handling
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
@@ -71,7 +71,7 @@ app.use((req, res, next) => {
     serveStatic(app);
   } else {
     const { setupVite } = await import("./vite");
-    await setupVite(app, app);
+    await setupVite(app); // only pass `app`
   }
 })();
 
