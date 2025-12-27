@@ -18,7 +18,21 @@ export const products = pgTable("products", {
   stock: integer("stock").notNull().default(0),
   purchasePrice: numeric("purchase_price", { precision: 10, scale: 2 }).notNull(),
   sellingPrice: numeric("selling_price", { precision: 10, scale: 2 }).notNull(),
+  maxDiscount: numeric("max_discount", { precision: 5, scale: 2 }).default("0"),
   gstRate: integer("gst_rate").notNull().default(28),
+});
+
+export const settings = pgTable("settings", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  shopName: text("shop_name").default("Brothers Enterprises"),
+  shopAddress: text("shop_address").default(""),
+  shopPhone: text("shop_phone").default("+91 98765 43210"),
+  shopGSTIN: text("shop_gstin").default("29XXXXX1234X1Z5"),
+  customText1: text("custom_text_1").default("All goods once sold will not be taken back"),
+  customText2: text("custom_text_2").default("Warranty as per manufacturer terms"),
+  customText3: text("custom_text_3").default("Payment due within 30 days"),
+  signaturePath: text("signature_path").default(""),
+  updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`),
 });
 
 export const invoices = pgTable("invoices", {
@@ -47,9 +61,15 @@ export const insertInvoiceSchema = createInsertSchema(invoices).omit({
   createdAt: true,
 });
 
+export const insertSettingsSchema = createInsertSchema(settings).partial().omit({
+  id: true,
+});
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type Product = typeof products.$inferSelect;
 export type Invoice = typeof invoices.$inferSelect;
+export type Settings = typeof settings.$inferSelect;
 export type InsertProduct = z.infer<typeof insertProductSchema>;
 export type InsertInvoice = z.infer<typeof insertInvoiceSchema>;
+export type InsertSettings = z.infer<typeof insertSettingsSchema>;

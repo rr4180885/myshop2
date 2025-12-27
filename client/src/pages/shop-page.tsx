@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useUser, useLogout } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
-import { LogOut, LayoutDashboard, ShoppingCart, Boxes, Plus, Settings, Menu, X, ChevronRight } from "lucide-react";
+import { LogOut, LayoutDashboard, ShoppingCart, Boxes, Plus, Settings, Menu, X, ChevronRight, Sun, Moon } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import DashboardTab from "@/components/shop/DashboardTab";
 import BillingTab from "@/components/shop/BillingTab";
@@ -11,9 +11,23 @@ import SettingsTab from "@/components/shop/SettingsTab";
 
 export default function ShopPage() {
   const [activeTab, setActiveTab] = useState("dashboard");
-  const [sidebarOpen, setSidebarOpen] = useState(false); // Default closed on mobile
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(true);
   const { data: user } = useUser();
   const { mutate: logout } = useLogout();
+
+  useEffect(() => {
+    const saved = localStorage.getItem('theme');
+    if (saved) {
+      setIsDarkMode(saved === 'dark');
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const newMode = !isDarkMode;
+    setIsDarkMode(newMode);
+    localStorage.setItem('theme', newMode ? 'dark' : 'light');
+  };
 
   const tabs = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, component: DashboardTab, description: "Overview & analytics" },
@@ -58,8 +72,8 @@ export default function ShopPage() {
                 <ShoppingCart className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="font-display font-bold text-white text-lg">AutoParts</h1>
-                <p className="text-xs text-slate-400">Management Pro</p>
+                <h1 className="font-display font-bold text-white text-lg">Brother Enterprises</h1>
+                <p className="text-xs text-slate-400">Billing System</p>
               </div>
             </div>
             {/* Close button for mobile */}
@@ -150,6 +164,17 @@ export default function ShopPage() {
                 {activeTabObj?.description}
               </p>
             </div>
+
+            {/* Theme Toggle */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={toggleTheme}
+              className="hidden sm:flex border-slate-600 bg-slate-800/50 hover:bg-slate-700 text-slate-300 hover:text-white transition-all"
+              title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+            >
+              {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </Button>
 
             {/* User avatar on mobile (small screens) */}
             <div className="lg:hidden">
