@@ -8,10 +8,13 @@ import { nanoid } from "nanoid";
 
 const viteLogger = createLogger();
 
-export async function setupVite(server: Server, app: Express) {
+export async function setupVite(_server: Server, app: Express) {
+  // Only run in development
+  if (process.env.NODE_ENV === "production") return;
+
   const serverOptions = {
     middlewareMode: true,
-    hmr: { server, path: "/vite-hmr" },
+    hmr: { server: _server, path: "/vite-hmr" },
     allowedHosts: true as const,
   };
 
@@ -42,7 +45,7 @@ export async function setupVite(server: Server, app: Express) {
         "index.html",
       );
 
-      // always reload the index.html file from disk incase it changes
+      // reload index.html from disk
       let template = await fs.promises.readFile(clientTemplate, "utf-8");
       template = template.replace(
         `src="/src/main.tsx"`,

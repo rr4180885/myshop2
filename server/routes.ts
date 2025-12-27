@@ -1,15 +1,12 @@
 import type { Express } from "express";
-import type { Server } from "http";
 import { storage } from "./storage";
 import { setupAuth } from "./auth";
 import { api } from "@shared/routes";
 import { z } from "zod";
 import { insertProductSchema, insertInvoiceSchema } from "@shared/schema";
 
-export async function registerRoutes(
-  httpServer: Server,
-  app: Express
-): Promise<Server> {
+export async function registerRoutes(app: Express): Promise<void> {
+  // Auth middleware
   setupAuth(app);
 
   // Products
@@ -78,6 +75,4 @@ export async function registerRoutes(
       throw err;
     }
   });
-
-  return httpServer;
 }

@@ -35,9 +35,7 @@ export class DBStorage implements IStorage {
 
   constructor(db: ReturnType<typeof drizzle>) {
     this.db = db;
-    this.sessionStore = new MemoryStore({
-      checkPeriod: 86400000,
-    });
+    this.sessionStore = new MemoryStore({ checkPeriod: 86400000 });
   }
 
   async seedProducts() {
@@ -117,20 +115,15 @@ export class DBStorage implements IStorage {
 
 // Fallback to in-memory storage
 export class MemStorage implements IStorage {
-  private users: Map<string, User>;
-  private products: Map<number, Product>;
-  private invoices: Map<number, Invoice>;
-  private productIdCounter: number = 1;
-  private invoiceIdCounter: number = 1;
+  private users = new Map<string, User>();
+  private products = new Map<number, Product>();
+  private invoices = new Map<number, Invoice>();
+  private productIdCounter = 1;
+  private invoiceIdCounter = 1;
   sessionStore: session.Store;
 
   constructor() {
-    this.users = new Map();
-    this.products = new Map();
-    this.invoices = new Map();
-    this.sessionStore = new MemoryStore({
-      checkPeriod: 86400000,
-    });
+    this.sessionStore = new MemoryStore({ checkPeriod: 86400000 });
     this.seedProducts();
   }
 
@@ -144,29 +137,16 @@ export class MemStorage implements IStorage {
     ];
 
     defaultProducts.forEach(p => {
-      const product: Product = {
-        id: this.productIdCounter++,
-        name: p.name,
-        brand: p.brand,
-        code: p.code,
-        hsnCode: p.hsnCode,
-        stock: p.stock,
-        purchasePrice: p.purchasePrice,
-        sellingPrice: p.sellingPrice,
-        gstRate: p.gstRate,
-      };
+      const product: Product = { ...p, id: this.productIdCounter++ };
       this.products.set(product.id, product);
     });
   }
 
-  async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
-  }
-
+  // Users
+  async getUser(id: string): Promise<User | undefined> { return this.users.get(id); }
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find((user) => user.username === username);
+    return Array.from(this.users.values()).find(user => user.username === username);
   }
-
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = randomUUID();
     const user: User = { ...insertUser, id };
@@ -174,21 +154,15 @@ export class MemStorage implements IStorage {
     return user;
   }
 
-  async getProducts(): Promise<Product[]> {
-    return Array.from(this.products.values());
-  }
-
-  async getProduct(id: number): Promise<Product | undefined> {
-    return this.products.get(id);
-  }
-
+  // Products
+  async getProducts(): Promise<Product[]> { return Array.from(this.products.values()); }
+  async getProduct(id: number): Promise<Product | undefined> { return this.products.get(id); }
   async createProduct(product: InsertProduct): Promise<Product> {
     const id = this.productIdCounter++;
     const newProduct: Product = { ...product, id } as Product;
     this.products.set(id, newProduct);
     return newProduct;
   }
-
   async updateProduct(id: number, updates: Partial<InsertProduct>): Promise<Product> {
     const product = this.products.get(id);
     if (!product) throw new Error("Product not found");
@@ -196,15 +170,10 @@ export class MemStorage implements IStorage {
     this.products.set(id, updated);
     return updated;
   }
+  async deleteProduct(id: number): Promise<void> { this.products.delete(id); }
 
-  async deleteProduct(id: number): Promise<void> {
-    this.products.delete(id);
-  }
-
-  async getInvoices(): Promise<Invoice[]> {
-    return Array.from(this.invoices.values());
-  }
-
+  // Invoices
+  async getInvoices(): Promise<Invoice[]> { return Array.from(this.invoices.values()); }
   async createInvoice(invoice: InsertInvoice): Promise<Invoice> {
     const id = this.invoiceIdCounter++;
     const newInvoice: Invoice = { ...invoice, id } as Invoice;
@@ -213,15 +182,17 @@ export class MemStorage implements IStorage {
   }
 }
 
+// Global storage instance
 export let storage: IStorage;
 
 export async function initializeStorage() {
   const dbUrl = process.env.DATABASE_URL;
-  
-  if (dbUrl && dbUrl.includes("supabase") || dbUrl?.includes("postgres")) {
+
+  // Use PostgreSQL if available
+  if (dbUrl && (dbUrl.includes("supabase") || dbUrl.includes("postgres"))) {
     try {
       console.log("Initializing PostgreSQL database connection...");
-      const client = postgres(dbUrl);
+      const client = postgres(dbUrl, { ssl: { rejectUnauthorized: false } });
       const db = drizzle(client);
       storage = new DBStorage(db);
       await (storage as DBStorage).seedProducts();
@@ -231,7 +202,7 @@ export async function initializeStorage() {
       console.error("✗ Failed to connect to PostgreSQL, falling back to in-memory storage:", error);
     }
   }
-  
+
   console.log("Using in-memory storage");
   storage = new MemStorage();
 }
