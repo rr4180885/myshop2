@@ -11,7 +11,7 @@ declare module "http" {
   }
 }
 
-// Parse JSON and capture raw body
+// Body parsers
 app.use(
   express.json({
     verify: (req, _res, buf) => {
@@ -19,10 +19,9 @@ app.use(
     },
   }),
 );
-
 app.use(express.urlencoded({ extended: false }));
 
-// Logger function
+// Logging middleware
 export function log(message: string, source = "express") {
   const formattedTime = new Date().toLocaleTimeString("en-US", {
     hour: "numeric",
@@ -30,15 +29,13 @@ export function log(message: string, source = "express") {
     second: "2-digit",
     hour12: true,
   });
-
   console.log(`${formattedTime} [${source}] ${message}`);
 }
 
-// Request logging middleware
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
-  let capturedJsonResponse: Record<string, any> | undefined;
+  let capturedJsonResponse: Record<string, any> | undefined = undefined;
 
   const originalResJson = res.json;
   res.json = function (bodyJson, ...args) {
@@ -58,26 +55,24 @@ app.use((req, res, next) => {
   next();
 });
 
-// Error handling
-app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-  const status = err.status || err.statusCode || 500;
-  const message = err.message || "Internal Server Error";
-  res.status(status).json({ message });
-  throw err;
-});
-
-// Initialize storage and routes (async wrapper)
-async function setupApp() {
+// Async setup
+(async () => {
   await initializeStorage();
-  await registerRoutes(app);
+  await registerRoutes(app, app);
 
-  // Only serve static in production
+  // Error handling
+  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+    const status = err.status || err.statusCode || 500;
+    const message = err.message || "Internal Server Error";
+    res.status(status).json({ message });
+  });
+
   if (process.env.NODE_ENV === "production") {
     serveStatic(app);
+  } else {
+    const { setupVite } = await import("./vite");
+    await setupVite(app, app);
   }
-}
-setupApp();
+})();
 
-// **Vercel Export**
-// Vercel will automatically wrap this as a serverless function
 export default app;
