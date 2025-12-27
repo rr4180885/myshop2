@@ -1,0 +1,152 @@
+
+Create a complete, single-page web application for a car accessories shop with inventory and billing management. The application should be built as a single HTML file that works completely offline.
+Technical Requirements:
+
+Single HTML file with embedded CSS and JavaScript
+No external dependencies or libraries required
+Must work offline (no internet connection needed)
+Data should persist in browser's localStorage
+Responsive design that works on desktop and tablets
+
+Core Features:
+
+Dashboard Page:
+
+Show total number of products
+Display total stock value (stock × purchase price)
+Show count of low stock items (items with stock < 10)
+Display a "Low Stock Alert" section listing all products with less than 10 units
+
+
+Billing/Sales Page:
+
+Customer name and phone number fields (optional)
+Product search box (search by name, brand, or product code)
+Display filtered products with: name, brand, code, stock quantity, selling price, GST rate
+Click on product to add to cart
+Shopping cart with:
+
+Increase/decrease quantity buttons
+Remove item button
+Show: Subtotal, GST amount, Grand Total
+
+
+"Generate Invoice & Print" button that:
+
+Automatically reduces stock quantities
+Opens print dialog with professional invoice (Template C style)
+Clears cart after printing
+
+
+
+
+Invoice Template (Template C - Professional):
+
+Shop header with: name, address, city, phone, email, GST number
+"TAX INVOICE" title centered
+Bill To section (customer details)
+Invoice number (format: INV-2024-0001) and date
+Table with columns: S.No, Product Description (with code), HSN, Qty, Rate, GST %, Amount
+Subtotal, GST Amount, Grand Total
+Terms & Conditions at bottom
+Space for "Authorized Signature"
+
+
+Inventory Management Page:
+
+Display all products in a table
+Columns: Code, Product Name, Brand/Model, Stock, Purchase Price, Selling Price, GST %, Actions
+Inline editing: Click edit icon to edit any product
+Delete button for each product
+Stock quantities shown with color coding (red if < 10, green otherwise)
+"Add Product" button to go to add product page
+
+
+Add Product Page:
+
+Form fields:
+
+Product Name (required)
+Car Brand/Model (required)
+Product Code/SKU (required)
+HSN Code (default: 8708)
+Stock Quantity (number)
+Purchase Price (number)
+Selling Price (number)
+GST Rate % (default: 28)
+
+
+"Add Product" button
+"Back to Inventory" button
+
+
+Settings Page:
+
+Editable shop configuration:
+
+Shop Name
+Address
+City/State/Pincode
+Phone Number
+Email
+GST Number
+Invoice Prefix (e.g., INV-2024-)
+Terms & Conditions
+
+
+"Save Settings" button
+
+
+
+Navigation:
+
+Sidebar or top navigation with icons and labels for:
+
+Dashboard
+New Sale (Billing)
+Inventory
+Add Product
+Settings
+
+
+
+Default Demo Data:
+Include 5 sample products:
+
+Brake Pad Set - Maruti Swift - BP-MS-001 - Stock: 25 - Purchase: ₹450 - Selling: ₹650 - GST: 28%
+Air Filter - Hyundai i20 - AF-HI-002 - Stock: 15 - Purchase: ₹250 - Selling: ₹400 - GST: 28%
+Oil Filter - Tata Nexon - OF-TN-003 - Stock: 30 - Purchase: ₹180 - Selling: ₹300 - GST: 28%
+Headlight Bulb - Maruti Alto - HB-MA-004 - Stock: 50 - Purchase: ₹80 - Selling: ₹150 - GST: 18%
+Wiper Blade - Honda City - WB-HC-005 - Stock: 20 - Purchase: ₹200 - Selling: ₹350 - GST: 28%
+
+Default shop details:
+
+Name: AutoParts Pro
+Address: 123 Main Road, Sector 15, Narnaund
+City: Narnaund, Haryana - 125039
+Phone: +91 98765 43210
+Email: info@autopartspro.com
+GST: 06XXXXX1234X1Z5
+Terms: "Goods once sold cannot be returned. 7 days warranty on all parts."
+
+Important Calculations:
+
+GST is included in the selling price (reverse calculation)
+Subtotal = Total - GST Amount
+GST Amount = (Item Total × GST Rate) / (100 + GST Rate)
+Invoice numbering should auto-increment
+
+Design Guidelines:
+
+Clean, modern interface with card-based layout
+Use color coding: Blue for info, Green for success, Red for warnings/low stock, Orange for alerts
+Professional invoice layout suitable for printing
+Large, easy-to-click buttons
+Clear typography and spacing
+
+Data Persistence:
+
+Save all products to localStorage
+Save shop configuration to localStorage
+Save invoice counter to localStorage
+Load data on page refresh
