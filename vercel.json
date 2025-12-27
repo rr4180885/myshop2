@@ -6,6 +6,5 @@
   "outputDirectory": "dist",
   "env": {
     "DATABASE_URL": "@database_url"
-  },
-  "envPrefix": "VITE_"
+  }
 }
