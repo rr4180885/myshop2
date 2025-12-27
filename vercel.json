@@ -1,22 +1,15 @@
 {
-  "version": 2,
   "buildCommand": "npm run build",
-  "builds": [
+  "outputDirectory": "dist/public",
+  "framework": null,
+  "rewrites": [
     {
-      "src": "dist/index.cjs",
-      "use": "@vercel/node",
-      "config": { "maxLambdaSize": "50mb" }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/dist/index.cjs"
+      "source": "/api/:path*",
+      "destination": "/api"
     },
     {
-      "src": "/(.*)",
-      "dest": "/dist/index.cjs"
+      "source": "/:path*",
+      "destination": "/api"
     }
-  ],
-  "outputDirectory": "dist/public"
+  ]
 }
