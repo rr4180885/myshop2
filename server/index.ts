@@ -56,9 +56,12 @@ app.use((req, res, next) => {
 });
 
 // Async setup
-(async () => {
+let initialized = false;
+async function initialize() {
+  if (initialized) return;
+  
   await initializeStorage();
-  await registerRoutes(app); // only pass `app`
+  await registerRoutes(app);
 
   // Error handling
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
@@ -71,8 +74,30 @@ app.use((req, res, next) => {
     serveStatic(app);
   } else {
     const { setupVite } = await import("./vite");
-    await setupVite(app); // only pass `app`
+    await setupVite(app);
   }
-})();
+  
+  initialized = true;
+}
 
-export default app;
+// Initialize on startup for production
+const initPromise = initialize();
+
+// For local development
+if (process.env.NODE_ENV !== "production") {
+  const PORT = 5000;
+  initPromise.then(() => {
+    app.listen(PORT, "0.0.0.0", () => {
+      log(`Server running on port ${PORT}`);
+    });
+  });
+}
+
+// For Vercel serverless
+export default async function handler(req: any, res: any) {
+  await initPromise;
+  return app(req, res);
+}
+
+// Also export the app for other environments
+export { app };
