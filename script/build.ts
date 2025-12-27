@@ -38,8 +38,14 @@ async function buildAll() {
 
   console.log("building client...");
   await viteBuild({
-    configFile: false,
     root: path.resolve("client"),
+    resolve: {
+      alias: {
+        "@": path.resolve("client/src"),
+        "@shared": path.resolve("shared"),
+        "@assets": path.resolve("attached_assets"),
+      },
+    },
     build: {
       outDir: path.resolve("dist/public"),
       emptyOutDir: true,
