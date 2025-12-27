@@ -1,15 +1,32 @@
 {
+  "version": 2,
   "buildCommand": "npm run build",
-  "outputDirectory": "dist/public",
-  "framework": null,
-  "rewrites": [
+  "installCommand": "npm install",
+  "functions": {
+    "api/*.js": {
+      "maxDuration": 30,
+      "memory": 1024
+    }
+  },
+  "routes": [
     {
-      "source": "/api/:path*",
-      "destination": "/api"
+      "src": "/assets/(.*)",
+      "dest": "/dist/public/assets/$1",
+      "headers": {
+        "cache-control": "public, max-age=31536000, immutable"
+      }
     },
     {
-      "source": "/:path*",
-      "destination": "/api"
+      "src": "/favicon.png",
+      "dest": "/dist/public/favicon.png"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/api/index.js"
     }
-  ]
+  ],
+  "outputDirectory": "dist/public"
 }
