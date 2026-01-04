@@ -5,9 +5,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Settings, Save, Upload, Image as ImageIcon } from "lucide-react";
+import { Settings, Save, Upload, Image as ImageIcon, Loader2, Lock, Unlock } from "lucide-react";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { api } from "@shared/routes";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface SettingsForm {
   shopName: string;
@@ -23,6 +33,9 @@ interface SettingsForm {
 
 export default function SettingsTab() {
   const { toast } = useToast();
+  const [isUnlocked, setIsUnlocked] = useState(false);
+  const [showPasswordDialog, setShowPasswordDialog] = useState(false);
+  const [passwordInput, setPasswordInput] = useState("");
   const [settings, setSettings] = useState<SettingsForm>({
     shopName: "Brothers Enterprises",
     shopAddress: "",
@@ -38,7 +51,7 @@ export default function SettingsTab() {
   const signatureInputRef = useRef<HTMLInputElement>(null);
 
   // Fetch settings from database
-  const { data: dbSettings } = useQuery({
+  const { data: dbSettings, isLoading } = useQuery({
     queryKey: [api.settings.get.path],
     queryFn: async () => apiRequest("GET", api.settings.get.path),
   });
@@ -73,11 +86,55 @@ export default function SettingsTab() {
     },
   });
 
+  const handleUnlockAttempt = () => {
+    const correctPassword = "admin12345";
+    if (passwordInput === correctPassword) {
+      setIsUnlocked(true);
+      setShowPasswordDialog(false);
+      setPasswordInput("");
+      toast({
+        title: "Unlocked!",
+        description: "Settings are now unlocked for editing",
+      });
+    } else {
+      toast({
+        title: "Incorrect Password",
+        description: "Please enter the correct password to edit settings",
+        variant: "destructive",
+      });
+      setPasswordInput("");
+    }
+  };
+
+  const handleLock = () => {
+    setIsUnlocked(false);
+    toast({
+      title: "Locked",
+      description: "Settings have been locked",
+    });
+  };
+
   const handleSave = () => {
+    if (!isUnlocked) {
+      toast({
+        title: "Settings Locked",
+        description: "Please unlock settings before saving",
+        variant: "destructive",
+      });
+      return;
+    }
     saveMutation.mutate(settings);
   };
 
   const handleReset = () => {
+    if (!isUnlocked) {
+      toast({
+        title: "Settings Locked",
+        description: "Please unlock settings before resetting",
+        variant: "destructive",
+      });
+      return;
+    }
     const defaultSettings: SettingsForm = {
       shopName: "Brothers Enterprises",
       shopAddress: "",
@@ -92,6 +149,17 @@ export default function SettingsTab() {
     setSettings(defaultSettings);
     saveMutation.mutate(defaultSettings);
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-center space-y-4">
+          <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto" />
+          <p className="text-muted-foreground">Loading settings...</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -125,12 +193,79 @@ export default function SettingsTab() {
 
   return (
     <div className="max-w-3xl space-y-6">
+      {/* Password Dialog */}
+      <AlertDialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Enter Password</AlertDialogTitle>
+            <AlertDialogDescription>
+              Please enter the administrator password to unlock settings for editing.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="py-4">
+            <Input
+              type="password"
+              placeholder="Enter password"
+              value={passwordInput}
+              onChange={(e) => setPasswordInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleUnlockAttempt();
+                }
+              }}
+              autoFocus
+            />
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setPasswordInput("")}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleUnlockAttempt}>Unlock</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <Card className="border-slate-200/50 dark:border-slate-700/50">
         <CardHeader className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 border-b border-slate-200/50 dark:border-slate-700/50">
-          <CardTitle className="flex items-center gap-2">
-            <Settings className="w-5 h-5" />
-            Shop Configuration
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <Settings className="w-5 h-5" />
+              Shop Configuration
+            </CardTitle>
+            <div className="flex items-center gap-2">
+              {isUnlocked ? (
+                <>
+                  <span className="text-sm text-green-600 dark:text-green-400 flex items-center gap-1">
+                    <Unlock className="w-4 h-4" />
+                    Unlocked
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleLock}
+                    className="border-slate-300 dark:border-slate-600"
+                  >
+                    <Lock className="w-4 h-4 mr-1" />
+                    Lock
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <span className="text-sm text-orange-600 dark:text-orange-400 flex items-center gap-1">
+                    <Lock className="w-4 h-4" />
+                    Locked
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowPasswordDialog(true)}
+                    className="border-slate-300 dark:border-slate-600"
+                  >
+                    <Unlock className="w-4 h-4 mr-1" />
+                    Unlock
+                  </Button>
+                </>
+              )}
+            </div>
+          </div>
         </CardHeader>
         <CardContent className="pt-8">
           <div className="space-y-6">
@@ -145,6 +280,7 @@ export default function SettingsTab() {
                   onChange={(e) => setSettings({ ...settings, shopName: e.target.value })}
                   className="mt-2"
                   data-testid="input-shop-name"
+                  disabled={!isUnlocked}
                 />
               </div>
 
@@ -155,6 +291,7 @@ export default function SettingsTab() {
                   onChange={(e) => setSettings({ ...settings, shopAddress: e.target.value })}
                   className="mt-2"
                   data-testid="input-address"
+                  disabled={!isUnlocked}
                 />
               </div>
 
@@ -165,6 +302,7 @@ export default function SettingsTab() {
                   onChange={(e) => setSettings({ ...settings, shopPhone: e.target.value })}
                   className="mt-2"
                   data-testid="input-phone"
+                  disabled={!isUnlocked}
                 />
               </div>
 
@@ -175,6 +313,7 @@ export default function SettingsTab() {
                   onChange={(e) => setSettings({ ...settings, shopGSTIN: e.target.value })}
                   className="mt-2"
                   data-testid="input-gst-number"
+                  disabled={!isUnlocked}
                 />
               </div>
             </div>
@@ -192,6 +331,7 @@ export default function SettingsTab() {
                   onChange={(e) => setSettings({ ...settings, customText1: e.target.value })}
                   className="mt-2"
                   placeholder="e.g., All goods once sold will not be taken back"
+                  disabled={!isUnlocked}
                 />
               </div>
               
@@ -202,6 +342,7 @@ export default function SettingsTab() {
                   onChange={(e) => setSettings({ ...settings, customText2: e.target.value })}
                   className="mt-2"
                   placeholder="e.g., Warranty as per manufacturer terms"
+                  disabled={!isUnlocked}
                 />
               </div>
               
@@ -212,6 +353,7 @@ export default function SettingsTab() {
                   onChange={(e) => setSettings({ ...settings, customText3: e.target.value })}
                   className="mt-2"
                   placeholder="e.g., Payment due within 30 days"
+                  disabled={!isUnlocked}
                 />
               </div>
             </div>
@@ -238,6 +380,7 @@ export default function SettingsTab() {
                     variant="outline"
                     onClick={() => logoInputRef.current?.click()}
                     className="flex items-center gap-2"
+                    disabled={!isUnlocked}
                   >
                     <Upload className="w-4 h-4" />
                     Upload Logo
@@ -276,6 +419,7 @@ export default function SettingsTab() {
                     variant="outline"
                     onClick={() => signatureInputRef.current?.click()}
                     className="flex items-center gap-2"
+                    disabled={!isUnlocked}
                   >
                     <Upload className="w-4 h-4" />
                     Upload Signature
@@ -303,14 +447,25 @@ export default function SettingsTab() {
             <div className="flex gap-3 pt-6 border-t border-slate-200/50 dark:border-slate-700/50">
               <Button 
                 onClick={handleSave}
+                disabled={saveMutation.isPending || !isUnlocked}
                 className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white"
                 data-testid="button-save-settings"
               >
-                <Save className="w-4 h-4 mr-2" />
-                Save Settings
+                {saveMutation.isPending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4 mr-2" />
+                    Save Settings
+                  </>
+                )}
               </Button>
               <Button 
                 onClick={handleReset}
+                disabled={saveMutation.isPending || !isUnlocked}
                 variant="outline"
                 className="border-slate-300 dark:border-slate-600"
               >

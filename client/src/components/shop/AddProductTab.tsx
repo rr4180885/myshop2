@@ -10,7 +10,7 @@ import { insertProductSchema } from "@shared/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
-import { Plus } from "lucide-react";
+import { Plus, Loader2 } from "lucide-react";
 
 const formSchema = insertProductSchema;
 
@@ -243,8 +243,17 @@ export default function AddProductTab() {
                   className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white"
                   data-testid="button-add-product"
                 >
-                  <Plus className="w-4 h-4 mr-2" />
-                  {mutation.isPending ? "Adding..." : "Add Product"}
+                  {mutation.isPending ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Adding...
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Product
+                    </>
+                  )}
                 </Button>
               </div>
             </form>

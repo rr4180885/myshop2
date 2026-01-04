@@ -14,11 +14,13 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Lock, ShieldCheck, Zap, TrendingUp } from "lucide-react";
+import { Loader2, Lock, ShieldCheck, Zap, TrendingUp, Moon, Sun } from "lucide-react";
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function AuthPage() {
   const { data: user, isLoading: isUserLoading } = useUser();
   const { mutate: login, isPending } = useLogin();
+  const { theme, toggleTheme } = useTheme();
 
   const form = useForm<LoginInput>({
     resolver: zodResolver(api.auth.login.input),
@@ -46,6 +48,21 @@ export default function AuthPage() {
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2 bg-gradient-to-br from-background via-background to-primary/5">
+      {/* Theme Toggle Button - Positioned absolutely */}
+      <Button
+        onClick={toggleTheme}
+        variant="outline"
+        size="icon"
+        className="fixed top-4 right-4 z-50 rounded-full w-11 h-11 shadow-lg hover:shadow-xl transition-all duration-300 bg-card/80 backdrop-blur-sm border-border/50 hover:border-primary/50"
+        aria-label="Toggle theme"
+      >
+        {theme === 'dark' ? (
+          <Sun className="h-5 w-5 text-primary transition-transform duration-500 rotate-0" />
+        ) : (
+          <Moon className="h-5 w-5 text-primary transition-transform duration-500 rotate-0" />
+        )}
+      </Button>
+      
       {/* Left Side - Form */}
       <div className="flex items-center justify-center p-4 sm:p-6 md:p-8 lg:p-12 relative z-10">
         <Card className="w-full max-w-md border border-border/50 shadow-2xl shadow-primary/5 bg-card/95 backdrop-blur-sm">

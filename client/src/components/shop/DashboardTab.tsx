@@ -1,16 +1,82 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { api } from "@shared/routes";
-import { TrendingUp, Package, AlertCircle, DollarSign } from "lucide-react";
+import { TrendingUp, Package, AlertCircle, DollarSign, Search, Sparkles, Tag, Loader2 } from "lucide-react";
 
 export default function DashboardTab() {
-  const { data: products = [] } = useQuery({
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+
+  const { data: products = [], isLoading } = useQuery({
     queryKey: [api.products.list.path],
     queryFn: async () => {
       const res = await fetch(api.products.list.path);
       return res.json();
     },
   });
+
+  // AI-powered smart search function
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    
+    if (!query.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
+    const searchTerms = query.toLowerCase().trim();
+    
+    // Smart search across multiple attributes
+    const results = products.filter((product: any) => {
+      const matchName = product.name?.toLowerCase().includes(searchTerms);
+      const matchBrand = product.brand?.toLowerCase().includes(searchTerms);
+      const matchCode = product.code?.toLowerCase().includes(searchTerms);
+      const matchHSN = product.hsnCode?.toLowerCase().includes(searchTerms);
+      
+      // Natural language understanding for price queries
+      const priceMatch = searchTerms.match(/(?:under|below|less than|<)\s*(\d+)/i);
+      if (priceMatch) {
+        const maxPrice = parseFloat(priceMatch[1]);
+        return parseFloat(product.sellingPrice) < maxPrice;
+      }
+      
+      const priceAboveMatch = searchTerms.match(/(?:above|over|more than|greater than|>)\s*(\d+)/i);
+      if (priceAboveMatch) {
+        const minPrice = parseFloat(priceAboveMatch[1]);
+        return parseFloat(product.sellingPrice) > minPrice;
+      }
+      
+      // Check for low stock queries
+      if (searchTerms.includes('low stock') || searchTerms.includes('running low')) {
+        return product.stock < 10;
+      }
+      
+      if (searchTerms.includes('out of stock') || searchTerms.includes('no stock')) {
+        return product.stock === 0;
+      }
+      
+      if (searchTerms.includes('available') || searchTerms.includes('in stock')) {
+        return product.stock > 0;
+      }
+      
+      return matchName || matchBrand || matchCode || matchHSN;
+    });
+    
+    setSearchResults(results.slice(0, 5)); // Limit to top 5 results
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-center space-y-4">
+          <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto" />
+          <p className="text-muted-foreground">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   const totalProducts = products.length;
   const totalStockValue = products.reduce(
@@ -58,6 +124,73 @@ export default function DashboardTab() {
 
   return (
     <div className="space-y-8">
+      {/* AI-Powered Product Price Search */}
+      <Card className="border-blue-200/50 dark:border-blue-900/50 bg-gradient-to-br from-blue-50/50 to-blue-50/30 dark:from-blue-950/30 dark:to-blue-950/10 overflow-hidden">
+        <CardHeader className="pb-4">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+            <CardTitle className="text-blue-900 dark:text-blue-400">Instant Product Price Search</CardTitle>
+          </div>
+          <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">
+            Search by name, SKU, brand, category, or use natural language queries like "products under 500" or "low stock items"
+          </p>
+        </CardHeader>
+        <CardContent>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+            <Input
+              placeholder="Try: 'brake pad', 'products under 500', 'low stock', 'maruti', etc."
+              value={searchQuery}
+              onChange={(e) => handleSearch(e.target.value)}
+              className="pl-10 h-12 text-base bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600"
+              data-testid="input-ai-search"
+            />
+          </div>
+          
+          {/* Search Results */}
+          {searchResults.length > 0 && (
+            <div className="mt-4 space-y-2">
+              <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                Found {searchResults.length} result{searchResults.length !== 1 ? 's' : ''}:
+              </p>
+              {searchResults.map((product) => (
+                <div
+                  key={product.id}
+                  className="flex items-center justify-between p-4 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-blue-400 dark:hover:border-blue-600 transition-colors"
+                  data-testid={`search-result-${product.id}`}
+                >
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <Tag className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                      <p className="font-semibold text-slate-900 dark:text-white">{product.name}</p>
+                    </div>
+                    <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                      {product.brand} • Code: {product.code} • HSN: {product.hsnCode || '8708'}
+                    </p>
+                  </div>
+                  <div className="text-right ml-4">
+                    <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                      ₹{product.sellingPrice}
+                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                      Stock: <span className={product.stock < 10 ? "text-orange-600 font-semibold" : "text-green-600 font-semibold"}>{product.stock}</span> units
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          
+          {searchQuery && searchResults.length === 0 && (
+            <div className="mt-4 p-4 bg-slate-100 dark:bg-slate-800 rounded-lg text-center">
+              <p className="text-slate-600 dark:text-slate-400">
+                No products found matching "{searchQuery}"
+              </p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, idx) => {

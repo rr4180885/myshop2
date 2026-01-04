@@ -11,15 +11,16 @@ declare module "http" {
   }
 }
 
-// Body parsers
+// Body parsers with increased limit for image uploads
 app.use(
   express.json({
+    limit: '50mb',
     verify: (req, _res, buf) => {
       req.rawBody = buf;
     },
   })
 );
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: false, limit: '50mb' }));
 
 // Logging middleware
 export function log(message: string, source = "express") {

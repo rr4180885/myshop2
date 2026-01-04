@@ -2,7 +2,7 @@ import { type User, type InsertUser, type Product, type InsertProduct, type Invo
 import { randomUUID } from "crypto";
 import session from "express-session";
 import createMemoryStore from "memorystore";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 
@@ -42,24 +42,46 @@ export class DBStorage implements IStorage {
     this.sessionStore = new MemoryStore({ checkPeriod: 86400000 });
   }
 
+  /**
+   * Seed initial products - ONLY runs in development or if explicitly enabled
+   * In production, this should never run automatically to prevent data loss
+   */
   async seedProducts() {
-    const existingProducts = await this.getProducts();
-    if (existingProducts.length > 0) return;
+    // PRODUCTION SAFETY: Never auto-seed in production
+    if (process.env.NODE_ENV === 'production' && process.env.ALLOW_SEED !== 'true') {
+      console.log("⚠️  Skipping seed in production (set ALLOW_SEED=true to override)");
+      return;
+    }
 
-    const defaultProducts = [
-      { name: "Brake Pad Set", brand: "Maruti Swift", code: "BP-MS-001", hsnCode: "8708", stock: 25, purchasePrice: "450", sellingPrice: "650", gstRate: 28 },
-      { name: "Air Filter", brand: "Hyundai i20", code: "AF-HI-002", hsnCode: "8708", stock: 15, purchasePrice: "250", sellingPrice: "400", gstRate: 28 },
-      { name: "Oil Filter", brand: "Tata Nexon", code: "OF-TN-003", hsnCode: "8708", stock: 30, purchasePrice: "180", sellingPrice: "300", gstRate: 28 },
-      { name: "Headlight Bulb", brand: "Maruti Alto", code: "HB-MA-004", hsnCode: "8708", stock: 50, purchasePrice: "80", sellingPrice: "150", gstRate: 18 },
-      { name: "Wiper Blade", brand: "Honda City", code: "WB-HC-005", hsnCode: "8708", stock: 20, purchasePrice: "200", sellingPrice: "350", gstRate: 28 },
-    ];
-
-    for (const p of defaultProducts) {
-      try {
-        await this.db.insert(products).values(p);
-      } catch (e) {
-        // Product already exists, skip
+    try {
+      const existingProducts = await this.getProducts();
+      // Only seed if database is completely empty
+      if (existingProducts.length > 0) {
+        console.log(`✓ Found ${existingProducts.length} existing products, skipping seed`);
+        return;
       }
+
+      console.log("🌱 Seeding default products (development mode)...");
+      const defaultProducts = [
+        { name: "Brake Pad Set", brand: "Maruti Swift", code: "BP-MS-001", hsnCode: "8708", stock: 25, purchasePrice: "450", sellingPrice: "650", gstRate: 28 },
+        { name: "Air Filter", brand: "Hyundai i20", code: "AF-HI-002", hsnCode: "8708", stock: 15, purchasePrice: "250", sellingPrice: "400", gstRate: 28 },
+        { name: "Oil Filter", brand: "Tata Nexon", code: "OF-TN-003", hsnCode: "8708", stock: 30, purchasePrice: "180", sellingPrice: "300", gstRate: 28 },
+        { name: "Headlight Bulb", brand: "Maruti Alto", code: "HB-MA-004", hsnCode: "8708", stock: 50, purchasePrice: "80", sellingPrice: "150", gstRate: 18 },
+        { name: "Wiper Blade", brand: "Honda City", code: "WB-HC-005", hsnCode: "8708", stock: 20, purchasePrice: "200", sellingPrice: "350", gstRate: 28 },
+      ];
+
+      for (const p of defaultProducts) {
+        try {
+          await this.db.insert(products).values(p);
+        } catch (e) {
+          // Product with this code already exists, skip
+          console.log(`Product ${p.code} already exists, skipping`);
+        }
+      }
+      console.log("✓ Default products seeded successfully");
+    } catch (error) {
+      console.error("Error seeding products:", error);
+      throw error; // Fail fast in development
     }
   }
 
@@ -112,7 +134,11 @@ export class DBStorage implements IStorage {
   }
 
   async createInvoice(invoice: InsertInvoice): Promise<Invoice> {
-    const result = await this.db.insert(invoices).values(invoice).returning();
+    const invoiceWithDate: any = {
+      ...invoice,
+      createdAt: new Date().toISOString()
+    };
+    const result = await this.db.insert(invoices).values(invoiceWithDate).returning();
     return result[0];
   }
 
@@ -145,7 +171,14 @@ export class DBStorage implements IStorage {
   }
 }
 
-// Fallback to in-memory storage
+/**
+ * DEPRECATED: In-Memory Storage
+ * ⚠️  WARNING: This storage loses ALL data on server restart!
+ * Only use for local development/testing, NEVER in production.
+ * 
+ * This class is kept for development convenience but should be removed
+ * once proper database migrations are in place.
+ */
 export class MemStorage implements IStorage {
   private users = new Map<string, User>();
   private products = new Map<number, Product>();
@@ -156,6 +189,7 @@ export class MemStorage implements IStorage {
   sessionStore: session.Store;
 
   constructor() {
+    console.warn("⚠️  WARNING: Using in-memory storage - all data will be lost on restart!");
     this.sessionStore = new MemoryStore({ checkPeriod: 86400000 });
     this.settings = {
       id: 1,
@@ -222,7 +256,11 @@ export class MemStorage implements IStorage {
   async getInvoices(): Promise<Invoice[]> { return Array.from(this.invoices.values()); }
   async createInvoice(invoice: InsertInvoice): Promise<Invoice> {
     const id = this.invoiceIdCounter++;
-    const newInvoice: Invoice = { ...invoice, id } as Invoice;
+    const newInvoice: Invoice = { 
+      ...invoice, 
+      id,
+      createdAt: new Date().toISOString()
+    } as Invoice;
     this.invoices.set(id, newInvoice);
     return newInvoice;
   }
@@ -241,21 +279,77 @@ export let storage: IStorage;
 export async function initializeStorage() {
   const dbUrl = process.env.DATABASE_URL;
 
-  // Use PostgreSQL if available
-  if (dbUrl && (dbUrl.includes("supabase") || dbUrl.includes("postgres"))) {
-    try {
-      console.log("Initializing PostgreSQL database connection...");
-      const client = postgres(dbUrl, { ssl: { rejectUnauthorized: false } });
-      const db = drizzle(client);
-      storage = new DBStorage(db);
-      await (storage as DBStorage).seedProducts();
-      console.log("✓ PostgreSQL database initialized successfully");
-      return;
-    } catch (error) {
-      console.error("✗ Failed to connect to PostgreSQL, falling back to in-memory storage:", error);
+  // PRODUCTION REQUIREMENT: Database URL must be set
+  if (!dbUrl) {
+    const errorMsg = "❌ FATAL: DATABASE_URL environment variable is not set!";
+    console.error(errorMsg);
+    console.error("💡 Set DATABASE_URL to your Supabase connection string");
+    
+    // In production, FAIL FAST - do not fall back to memory storage
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error(errorMsg);
     }
+    
+    // In development, allow memory storage with explicit warning
+    console.warn("⚠️  Using in-memory storage (DEVELOPMENT ONLY)");
+    storage = new MemStorage();
+    return;
   }
 
-  console.log("Using in-memory storage");
-  storage = new MemStorage();
+  // Validate it's a PostgreSQL URL
+  if (!dbUrl.includes("postgres")) {
+    const errorMsg = `❌ FATAL: DATABASE_URL does not appear to be a PostgreSQL connection string: ${dbUrl.substring(0, 20)}...`;
+    console.error(errorMsg);
+    
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error(errorMsg);
+    }
+    
+    console.warn("⚠️  Falling back to in-memory storage (DEVELOPMENT ONLY)");
+    storage = new MemStorage();
+    return;
+  }
+
+  try {
+    console.log("🔌 Initializing PostgreSQL connection...");
+    console.log(`📍 Database: ${dbUrl.includes('supabase') ? 'Supabase' : 'PostgreSQL'}`);
+    
+    const client = postgres(dbUrl, { 
+      ssl: { rejectUnauthorized: false },
+      max: 10,
+      idle_timeout: 20,
+      connect_timeout: 10,
+    });
+    
+    const db = drizzle(client);
+    
+    // Test the connection with a simple query
+    await db.execute(sql`SELECT 1 as test`);
+    console.log("✓ Database connection verified");
+    
+    storage = new DBStorage(db);
+    
+    // Only seed in development or if explicitly allowed
+    if (process.env.NODE_ENV !== 'production' || process.env.ALLOW_SEED === 'true') {
+      await (storage as DBStorage).seedProducts();
+    }
+    
+    console.log("✅ PostgreSQL database initialized successfully");
+    
+  } catch (error) {
+    const errorMsg = "❌ FATAL: Failed to connect to PostgreSQL database";
+    console.error(errorMsg, error);
+    
+    // In production, NEVER fall back to memory storage
+    if (process.env.NODE_ENV === 'production') {
+      console.error("🚨 Production database connection failed - cannot continue");
+      console.error("💡 Verify DATABASE_URL is correct and database is accessible");
+      console.error("💡 Check if database tables exist (run: npm run db:init)");
+      throw new Error(`${errorMsg}: ${error}`);
+    }
+    
+    // In development, allow fallback with warning
+    console.warn("⚠️  Falling back to in-memory storage (DEVELOPMENT ONLY)");
+    storage = new MemStorage();
+  }
 }

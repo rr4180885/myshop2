@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { api } from "@shared/routes";
 import { useState } from "react";
-import { Trash2, Edit2, Check, X } from "lucide-react";
+import { Trash2, Edit2, Check, X, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function InventoryTab() {
@@ -13,7 +13,7 @@ export default function InventoryTab() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editValues, setEditValues] = useState<Record<string, any>>({});
 
-  const { data: products = [] } = useQuery({
+  const { data: products = [], isLoading } = useQuery({
     queryKey: [api.products.list.path],
     queryFn: async () => {
       const res = await fetch(api.products.list.path);
@@ -50,6 +50,14 @@ export default function InventoryTab() {
   const saveEdit = (id: number) => {
     updateMutation.mutate({ id, ...editValues });
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -133,10 +141,15 @@ export default function InventoryTab() {
                             size="sm"
                             variant="outline"
                             onClick={() => saveEdit(product.id)}
+                            disabled={updateMutation.isPending}
                             className="border-green-400/50 text-green-600 hover:bg-green-50 dark:hover:bg-green-950/30"
                             data-testid={`button-save-${product.id}`}
                           >
-                            <Check className="w-4 h-4" />
+                            {updateMutation.isPending ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <Check className="w-4 h-4" />
+                            )}
                           </Button>
                           <Button
                             size="sm"
@@ -162,10 +175,15 @@ export default function InventoryTab() {
                             size="sm"
                             variant="ghost"
                             onClick={() => deleteMutation.mutate(product.id)}
+                            disabled={deleteMutation.isPending}
                             className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30"
                             data-testid={`button-delete-${product.id}`}
                           >
-                            <Trash2 className="w-4 h-4" />
+                            {deleteMutation.isPending ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <Trash2 className="w-4 h-4" />
+                            )}
                           </Button>
                         </div>
                       )}
