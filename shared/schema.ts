@@ -7,6 +7,8 @@ export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
+  isActive: integer("is_active").notNull().default(1), // 1 = active, 0 = locked
+  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
 });
 
 export const products = pgTable("products", {
@@ -48,14 +50,18 @@ export const invoices = pgTable("invoices", {
   createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
 });
 
-export const insertUserSchema = createInsertSchema(users).pick({
-  username: true,
-  password: true,
+export const insertUserSchema = z.object({
+  username: z.string().min(3),
+  password: z.string().min(6),
 });
 
-export const insertProductSchema = createInsertSchema(products).omit({
-  id: true,
-});
+export const insertProductSchema = createInsertSchema(products, {
+  name: z.string().min(1),
+  brand: z.string().min(1),
+  code: z.string().min(1),
+  purchasePrice: z.string().min(1),
+  sellingPrice: z.string().min(1),
+}).omit({ id: true });
 
 export const insertInvoiceSchema = createInsertSchema(invoices).omit({
   id: true,
