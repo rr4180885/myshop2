@@ -6,7 +6,7 @@ services:
     env: node
     region: singapore  # Choose closest region: oregon/frankfurt/singapore
     plan: free  # Free tier
-    buildCommand: npm install && npm run build
+    buildCommand: npm install && npm run db:init && npm run build
     startCommand: npm start
     healthCheckPath: /
     envVars:
