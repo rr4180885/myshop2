@@ -82,6 +82,21 @@ async function initializeDatabase() {
 
     console.log("✓ Tables created successfully");
     
+    // Add migration for existing tables - add new columns if they don't exist
+    console.log("📦 Running migrations...");
+    
+    try {
+      await db.execute(sql`
+        ALTER TABLE users ADD COLUMN IF NOT EXISTS is_active INTEGER NOT NULL DEFAULT 1;
+      `);
+      await db.execute(sql`
+        ALTER TABLE users ADD COLUMN IF NOT EXISTS created_at TEXT DEFAULT CURRENT_TIMESTAMP;
+      `);
+      console.log("✓ Migrations completed successfully");
+    } catch (error) {
+      console.log("⚠️  Migration warning (may be already applied):", error);
+    }
+    
     await client.end();
     console.log("✅ Database initialization complete");
     
