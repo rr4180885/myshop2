@@ -2,6 +2,7 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
 import { initializeStorage } from "./storage";
+import { initializeDatabase } from "./db-init";
 
 const app = express();
 
@@ -60,6 +61,15 @@ app.use((req, res, next) => {
 let initialized = false;
 async function initialize() {
   if (initialized) return;
+  
+  // Initialize database tables if using PostgreSQL
+  if (process.env.DATABASE_URL) {
+    try {
+      await initializeDatabase();
+    } catch (error) {
+      console.error("⚠️  Database initialization failed, but continuing:", error);
+    }
+  }
   
   await initializeStorage();
   await registerRoutes(app);
