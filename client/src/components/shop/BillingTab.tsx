@@ -545,8 +545,8 @@ export default function BillingTab() {
 
       {/* Professional Invoice Print Preview */}
       {showInvoicePreview && currentInvoiceData && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-start justify-center p-4 print:p-0 print:bg-white overflow-y-auto">
-          <div className="bg-white text-slate-900 w-full max-w-4xl my-4 rounded-lg shadow-2xl print:shadow-none print:max-w-none print:my-0 print:max-h-none">
+        <div id="invoice-print-modal" className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-start justify-center p-4 print:p-0 print:bg-white overflow-y-auto">
+          <div id="invoice-print-content" className="bg-white text-slate-900 w-full max-w-4xl my-4 rounded-lg shadow-2xl print:shadow-none print:max-w-none print:my-0 print:max-h-none">
             <style dangerouslySetInnerHTML={{__html: `
               @media print {
                 @page {
@@ -562,13 +562,45 @@ export default function BillingTab() {
                   -webkit-print-color-adjust: exact;
                 }
                 
-                /* Hide all non-invoice elements */
-                body > *:not(.fixed) {
+                /* CRITICAL: Hide everything except the invoice */
+                body > * {
                   display: none !important;
                 }
                 
-                /* Show only the invoice preview */
-                .fixed {
+                /* Show ONLY the invoice print modal */
+                #invoice-print-modal,
+                #invoice-print-modal * {
+                  display: block !important;
+                  visibility: visible !important;
+                }
+                
+                /* Fix table display */
+                .invoice-container table,
+                .invoice-container thead,
+                .invoice-container tbody,
+                .invoice-container tr {
+                  display: table !important;
+                }
+                
+                .invoice-container thead {
+                  display: table-header-group !important;
+                }
+                
+                .invoice-container tbody {
+                  display: table-row-group !important;
+                }
+                
+                .invoice-container tr {
+                  display: table-row !important;
+                }
+                
+                .invoice-container th,
+                .invoice-container td {
+                  display: table-cell !important;
+                }
+                
+                /* Position the invoice properly */
+                #invoice-print-modal {
                   position: static !important;
                   background: white !important;
                   inset: auto !important;
@@ -578,6 +610,14 @@ export default function BillingTab() {
                   max-width: 100% !important;
                   height: auto !important;
                   overflow: visible !important;
+                  display: block !important;
+                }
+                
+                #invoice-print-content {
+                  max-width: 100% !important;
+                  margin: 0 !important;
+                  border-radius: 0 !important;
+                  box-shadow: none !important;
                 }
                 
                 /* Invoice container adjustments */
@@ -585,58 +625,65 @@ export default function BillingTab() {
                   background: white !important;
                   color: black !important;
                   max-height: none !important;
+                  max-width: 100% !important;
                   overflow: visible !important;
                   box-shadow: none !important;
                   border-radius: 0 !important;
+                  padding: 0 !important;
+                  margin: 0 !important;
                 }
                 
-                /* Force all text to be dark on white */
-                * {
+                /* Reset colors for invoice content */
+                #invoice-print-modal,
+                #invoice-print-modal * {
                   color: black !important;
                   background: white !important;
-                  page-break-inside: avoid !important;
                 }
                 
-                /* Specific overrides for invoice elements */
-                .bg-slate-50 {
+                /* Specific overrides for invoice elements that need color */
+                #invoice-print-modal .bg-slate-50 {
                   background: #f8fafc !important;
                 }
                 
-                .bg-slate-800 {
+                #invoice-print-modal .bg-slate-800,
+                #invoice-print-modal thead {
                   background: #1e293b !important;
+                }
+                
+                #invoice-print-modal .bg-slate-800 *,
+                #invoice-print-modal thead *,
+                #invoice-print-modal .text-white {
                   color: white !important;
                 }
                 
-                .bg-slate-800 * {
-                  color: white !important;
-                }
-                
-                .text-white, .text-white * {
-                  color: white !important;
-                }
-                
-                .text-blue-600 {
+                #invoice-print-modal .text-blue-600 {
                   color: #2563eb !important;
                 }
                 
-                .text-slate-900, .text-slate-700, .text-slate-600 {
+                #invoice-print-modal .text-slate-900,
+                #invoice-print-modal .text-slate-700,
+                #invoice-print-modal .text-slate-600 {
                   color: #334155 !important;
                 }
                 
-                .text-slate-500 {
+                #invoice-print-modal .text-slate-500 {
                   color: #64748b !important;
                 }
                 
-                .border-slate-800 {
+                #invoice-print-modal .border-slate-800 {
                   border-color: #1e293b !important;
                 }
                 
-                .border-slate-400, .border-slate-300, .border-slate-200 {
+                #invoice-print-modal .border-slate-400,
+                #invoice-print-modal .border-slate-300,
+                #invoice-print-modal .border-slate-200 {
                   border-color: #cbd5e1 !important;
                 }
                 
-                /* Hide print button and close button */
-                .print\\:hidden {
+                /* Hide print button */
+                .print\\:hidden,
+                button {
+                  visibility: hidden !important;
                   display: none !important;
                 }
                 
@@ -644,6 +691,15 @@ export default function BillingTab() {
                 img {
                   max-width: 100% !important;
                   height: auto !important;
+                }
+                
+                /* Make sure flex containers work */
+                #invoice-print-modal .flex {
+                  display: flex !important;
+                }
+                
+                #invoice-print-modal .grid {
+                  display: grid !important;
                 }
               }
             `}} />
