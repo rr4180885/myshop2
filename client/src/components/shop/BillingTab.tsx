@@ -553,16 +553,97 @@ export default function BillingTab() {
                   size: A4;
                   margin: 8mm;
                 }
-                body {
+                
+                /* Force light mode colors for printing */
+                body, html {
+                  background: white !important;
+                  color: black !important;
                   print-color-adjust: exact;
                   -webkit-print-color-adjust: exact;
                 }
+                
+                /* Hide all non-invoice elements */
+                body > *:not(.fixed) {
+                  display: none !important;
+                }
+                
+                /* Show only the invoice preview */
+                .fixed {
+                  position: static !important;
+                  background: white !important;
+                  inset: auto !important;
+                  padding: 0 !important;
+                  margin: 0 !important;
+                  width: 100% !important;
+                  max-width: 100% !important;
+                  height: auto !important;
+                  overflow: visible !important;
+                }
+                
+                /* Invoice container adjustments */
+                .invoice-container {
+                  background: white !important;
+                  color: black !important;
+                  max-height: none !important;
+                  overflow: visible !important;
+                  box-shadow: none !important;
+                  border-radius: 0 !important;
+                }
+                
+                /* Force all text to be dark on white */
                 * {
+                  color: black !important;
+                  background: white !important;
                   page-break-inside: avoid !important;
                 }
-                .invoice-container {
-                  max-height: 100vh;
-                  overflow: visible;
+                
+                /* Specific overrides for invoice elements */
+                .bg-slate-50 {
+                  background: #f8fafc !important;
+                }
+                
+                .bg-slate-800 {
+                  background: #1e293b !important;
+                  color: white !important;
+                }
+                
+                .bg-slate-800 * {
+                  color: white !important;
+                }
+                
+                .text-white, .text-white * {
+                  color: white !important;
+                }
+                
+                .text-blue-600 {
+                  color: #2563eb !important;
+                }
+                
+                .text-slate-900, .text-slate-700, .text-slate-600 {
+                  color: #334155 !important;
+                }
+                
+                .text-slate-500 {
+                  color: #64748b !important;
+                }
+                
+                .border-slate-800 {
+                  border-color: #1e293b !important;
+                }
+                
+                .border-slate-400, .border-slate-300, .border-slate-200 {
+                  border-color: #cbd5e1 !important;
+                }
+                
+                /* Hide print button and close button */
+                .print\\:hidden {
+                  display: none !important;
+                }
+                
+                /* Ensure proper sizing */
+                img {
+                  max-width: 100% !important;
+                  height: auto !important;
                 }
               }
             `}} />
