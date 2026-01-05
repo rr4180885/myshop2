@@ -701,6 +701,56 @@ export default function BillingTab() {
                 #invoice-print-modal .grid {
                   display: grid !important;
                 }
+                
+                /* Mobile-specific table adjustments */
+                .invoice-items {
+                  width: 100% !important;
+                  table-layout: fixed !important;
+                  font-size: 7px !important;
+                }
+                
+                .invoice-items th,
+                .invoice-items td {
+                  padding: 1px !important;
+                  font-size: 7px !important;
+                  word-wrap: break-word !important;
+                  overflow-wrap: break-word !important;
+                }
+                
+                .invoice-items th:nth-child(1),
+                .invoice-items td:nth-child(1) {
+                  width: 5% !important;
+                }
+                
+                .invoice-items th:nth-child(2),
+                .invoice-items td:nth-child(2) {
+                  width: 30% !important;
+                }
+                
+                .invoice-items th:nth-child(3),
+                .invoice-items td:nth-child(3) {
+                  width: 12% !important;
+                }
+                
+                .invoice-items th:nth-child(4),
+                .invoice-items td:nth-child(4) {
+                  width: 10% !important;
+                }
+                
+                .invoice-items th:nth-child(5),
+                .invoice-items td:nth-child(5) {
+                  width: 13% !important;
+                }
+                
+                .invoice-items th:nth-child(6),
+                .invoice-items td:nth-child(6) {
+                  width: 10% !important;
+                }
+                
+                .invoice-items th:nth-child(7),
+                .invoice-items td:nth-child(7) {
+                  width: 20% !important;
+                }
               }
             `}} />
             <div className="p-6 print:p-5 invoice-container">
