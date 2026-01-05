@@ -238,9 +238,61 @@ export default function BillingTab() {
   };
 
   const handlePrint = () => {
-    window.print();
-    setShowInvoicePreview(false);
-    setCurrentInvoiceData(null);
+    // Set document title to invoice number for PDF filename
+    const originalTitle = document.title;
+    document.title = currentInvoiceData?.invoiceNumber || "Invoice";
+    
+    // Get the invoice content
+    const invoiceModal = document.getElementById('invoice-print-modal');
+    const invoiceContent = document.getElementById('invoice-print-content');
+    
+    if (!invoiceModal || !invoiceContent) {
+      window.print();
+      return;
+    }
+    
+    // Store original body content
+    const originalBody = document.body.innerHTML;
+    const originalBodyClasses = document.body.className;
+    
+    // Replace body with only invoice content
+    document.body.innerHTML = invoiceContent.innerHTML;
+    document.body.className = 'print-invoice-body';
+    
+    // Add print-specific styles
+    const printStyle = document.createElement('style');
+    printStyle.id = 'print-temp-style';
+    printStyle.innerHTML = `
+      .print-invoice-body {
+        margin: 0 !important;
+        padding: 0 !important;
+        background: white !important;
+      }
+      button, .print\\:hidden {
+        display: none !important;
+      }
+    `;
+    document.head.appendChild(printStyle);
+    
+    // Trigger print
+    setTimeout(() => {
+      window.print();
+      
+      // Restore original content after print dialog closes
+      setTimeout(() => {
+        document.body.innerHTML = originalBody;
+        document.body.className = originalBodyClasses;
+        document.title = originalTitle;
+        
+        // Remove temp style
+        const tempStyle = document.getElementById('print-temp-style');
+        if (tempStyle) tempStyle.remove();
+        
+        // Close modal and clear data
+        setShowInvoicePreview(false);
+        setCurrentInvoiceData(null);
+      }, 100);
+    }, 100);
   };
 
   return (
