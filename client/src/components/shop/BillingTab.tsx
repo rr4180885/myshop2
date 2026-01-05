@@ -238,61 +238,335 @@ export default function BillingTab() {
   };
 
   const handlePrint = () => {
-    // Set document title to invoice number for PDF filename
-    const originalTitle = document.title;
-    document.title = currentInvoiceData?.invoiceNumber || "Invoice";
-    
-    // Get the invoice content
-    const invoiceModal = document.getElementById('invoice-print-modal');
-    const invoiceContent = document.getElementById('invoice-print-content');
-    
-    if (!invoiceModal || !invoiceContent) {
+    const printContent = document.getElementById('invoice-print-content');
+    if (!printContent) return;
+
+    // Create a hidden iframe for printing
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'absolute';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = 'none';
+    document.body.appendChild(iframe);
+
+    const iframeDoc = iframe.contentWindow?.document;
+    if (!iframeDoc) {
+      document.body.removeChild(iframe);
       window.print();
       return;
     }
-    
-    // Store original body content
-    const originalBody = document.body.innerHTML;
-    const originalBodyClasses = document.body.className;
-    
-    // Replace body with only invoice content
-    document.body.innerHTML = invoiceContent.innerHTML;
-    document.body.className = 'print-invoice-body';
-    
-    // Add print-specific styles
-    const printStyle = document.createElement('style');
-    printStyle.id = 'print-temp-style';
-    printStyle.innerHTML = `
-      .print-invoice-body {
-        margin: 0 !important;
-        padding: 0 !important;
-        background: white !important;
-      }
-      button, .print\\:hidden {
-        display: none !important;
-      }
-    `;
-    document.head.appendChild(printStyle);
-    
-    // Trigger print
-    setTimeout(() => {
-      window.print();
-      
-      // Restore original content after print dialog closes
+
+    // Write the invoice HTML with embedded styles
+    iframeDoc.open();
+    iframeDoc.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="UTF-8">
+          <title>${currentInvoiceData?.invoiceNumber || 'Invoice'}</title>
+          <style>
+            * {
+              margin: 0;
+              padding: 0;
+              box-sizing: border-box;
+            }
+            
+            body {
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+              background: white;
+              color: #000;
+              padding: 20px;
+            }
+            
+            @media print {
+              body { 
+                padding: 0;
+                margin: 0;
+              }
+              
+              @page { 
+                size: A4; 
+                margin: 10mm;
+              }
+              
+              button { display: none !important; }
+              .print-button { display: none !important; }
+              .close-button { display: none !important; }
+              
+              /* Remove browser-generated headers/footers */
+              @page {
+                margin-top: 10mm;
+                margin-bottom: 10mm;
+              }
+            }
+            
+            .invoice-container {
+              max-width: 800px;
+              margin: 0 auto;
+              background: white;
+            }
+            
+            .invoice-header {
+              margin-bottom: 12px;
+              padding-bottom: 8px;
+              border-bottom: 2px solid #1e293b;
+            }
+            
+            .flex {
+              display: flex;
+            }
+            
+            .items-center {
+              align-items: center;
+            }
+            
+            .justify-between {
+              justify-content: space-between;
+            }
+            
+            .gap-2 {
+              gap: 8px;
+            }
+            
+            .mb-2 {
+              margin-bottom: 8px;
+            }
+            
+            .mb-3 {
+              margin-bottom: 12px;
+            }
+            
+            .text-right {
+              text-align: right;
+            }
+            
+            .text-center {
+              text-align: center;
+            }
+            
+            .logo {
+              width: 48px;
+              height: 48px;
+              object-fit: contain;
+            }
+            
+            .shop-name {
+              font-size: 20px;
+              font-weight: bold;
+              color: #0f172a;
+            }
+            
+            .invoice-title {
+              font-size: 18px;
+              font-weight: bold;
+              color: #2563eb;
+            }
+            
+            .header-details {
+              display: flex;
+              justify-content: space-between;
+              font-size: 10px;
+              margin-top: 8px;
+            }
+            
+            .header-details p {
+              margin: 2px 0;
+            }
+            
+            .customer-section h3 {
+              font-size: 10px;
+              font-weight: bold;
+              text-transform: uppercase;
+              margin-bottom: 4px;
+              color: #334155;
+            }
+            
+            .customer-box {
+              background: #f8fafc;
+              padding: 8px;
+              border-radius: 4px;
+            }
+            
+            .customer-box p {
+              margin: 2px 0;
+            }
+            
+            .item-name {
+              font-weight: 500;
+              color: #0f172a;
+            }
+            
+            .item-code {
+              font-size: 9px;
+              color: #64748b;
+            }
+            
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-bottom: 12px;
+              font-size: 10px;
+            }
+            
+            th, td {
+              padding: 6px 8px;
+              border: 1px solid #e2e8f0;
+              text-align: left;
+            }
+            
+            thead {
+              background: #1e293b;
+              color: white;
+            }
+            
+            th {
+              font-weight: 600;
+            }
+            
+            .totals-section {
+              display: flex;
+              justify-content: flex-end;
+              margin-bottom: 12px;
+            }
+            
+            .footer {
+              border-top: 1px solid #cbd5e1;
+              padding-top: 12px;
+              margin-top: 12px;
+            }
+            
+            .terms {
+              margin-bottom: 12px;
+            }
+            
+            .terms h4 {
+              font-weight: 600;
+              margin-bottom: 6px;
+              color: #334155;
+              font-size: 10px;
+            }
+            
+            .terms ul {
+              list-style: none;
+              padding: 0;
+            }
+            
+            .terms li {
+              margin: 2px 0;
+              font-size: 9px;
+              color: #475569;
+            }
+            
+            .signature-section {
+              display: flex;
+              justify-content: flex-end;
+              align-items: center;
+              margin-bottom: 12px;
+              margin-top: 16px;
+            }
+            
+            .signature-section > div {
+              text-align: center;
+              min-width: 150px;
+            }
+            
+            .signature-img {
+              width: 96px;
+              height: 48px;
+              object-fit: contain;
+              margin: 0 auto 4px;
+              display: block;
+            }
+            
+            .signature-line {
+              border-top: 1px solid #94a3b8;
+              padding-top: 4px;
+              margin-top: 8px;
+              display: block;
+              width: 100%;
+            }
+            
+            .signature-text {
+              font-size: 9px;
+              font-weight: 600;
+              color: #334155;
+              text-align: center;
+              margin-top: 4px;
+            }
+            
+            .thank-you {
+              text-align: center;
+              margin-top: 8px;
+              font-size: 9px;
+              color: #64748b;
+            }
+            
+            .thank-you p {
+              margin: 2px 0;
+            }
+            
+            /* Hide all buttons and unnecessary elements */
+            button, .sticky {
+              display: none !important;
+            }
+            
+            /* Totals box styling to match modal */
+            .totals-section {
+              display: flex;
+              justify-content: flex-end;
+              margin-bottom: 12px;
+            }
+            
+            .totals-section > div {
+              width: 250px;
+              border: 1px solid #e2e8f0;
+              padding: 8px;
+              background: #f8fafc;
+              border-radius: 4px;
+            }
+            
+            .totals-section .flex {
+              display: flex;
+              justify-content: space-between;
+              padding: 6px 0;
+            }
+            
+            .totals-section .text-xs {
+              font-size: 12px;
+            }
+            
+            .totals-section .text-sm {
+              font-size: 13px;
+            }
+            
+            .totals-section .text-base {
+              font-size: 15px;
+            }
+          </style>
+        </head>
+        <body>
+          ${printContent.innerHTML}
+        </body>
+      </html>
+    `);
+    iframeDoc.close();
+
+    // Wait for content to load, then print
+    iframe.onload = () => {
       setTimeout(() => {
-        document.body.innerHTML = originalBody;
-        document.body.className = originalBodyClasses;
-        document.title = originalTitle;
+        try {
+          iframe.contentWindow?.focus();
+          iframe.contentWindow?.print();
+        } catch (e) {
+          console.error('Print error:', e);
+        }
         
-        // Remove temp style
-        const tempStyle = document.getElementById('print-temp-style');
-        if (tempStyle) tempStyle.remove();
-        
-        // Close modal and clear data
-        setShowInvoicePreview(false);
-        setCurrentInvoiceData(null);
-      }, 100);
-    }, 100);
+        // Remove iframe after print dialog closes
+        setTimeout(() => {
+          document.body.removeChild(iframe);
+        }, 1000);
+      }, 500);
+    };
   };
 
   return (
@@ -597,239 +871,33 @@ export default function BillingTab() {
 
       {/* Professional Invoice Print Preview */}
       {showInvoicePreview && currentInvoiceData && (
-        <div id="invoice-print-modal" className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-start justify-center p-4 print:p-0 print:bg-white overflow-y-auto">
-          <div id="invoice-print-content" className="bg-white text-slate-900 w-full max-w-4xl my-4 rounded-lg shadow-2xl print:shadow-none print:max-w-none print:my-0 print:max-h-none">
-            <style dangerouslySetInnerHTML={{__html: `
-              @media print {
-                @page {
-                  size: A4;
-                  margin: 8mm;
-                }
-                
-                /* Force light mode colors for printing */
-                body, html {
-                  background: white !important;
-                  color: black !important;
-                  print-color-adjust: exact;
-                  -webkit-print-color-adjust: exact;
-                }
-                
-                /* CRITICAL: Hide everything except the invoice */
-                body > * {
-                  display: none !important;
-                }
-                
-                /* Show ONLY the invoice print modal */
-                #invoice-print-modal,
-                #invoice-print-modal * {
-                  display: block !important;
-                  visibility: visible !important;
-                }
-                
-                /* Fix table display */
-                .invoice-container table,
-                .invoice-container thead,
-                .invoice-container tbody,
-                .invoice-container tr {
-                  display: table !important;
-                }
-                
-                .invoice-container thead {
-                  display: table-header-group !important;
-                }
-                
-                .invoice-container tbody {
-                  display: table-row-group !important;
-                }
-                
-                .invoice-container tr {
-                  display: table-row !important;
-                }
-                
-                .invoice-container th,
-                .invoice-container td {
-                  display: table-cell !important;
-                }
-                
-                /* Position the invoice properly */
-                #invoice-print-modal {
-                  position: static !important;
-                  background: white !important;
-                  inset: auto !important;
-                  padding: 0 !important;
-                  margin: 0 !important;
-                  width: 100% !important;
-                  max-width: 100% !important;
-                  height: auto !important;
-                  overflow: visible !important;
-                  display: block !important;
-                }
-                
-                #invoice-print-content {
-                  max-width: 100% !important;
-                  margin: 0 !important;
-                  border-radius: 0 !important;
-                  box-shadow: none !important;
-                }
-                
-                /* Invoice container adjustments */
-                .invoice-container {
-                  background: white !important;
-                  color: black !important;
-                  max-height: none !important;
-                  max-width: 100% !important;
-                  overflow: visible !important;
-                  box-shadow: none !important;
-                  border-radius: 0 !important;
-                  padding: 0 !important;
-                  margin: 0 !important;
-                }
-                
-                /* Reset colors for invoice content */
-                #invoice-print-modal,
-                #invoice-print-modal * {
-                  color: black !important;
-                  background: white !important;
-                }
-                
-                /* Specific overrides for invoice elements that need color */
-                #invoice-print-modal .bg-slate-50 {
-                  background: #f8fafc !important;
-                }
-                
-                #invoice-print-modal .bg-slate-800,
-                #invoice-print-modal thead {
-                  background: #1e293b !important;
-                }
-                
-                #invoice-print-modal .bg-slate-800 *,
-                #invoice-print-modal thead *,
-                #invoice-print-modal .text-white {
-                  color: white !important;
-                }
-                
-                #invoice-print-modal .text-blue-600 {
-                  color: #2563eb !important;
-                }
-                
-                #invoice-print-modal .text-slate-900,
-                #invoice-print-modal .text-slate-700,
-                #invoice-print-modal .text-slate-600 {
-                  color: #334155 !important;
-                }
-                
-                #invoice-print-modal .text-slate-500 {
-                  color: #64748b !important;
-                }
-                
-                #invoice-print-modal .border-slate-800 {
-                  border-color: #1e293b !important;
-                }
-                
-                #invoice-print-modal .border-slate-400,
-                #invoice-print-modal .border-slate-300,
-                #invoice-print-modal .border-slate-200 {
-                  border-color: #cbd5e1 !important;
-                }
-                
-                /* Hide print button */
-                .print\\:hidden,
-                button {
-                  visibility: hidden !important;
-                  display: none !important;
-                }
-                
-                /* Ensure proper sizing */
-                img {
-                  max-width: 100% !important;
-                  height: auto !important;
-                }
-                
-                /* Make sure flex containers work */
-                #invoice-print-modal .flex {
-                  display: flex !important;
-                }
-                
-                #invoice-print-modal .grid {
-                  display: grid !important;
-                }
-                
-                /* Mobile-specific table adjustments */
-                .invoice-items {
-                  width: 100% !important;
-                  table-layout: fixed !important;
-                  font-size: 7px !important;
-                }
-                
-                .invoice-items th,
-                .invoice-items td {
-                  padding: 1px !important;
-                  font-size: 7px !important;
-                  word-wrap: break-word !important;
-                  overflow-wrap: break-word !important;
-                }
-                
-                .invoice-items th:nth-child(1),
-                .invoice-items td:nth-child(1) {
-                  width: 5% !important;
-                }
-                
-                .invoice-items th:nth-child(2),
-                .invoice-items td:nth-child(2) {
-                  width: 30% !important;
-                }
-                
-                .invoice-items th:nth-child(3),
-                .invoice-items td:nth-child(3) {
-                  width: 12% !important;
-                }
-                
-                .invoice-items th:nth-child(4),
-                .invoice-items td:nth-child(4) {
-                  width: 10% !important;
-                }
-                
-                .invoice-items th:nth-child(5),
-                .invoice-items td:nth-child(5) {
-                  width: 13% !important;
-                }
-                
-                .invoice-items th:nth-child(6),
-                .invoice-items td:nth-child(6) {
-                  width: 10% !important;
-                }
-                
-                .invoice-items th:nth-child(7),
-                .invoice-items td:nth-child(7) {
-                  width: 20% !important;
-                }
-              }
-            `}} />
-            <div className="p-6 print:p-5 invoice-container">
+        <div id="invoice-print-modal" className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-start justify-center p-4 overflow-y-auto">
+          <div id="invoice-print-content" className="bg-white text-slate-900 w-full max-w-4xl my-4 rounded-lg shadow-2xl">
+            <div className="p-6 invoice-container">
               {/* Header - Logo beside shop name at top */}
-              <div className="mb-3 pb-2 border-b-2 border-slate-800 invoice-header print:mb-2 print:pb-2">
+              <div className="mb-3 pb-2 border-b-2 border-slate-800 invoice-header">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     {settings?.logoPath && settings.logoPath.trim() !== '' && (
                       <img 
                         src={settings.logoPath} 
                         alt="Company Logo" 
-                        className="w-12 h-12 print:w-12 print:h-12 object-contain"
+                        className="w-12 h-12 object-contain logo"
                         onError={(e) => { e.currentTarget.style.display = 'none'; }}
                       />
                     )}
                     <div>
-                      <h1 className="text-xl print:text-xl font-bold text-slate-900 leading-tight">
+                      <h1 className="text-xl font-bold text-slate-900 leading-tight shop-name">
                         {settings?.shopName || "Brother Enterprises"}
                       </h1>
                     </div>
                   </div>
                   <div className="text-right">
-                    <h2 className="text-lg print:text-lg font-bold text-blue-600">TAX INVOICE</h2>
+                    <h2 className="text-lg font-bold text-blue-600 invoice-title">TAX INVOICE</h2>
                   </div>
                 </div>
                 
-                <div className="flex justify-between items-start text-[10px] print:text-[10px]">
+                <div className="flex justify-between items-start text-[10px] header-details">
                   <div className="space-y-0.5">
                     {settings?.shopAddress && settings.shopAddress.trim() !== '' && <p className="text-slate-700">{settings.shopAddress}</p>}
                     {settings?.shopGSTIN && settings.shopGSTIN.trim() !== '' && <p className="text-slate-600">GSTIN: {settings.shopGSTIN}</p>}
@@ -843,93 +911,94 @@ export default function BillingTab() {
               </div>
 
               {/* Customer Details */}
-              <div className="mb-3 print:mb-2">
-                <h3 className="text-[10px] print:text-[10px] font-bold text-slate-700 uppercase mb-1">Bill To:</h3>
-                <div className="bg-slate-50 print:bg-slate-50 p-2 print:p-2 rounded">
-                  <p className="font-semibold text-slate-900 text-xs print:text-xs">{currentInvoiceData.customerName}</p>
-                  <p className="text-[10px] print:text-[10px] text-slate-600">{currentInvoiceData.customerPhone}</p>
+              <div className="mb-3 customer-section">
+                <h3 className="text-[10px] font-bold text-slate-700 uppercase mb-1">Bill To:</h3>
+                <div className="bg-slate-50 p-2 rounded customer-box">
+                  <p className="font-semibold text-slate-900 text-xs item-name">{currentInvoiceData.customerName}</p>
+                  <p className="text-[10px] text-slate-600">{currentInvoiceData.customerPhone}</p>
                 </div>
               </div>
 
               {/* Items Table */}
-              <table className="w-full mb-3 print:mb-2 text-[10px] print:text-[10px] invoice-items">
-                <thead>
-                  <tr className="bg-slate-800 print:bg-slate-800 text-white">
-                    <th className="text-left p-1.5 print:p-1.5">#</th>
-                    <th className="text-left p-1.5 print:p-1.5">Item Description</th>
-                    <th className="text-center p-1.5 print:p-1.5">HSN</th>
-                    <th className="text-center p-1.5 print:p-1.5">Qty</th>
-                    <th className="text-right p-1.5 print:p-1.5">Rate</th>
-                    <th className="text-center p-1.5 print:p-1.5">GST%</th>
-                    <th className="text-right p-1.5 print:p-1.5">Amount</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {currentInvoiceData.items.map((item: any, index: number) => (
-                    <tr key={index} className="border-b border-slate-200">
-                      <td className="p-1.5 print:p-1.5">{index + 1}</td>
-                      <td className="p-1.5 print:p-1.5">
-                        <div className="font-medium text-slate-900">{item.name}</div>
-                        <div className="text-[9px] print:text-[9px] text-slate-500">Code: {item.code}</div>
-                      </td>
-                      <td className="p-1.5 print:p-1.5 text-center text-slate-600">{item.hsnCode}</td>
-                      <td className="p-1.5 print:p-1.5 text-center">{Number(item.quantity) || 0}</td>
-                      <td className="p-1.5 print:p-1.5 text-right">₹{Number(item.sellingPrice).toFixed(2)}</td>
-                      <td className="p-1.5 print:p-1.5 text-center">{Number(item.gstRate) || 0}%</td>
-                      <td className="p-1.5 print:p-1.5 text-right font-semibold">₹{Number(item.amount).toFixed(2)}</td>
+              <div className="mb-3">
+                <table className="w-full text-[10px] border border-slate-300">
+                  <thead>
+                    <tr className="bg-slate-800 text-white">
+                      <th className="text-left p-1.5 border border-slate-600">#</th>
+                      <th className="text-left p-1.5 border border-slate-600">Item</th>
+                      <th className="text-center p-1.5 border border-slate-600">HSN</th>
+                      <th className="text-center p-1.5 border border-slate-600">Qty</th>
+                      <th className="text-right p-1.5 border border-slate-600">Rate</th>
+                      <th className="text-center p-1.5 border border-slate-600">GST%</th>
+                      <th className="text-right p-1.5 border border-slate-600">Amount</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {currentInvoiceData.items.map((item: any, index: number) => (
+                      <tr key={index} className="border-b border-slate-200">
+                        <td className="p-1.5 border border-slate-200">{index + 1}</td>
+                        <td className="p-1.5 border border-slate-200">
+                          <div className="font-medium text-slate-900 item-name">{item.name}</div>
+                          <div className="text-[9px] text-slate-500 item-code">Code: {item.code}</div>
+                        </td>
+                        <td className="p-1.5 text-center text-slate-600 border border-slate-200">{item.hsnCode}</td>
+                        <td className="p-1.5 text-center border border-slate-200">{Number(item.quantity) || 0}</td>
+                        <td className="p-1.5 text-right border border-slate-200">₹{Number(item.sellingPrice).toFixed(2)}</td>
+                        <td className="p-1.5 text-center border border-slate-200">{Number(item.gstRate) || 0}%</td>
+                        <td className="p-1.5 text-right font-semibold border border-slate-200">₹{Number(item.amount).toFixed(2)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
 
               {/* Totals */}
-              <div className="flex justify-end mb-3 print:mb-2 invoice-totals">
-                <div className="w-full sm:w-64">
-                  <div className="flex justify-between py-1 text-[10px] print:text-[10px]">
+              <div className="flex justify-end mb-3 totals-section">
+                <div className="w-full sm:w-64 border border-slate-200 p-2 bg-slate-50 rounded">
+                  <div className="flex justify-between py-1.5 text-xs">
                     <span className="text-slate-600">Subtotal:</span>
-                    <span className="font-semibold">₹{currentInvoiceData.subtotal}</span>
+                    <span className="font-semibold text-slate-900">₹{currentInvoiceData.subtotal}</span>
                   </div>
-                  <div className="flex justify-between py-1 text-[10px] print:text-[10px]">
+                  <div className="flex justify-between py-1.5 text-xs">
                     <span className="text-slate-600">GST Amount:</span>
-                    <span className="font-semibold">₹{currentInvoiceData.gstAmount}</span>
+                    <span className="font-semibold text-slate-900">₹{currentInvoiceData.gstAmount}</span>
                   </div>
-                  <div className="flex justify-between py-1.5 border-t-2 border-slate-800 text-xs print:text-xs font-bold">
-                    <span>Grand Total:</span>
-                    <span className="text-blue-600">₹{currentInvoiceData.grandTotal}</span>
+                  <div className="flex justify-between py-2 border-t-2 border-slate-800 mt-1 text-sm font-bold">
+                    <span className="text-slate-900">Grand Total:</span>
+                    <span className="text-blue-600 text-base">₹{currentInvoiceData.grandTotal}</span>
                   </div>
                 </div>
               </div>
 
               {/* Footer with Terms and Signature */}
-              <div className="border-t border-slate-300 pt-2 print:pt-2 mt-3 print:mt-2 invoice-footer">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 print:gap-2 text-[10px] print:text-[10px]">
-                  <div>
-                    <h4 className="font-semibold text-slate-700 mb-1">Terms & Conditions:</h4>
-                    <ul className="text-slate-600 space-y-0.5 text-[9px] print:text-[9px]">
-                      {settings?.customText1 && settings.customText1.trim() !== '' && <li>• {settings.customText1}</li>}
-                      {settings?.customText2 && settings.customText2.trim() !== '' && <li>• {settings.customText2}</li>}
-                      {settings?.customText3 && settings.customText3.trim() !== '' && <li>• {settings.customText3}</li>}
-                    </ul>
-                  </div>
-                  <div className="text-right">
-                    <div className="mt-2 print:mt-2">
-                      {settings?.signaturePath && settings.signaturePath.trim() !== '' && (
-                        <img 
-                          src={settings.signaturePath} 
-                          alt="Signature" 
-                          className="ml-auto mb-1 w-20 h-10 print:w-20 print:h-10 object-contain"
-                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                        />
-                      )}
-                      <div className="border-t border-slate-400 inline-block px-4">
-                        <p className="text-slate-700 font-semibold mt-1 text-[9px] print:text-[9px]">Authorized Signature</p>
-                      </div>
+              <div className="border-t border-slate-300 pt-3 mt-3 footer">
+                <div className="text-[9px] mb-3 terms">
+                  <h4 className="font-semibold text-slate-700 mb-1.5 text-[10px]">Terms & Conditions:</h4>
+                  <ul className="text-slate-600 space-y-0.5">
+                    {settings?.customText1 && settings.customText1.trim() !== '' && <li>• {settings.customText1}</li>}
+                    {settings?.customText2 && settings.customText2.trim() !== '' && <li>• {settings.customText2}</li>}
+                    {settings?.customText3 && settings.customText3.trim() !== '' && <li>• {settings.customText3}</li>}
+                  </ul>
+                </div>
+                
+                <div className="flex justify-end items-center mb-3 signature-section">
+                  <div className="text-center">
+                    {settings?.signaturePath && settings.signaturePath.trim() !== '' && (
+                      <img 
+                        src={settings.signaturePath} 
+                        alt="Signature" 
+                        className="mx-auto mb-1 w-24 h-12 object-contain signature-img"
+                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                      />
+                    )}
+                    <div className="border-t border-slate-400 pt-1 signature-line">
+                      <p className="text-slate-700 font-semibold text-[9px] signature-text">Authorized Signature</p>
                     </div>
                   </div>
                 </div>
                 
                 {/* Greeting on last page */}
-                <div className="text-center mt-2 print:mt-2 text-[9px] print:text-[9px] text-slate-500 invoice-greeting">
+                <div className="text-center text-[9px] text-slate-500 thank-you">
                   <p>Thank you for your business!</p>
                   <p className="mt-0.5">This is a computer-generated invoice</p>
                 </div>
@@ -937,7 +1006,7 @@ export default function BillingTab() {
             </div>
 
             {/* Print Actions */}
-            <div className="flex gap-3 sm:gap-4 p-4 sm:p-6 bg-slate-100 border-t print:hidden sticky bottom-0">
+            <div className="flex gap-3 sm:gap-4 p-4 sm:p-6 bg-slate-100 border-t sticky bottom-0">
               <Button
                 onClick={handlePrint}
                 className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold"
