@@ -275,7 +275,8 @@ export default function BillingTab() {
               font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
               background: white;
               color: #000;
-              padding: 20px;
+              padding: 12px;
+              font-size: 10px;
             }
             
             @media print {
@@ -285,18 +286,66 @@ export default function BillingTab() {
               }
               
               @page { 
-                size: A4; 
-                margin: 10mm;
+                size: A4 portrait; 
+                margin: 8mm;
               }
               
               button { display: none !important; }
               .print-button { display: none !important; }
               .close-button { display: none !important; }
               
-              /* Remove browser-generated headers/footers */
-              @page {
-                margin-top: 10mm;
-                margin-bottom: 10mm;
+              /* Compact spacing for A4 */
+              .invoice-container {
+                padding: 0;
+                max-width: 100%;
+              }
+              
+              .invoice-header {
+                margin-bottom: 8px;
+                padding-bottom: 6px;
+              }
+              
+              .mb-3 {
+                margin-bottom: 8px !important;
+              }
+              
+              .customer-section {
+                margin-bottom: 8px;
+              }
+              
+              table {
+                margin-bottom: 8px;
+                font-size: 8px;
+              }
+              
+              th, td {
+                padding: 3px 4px;
+              }
+              
+              .totals-section {
+                margin-bottom: 8px;
+              }
+              
+              .totals-section > div {
+                padding: 6px;
+              }
+              
+              .footer {
+                padding-top: 8px;
+                margin-top: 8px;
+              }
+              
+              .terms {
+                margin-bottom: 8px;
+              }
+              
+              .signature-section {
+                margin-bottom: 8px;
+                margin-top: 8px;
+              }
+              
+              .thank-you {
+                margin-top: 6px;
               }
             }
             
@@ -394,10 +443,12 @@ export default function BillingTab() {
             .item-name {
               font-weight: 500;
               color: #0f172a;
+              word-break: break-word;
+              overflow-wrap: break-word;
             }
             
             .item-code {
-              font-size: 9px;
+              font-size: 8px;
               color: #64748b;
             }
             
@@ -405,14 +456,26 @@ export default function BillingTab() {
               width: 100%;
               border-collapse: collapse;
               margin-bottom: 12px;
-              font-size: 10px;
+              font-size: 9px;
+              table-layout: fixed;
             }
             
             th, td {
-              padding: 6px 8px;
+              padding: 4px 6px;
               border: 1px solid #e2e8f0;
               text-align: left;
+              word-wrap: break-word;
+              overflow-wrap: break-word;
             }
+            
+            /* Column widths optimized for A4 */
+            th:nth-child(1), td:nth-child(1) { width: 5%; text-align: center; }
+            th:nth-child(2), td:nth-child(2) { width: 32%; }
+            th:nth-child(3), td:nth-child(3) { width: 10%; text-align: center; }
+            th:nth-child(4), td:nth-child(4) { width: 8%; text-align: center; }
+            th:nth-child(5), td:nth-child(5) { width: 13%; text-align: right; }
+            th:nth-child(6), td:nth-child(6) { width: 10%; text-align: center; }
+            th:nth-child(7), td:nth-child(7) { width: 15%; text-align: right; }
             
             thead {
               background: #1e293b;
@@ -421,6 +484,7 @@ export default function BillingTab() {
             
             th {
               font-weight: 600;
+              font-size: 9px;
             }
             
             .totals-section {
@@ -920,32 +984,32 @@ export default function BillingTab() {
               </div>
 
               {/* Items Table */}
-              <div className="mb-3">
-                <table className="w-full text-[10px] border border-slate-300">
+              <div className="mb-3 overflow-x-auto">
+                <table className="w-full text-[9px] border border-slate-300" style={{tableLayout: 'fixed'}}>
                   <thead>
                     <tr className="bg-slate-800 text-white">
-                      <th className="text-left p-1.5 border border-slate-600">#</th>
-                      <th className="text-left p-1.5 border border-slate-600">Item</th>
-                      <th className="text-center p-1.5 border border-slate-600">HSN</th>
-                      <th className="text-center p-1.5 border border-slate-600">Qty</th>
-                      <th className="text-right p-1.5 border border-slate-600">Rate</th>
-                      <th className="text-center p-1.5 border border-slate-600">GST%</th>
-                      <th className="text-right p-1.5 border border-slate-600">Amount</th>
+                      <th className="text-center p-1 border border-slate-600" style={{width: '5%'}}>#</th>
+                      <th className="text-left p-1 border border-slate-600" style={{width: '32%'}}>Item</th>
+                      <th className="text-center p-1 border border-slate-600" style={{width: '10%'}}>HSN</th>
+                      <th className="text-center p-1 border border-slate-600" style={{width: '8%'}}>Qty</th>
+                      <th className="text-right p-1 border border-slate-600" style={{width: '13%'}}>Rate</th>
+                      <th className="text-center p-1 border border-slate-600" style={{width: '10%'}}>GST%</th>
+                      <th className="text-right p-1 border border-slate-600" style={{width: '15%'}}>Amount</th>
                     </tr>
                   </thead>
                   <tbody>
                     {currentInvoiceData.items.map((item: any, index: number) => (
                       <tr key={index} className="border-b border-slate-200">
-                        <td className="p-1.5 border border-slate-200">{index + 1}</td>
-                        <td className="p-1.5 border border-slate-200">
-                          <div className="font-medium text-slate-900 item-name">{item.name}</div>
-                          <div className="text-[9px] text-slate-500 item-code">Code: {item.code}</div>
+                        <td className="p-1 border border-slate-200 text-center">{index + 1}</td>
+                        <td className="p-1 border border-slate-200">
+                          <div className="font-medium text-slate-900 item-name text-[9px] break-words">{item.name}</div>
+                          <div className="text-[8px] text-slate-500 item-code">Code: {item.code}</div>
                         </td>
-                        <td className="p-1.5 text-center text-slate-600 border border-slate-200">{item.hsnCode}</td>
-                        <td className="p-1.5 text-center border border-slate-200">{Number(item.quantity) || 0}</td>
-                        <td className="p-1.5 text-right border border-slate-200">₹{Number(item.sellingPrice).toFixed(2)}</td>
-                        <td className="p-1.5 text-center border border-slate-200">{Number(item.gstRate) || 0}%</td>
-                        <td className="p-1.5 text-right font-semibold border border-slate-200">₹{Number(item.amount).toFixed(2)}</td>
+                        <td className="p-1 text-center text-slate-600 border border-slate-200">{item.hsnCode}</td>
+                        <td className="p-1 text-center border border-slate-200">{Number(item.quantity) || 0}</td>
+                        <td className="p-1 text-right border border-slate-200">₹{Number(item.sellingPrice).toFixed(2)}</td>
+                        <td className="p-1 text-center border border-slate-200">{Number(item.gstRate) || 0}%</td>
+                        <td className="p-1 text-right font-semibold border border-slate-200">₹{Number(item.amount).toFixed(2)}</td>
                       </tr>
                     ))}
                   </tbody>
