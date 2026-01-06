@@ -240,7 +240,7 @@ export default function DashboardTab() {
                   </div>
                   <div className="text-right">
                     <p className="font-semibold text-orange-600 dark:text-orange-400">{item.stock} units</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">⚠️ Below 10</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">⚠️ Below 2</p>
                   </div>
                 </div>
               ))}
