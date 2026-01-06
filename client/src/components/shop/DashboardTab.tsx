@@ -83,8 +83,8 @@ export default function DashboardTab() {
     (sum, p) => sum + (Number(p.purchasePrice) * p.stock),
     0
   );
-  const lowStockCount = products.filter((p) => p.stock < 10).length;
-  const lowStockItems = products.filter((p) => p.stock < 10);
+  const lowStockCount = products.filter((p) => p.stock < 2).length;
+  const lowStockItems = products.filter((p) => p.stock < 2);
   const totalStockUnits = products.reduce((sum, p) => sum + p.stock, 0);
 
   const stats = [
