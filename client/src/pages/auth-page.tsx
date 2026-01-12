@@ -16,6 +16,7 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Lock, ShieldCheck, Zap, TrendingUp, Moon, Sun } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
+import { ForgotPasswordDialog } from "@/components/ForgotPasswordDialog";
 
 export default function AuthPage() {
   const { data: user, isLoading: isUserLoading } = useUser();
@@ -124,7 +125,11 @@ export default function AuthPage() {
                   )}
                 />
                 
-                <Button 
+                <div className="flex justify-end">
+                  <ForgotPasswordDialog />
+                </div>
+                
+                <Button
                   type="submit" 
                   className="w-full h-11 sm:h-12 text-base font-semibold rounded-xl bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 transition-all duration-300 shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 hover:-translate-y-0.5 mt-6"
                   disabled={isPending}

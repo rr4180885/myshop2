@@ -28,6 +28,7 @@ export default function BillingTab() {
   const [search, setSearch] = useState("");
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
+  const [customerEmail, setCustomerEmail] = useState("");
   const [invoiceSearch, setInvoiceSearch] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
@@ -94,6 +95,7 @@ export default function BillingTab() {
         invoiceNumber,
         customerName: customerName || "Walk-in Customer",
         customerPhone: customerPhone || "N/A",
+        customerEmail: customerEmail || "",
         items: JSON.stringify(cartItems),
         subtotal: subtotal.toFixed(2),
         gstAmount: gstAmount.toFixed(2),
@@ -122,7 +124,8 @@ export default function BillingTab() {
       setCart([]);
       setCustomerName("");
       setCustomerPhone("");
-      toast({ title: "Invoice generated successfully" });
+      setCustomerEmail("");
+      toast({ title: "Invoice generated successfully. Email sent if provided!" });
     },
   });
 
@@ -683,6 +686,20 @@ export default function BillingTab() {
                         className="mt-1.5 h-10 sm:h-11"
                         data-testid="input-customer-phone"
                       />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <label className="text-xs sm:text-sm font-medium text-foreground">Email (Optional - for invoice copy)</label>
+                      <Input
+                        type="email"
+                        placeholder="customer@example.com"
+                        value={customerEmail}
+                        onChange={(e) => setCustomerEmail(e.target.value)}
+                        className="mt-1.5 h-10 sm:h-11"
+                        data-testid="input-customer-email"
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Invoice will be sent to this email if provided
+                      </p>
                     </div>
                   </div>
                 </CardContent>

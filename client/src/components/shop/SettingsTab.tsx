@@ -196,6 +196,7 @@ export default function SettingsTab() {
   const { data: currentUser } = useUser();
   const [newUsername, setNewUsername] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const [newEmail, setNewEmail] = useState("");
   const [changePasswordUserId, setChangePasswordUserId] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newUserPassword, setNewUserPassword] = useState("");
@@ -212,16 +213,17 @@ export default function SettingsTab() {
 
   // Create user mutation
   const createUserMutation = useMutation({
-    mutationFn: async (data: { username: string; password: string }) => {
+    mutationFn: async (data: { username: string; password: string; email: string }) => {
       return apiRequest("POST", api.users.create.path, data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [api.users.list.path] });
       setNewUsername("");
       setNewPassword("");
+      setNewEmail("");
       toast({
         title: "User Created!",
-        description: "New user has been created successfully",
+        description: "New user has been created successfully. Welcome email sent!",
       });
     },
     onError: (error: any) => {
@@ -602,6 +604,19 @@ export default function SettingsTab() {
                   className="mt-2"
                 />
               </div>
+              <div className="md:col-span-2">
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Email Address</label>
+                <Input
+                  type="email"
+                  value={newEmail}
+                  onChange={(e) => setNewEmail(e.target.value)}
+                  placeholder="Enter email (e.g., user@example.com)"
+                  className="mt-2"
+                />
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                  Welcome email will be sent to this address
+                </p>
+              </div>
             </div>
             <Button
               onClick={() => {
@@ -613,9 +628,13 @@ export default function SettingsTab() {
                   toast({ title: "Password must be at least 6 characters", variant: "destructive" });
                   return;
                 }
-                createUserMutation.mutate({ username: newUsername, password: newPassword });
+                if (!newEmail || !newEmail.includes('@')) {
+                  toast({ title: "Please enter a valid email address", variant: "destructive" });
+                  return;
+                }
+                createUserMutation.mutate({ username: newUsername, password: newPassword, email: newEmail });
               }}
-              disabled={createUserMutation.isPending || !newUsername || !newPassword}
+              disabled={createUserMutation.isPending || !newUsername || !newPassword || !newEmail}
               className="mt-4 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700"
             >
               {createUserMutation.isPending ? (
