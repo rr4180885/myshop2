@@ -38,7 +38,7 @@ export default function ShopPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex">
       {/* Mobile Overlay */}
       {sidebarOpen && (
         <div 
@@ -47,11 +47,11 @@ export default function ShopPage() {
         />
       )}
 
-      {/* Sidebar */}
+      {/* Sidebar - Always Fixed */}
       <aside 
         className={`${
           sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
-        } fixed lg:static inset-y-0 left-0 z-50 w-72 lg:w-64 bg-card border-r border-border transition-transform duration-300 flex flex-col shadow-2xl`}
+        } fixed inset-y-0 left-0 z-50 w-72 lg:w-64 bg-card border-r border-border transition-transform duration-300 flex flex-col shadow-2xl`}
       >
         {/* Logo */}
         <div className="p-4 sm:p-6 border-b border-border">
@@ -130,8 +130,8 @@ export default function ShopPage() {
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 flex flex-col overflow-hidden min-w-0">
+      {/* Main Content - Add left margin for fixed sidebar on desktop */}
+      <main className="flex-1 flex flex-col overflow-hidden min-w-0 lg:ml-64">
         {/* Header */}
         <header className="bg-card border-b border-border px-4 sm:px-6 lg:px-8 py-3 sm:py-4 shadow-lg">
           <div className="flex items-center justify-between gap-3">
