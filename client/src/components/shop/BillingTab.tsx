@@ -1009,13 +1009,15 @@ export default function BillingTab() {
                 <table className="w-full text-[9px] border border-slate-300" style={{tableLayout: 'fixed'}}>
                   <thead>
                     <tr className="bg-slate-800 text-white">
-                      <th className="text-center p-1 border border-slate-600" style={{width: '5%'}}>#</th>
-                      <th className="text-left p-1 border border-slate-600" style={{width: '32%'}}>Item</th>
-                      <th className="text-center p-1 border border-slate-600" style={{width: '10%'}}>HSN</th>
-                      <th className="text-center p-1 border border-slate-600" style={{width: '8%'}}>Qty</th>
-                      <th className="text-right p-1 border border-slate-600" style={{width: '13%'}}>Rate</th>
-                      <th className="text-center p-1 border border-slate-600" style={{width: '10%'}}>GST%</th>
-                      <th className="text-right p-1 border border-slate-600" style={{width: '15%'}}>Amount</th>
+                      <th className="text-center p-1 border border-slate-600" style={{width: currentInvoiceData.hideGST ? '6%' : '5%'}}>#</th>
+                      <th className="text-left p-1 border border-slate-600" style={{width: currentInvoiceData.hideGST ? '40%' : '32%'}}>Item</th>
+                      <th className="text-center p-1 border border-slate-600" style={{width: currentInvoiceData.hideGST ? '12%' : '10%'}}>HSN</th>
+                      <th className="text-center p-1 border border-slate-600" style={{width: currentInvoiceData.hideGST ? '10%' : '8%'}}>Qty</th>
+                      <th className="text-right p-1 border border-slate-600" style={{width: currentInvoiceData.hideGST ? '15%' : '13%'}}>Rate</th>
+                      {!currentInvoiceData.hideGST && (
+                        <th className="text-center p-1 border border-slate-600" style={{width: '10%'}}>GST%</th>
+                      )}
+                      <th className="text-right p-1 border border-slate-600" style={{width: currentInvoiceData.hideGST ? '17%' : '15%'}}>Amount</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1028,9 +1030,19 @@ export default function BillingTab() {
                         </td>
                         <td className="p-1 text-center text-slate-600 border border-slate-200">{item.hsnCode}</td>
                         <td className="p-1 text-center border border-slate-200">{Number(item.quantity) || 0}</td>
-                        <td className="p-1 text-right border border-slate-200">₹{Number(item.sellingPrice).toFixed(2)}</td>
-                        <td className="p-1 text-center border border-slate-200">{Number(item.gstRate) || 0}%</td>
-                        <td className="p-1 text-right font-semibold border border-slate-200">₹{Number(item.amount).toFixed(2)}</td>
+                        <td className="p-1 text-right border border-slate-200">
+                          ₹{currentInvoiceData.hideGST 
+                            ? (Number(item.sellingPrice) * Number(item.quantity) / Number(item.quantity)).toFixed(2)
+                            : Number(item.sellingPrice).toFixed(2)}
+                        </td>
+                        {!currentInvoiceData.hideGST && (
+                          <td className="p-1 text-center border border-slate-200">{Number(item.gstRate) || 0}%</td>
+                        )}
+                        <td className="p-1 text-right font-semibold border border-slate-200">
+                          ₹{currentInvoiceData.hideGST
+                            ? ((Number(item.sellingPrice) * Number(item.quantity) * (100 / (100 + Number(item.gstRate))))).toFixed(2)
+                            : Number(item.amount).toFixed(2)}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -1040,17 +1052,23 @@ export default function BillingTab() {
               {/* Totals */}
               <div className="flex justify-end mb-3 totals-section">
                 <div className="w-full sm:w-64 border border-slate-200 p-2 bg-slate-50 rounded">
-                  <div className="flex justify-between py-1.5 text-xs">
-                    <span className="text-slate-600">Subtotal:</span>
-                    <span className="font-semibold text-slate-900">₹{currentInvoiceData.subtotal}</span>
-                  </div>
-                  <div className="flex justify-between py-1.5 text-xs">
-                    <span className="text-slate-600">GST Amount:</span>
-                    <span className="font-semibold text-slate-900">₹{currentInvoiceData.gstAmount}</span>
-                  </div>
+                  {!currentInvoiceData.hideGST && (
+                    <>
+                      <div className="flex justify-between py-1.5 text-xs">
+                        <span className="text-slate-600">Subtotal:</span>
+                        <span className="font-semibold text-slate-900">₹{currentInvoiceData.subtotal}</span>
+                      </div>
+                      <div className="flex justify-between py-1.5 text-xs">
+                        <span className="text-slate-600">GST Amount:</span>
+                        <span className="font-semibold text-slate-900">₹{currentInvoiceData.gstAmount}</span>
+                      </div>
+                    </>
+                  )}
                   <div className="flex justify-between py-2 border-t-2 border-slate-800 mt-1 text-sm font-bold">
-                    <span className="text-slate-900">Grand Total:</span>
-                    <span className="text-blue-600 text-base">₹{currentInvoiceData.grandTotal}</span>
+                    <span className="text-slate-900">{currentInvoiceData.hideGST ? 'Total:' : 'Grand Total:'}</span>
+                    <span className="text-blue-600 text-base">
+                      ₹{currentInvoiceData.hideGST ? currentInvoiceData.subtotal : currentInvoiceData.grandTotal}
+                    </span>
                   </div>
                 </div>
               </div>
