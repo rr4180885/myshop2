@@ -2,14 +2,16 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { api } from "@shared/routes";
-import { TrendingUp, Package, AlertCircle, DollarSign, Search, Sparkles, Tag, Loader2, ShoppingCart, TrendingDown, Calendar } from "lucide-react";
+import { TrendingUp, Package, AlertCircle, DollarSign, Search, Sparkles, Tag, Loader2, ShoppingCart, TrendingDown, Calendar, ChevronDown, ChevronUp } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function DashboardTab() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [salesPeriod, setSalesPeriod] = useState("month"); // "day" or "month"
+  const [lowStockExpanded, setLowStockExpanded] = useState(false);
 
   const { data: products = [], isLoading } = useQuery({
     queryKey: [api.products.list.path],
@@ -401,18 +403,41 @@ export default function DashboardTab() {
         })}
       </div>
 
-      {/* Low Stock Alert Section */}
+      {/* Low Stock Alert Section - Collapsible */}
       {lowStockItems.length > 0 && (
         <Card className="border-orange-200/50 dark:border-orange-900/50 bg-gradient-to-br from-orange-50/50 to-orange-50/30 dark:from-orange-950/30 dark:to-orange-950/10 overflow-hidden" data-testid="card-low-stock-alert">
           <CardHeader className="pb-4 border-b border-orange-200/30 dark:border-orange-900/30">
-            <div className="flex items-center gap-2">
-              <AlertCircle className="w-5 h-5 text-orange-600 dark:text-orange-400" />
-              <CardTitle className="text-orange-900 dark:text-orange-400">Low Stock Alert</CardTitle>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+                <CardTitle className="text-orange-900 dark:text-orange-400">Low Stock Alert</CardTitle>
+                <span className="text-sm text-orange-600 dark:text-orange-400">({lowStockItems.length} items)</span>
+              </div>
+              {lowStockItems.length > 2 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setLowStockExpanded(!lowStockExpanded)}
+                  className="text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300"
+                >
+                  {lowStockExpanded ? (
+                    <>
+                      <ChevronUp className="w-4 h-4 mr-1" />
+                      Show Less
+                    </>
+                  ) : (
+                    <>
+                      <ChevronDown className="w-4 h-4 mr-1" />
+                      Show All
+                    </>
+                  )}
+                </Button>
+              )}
             </div>
           </CardHeader>
           <CardContent className="pt-6">
             <div className="space-y-3">
-              {lowStockItems.map((item) => (
+              {(lowStockExpanded ? lowStockItems : lowStockItems.slice(0, 2)).map((item: any) => (
                 <div
                   key={item.id}
                   className="flex items-center justify-between p-3 bg-white/50 dark:bg-slate-800/50 rounded-lg hover:bg-white/80 dark:hover:bg-slate-800 transition-colors"
@@ -429,6 +454,11 @@ export default function DashboardTab() {
                 </div>
               ))}
             </div>
+            {!lowStockExpanded && lowStockItems.length > 2 && (
+              <p className="text-center text-sm text-orange-600 dark:text-orange-400 mt-3">
+                +{lowStockItems.length - 2} more items
+              </p>
+            )}
           </CardContent>
         </Card>
       )}
