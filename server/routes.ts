@@ -4,7 +4,7 @@ import { setupAuth } from "./auth";
 import { api } from "@shared/routes";
 import { z } from "zod";
 import { insertProductSchema, insertInvoiceSchema, insertSettingsSchema, insertUserSchema } from "@shared/schema";
-import { sendEmail, generateOTP, getWelcomeEmailTemplate, getPasswordResetEmailTemplate, getInvoiceEmailTemplate } from "./email";
+import { sendEmail, generateOTP, getWelcomeEmailTemplate, getPasswordResetEmailTemplate, getInvoiceEmailTemplate, generateInvoicePDF } from "./email";
 import { scrypt, randomBytes } from "crypto";
 import { promisify } from "util";
 
@@ -80,18 +80,29 @@ export async function registerRoutes(app: Express): Promise<void> {
       if (invoice.customerEmail && invoice.customerEmail.trim() !== '') {
         try {
           const settings = await storage.getSettings();
+          
+          // Generate PDF
+          const pdfBuffer = await generateInvoicePDF(invoice, settings);
+          
+          // Get email template
           const emailHtml = getInvoiceEmailTemplate(
             invoice.invoiceNumber,
             invoice.customerName || 'Valued Customer',
             invoice.grandTotal.toString(),
             settings
           );
+          
+          // Send email with PDF attachment
           await sendEmail({
             to: invoice.customerEmail,
             subject: `Invoice ${invoice.invoiceNumber} - ${settings?.shopName || 'Brothers Enterprises'}`,
             html: emailHtml,
+            attachments: [{
+              filename: `Invoice-${invoice.invoiceNumber}.pdf`,
+              data: pdfBuffer
+            }]
           });
-          console.log(`✉️ Invoice email sent successfully`);
+          console.log(`✉️ Invoice email sent successfully with PDF attachment`);
         } catch (emailError) {
           console.error('Failed to send invoice email:', emailError);
           // Don't fail invoice creation if email fails

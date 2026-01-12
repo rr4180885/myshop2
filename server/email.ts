@@ -1,6 +1,8 @@
 import FormData from 'form-data';
 import Mailgun from 'mailgun.js';
 import type { Settings } from '@shared/schema';
+import PDFDocument from 'pdfkit';
+import type { Invoice } from '@shared/schema';
 
 // Mailgun configuration
 const MAILGUN_API_KEY = process.env.MAILGUN_API_KEY || '42b8ce75-291b2041';
@@ -44,6 +46,100 @@ export async function sendEmail(options: EmailOptions) {
 // Generate OTP
 export function generateOTP(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+// Generate Invoice PDF
+export async function generateInvoicePDF(invoice: any, settings?: Settings): Promise<Buffer> {
+  return new Promise((resolve, reject) => {
+    const doc = new PDFDocument({ margin: 50 });
+    const buffers: Buffer[] = [];
+
+    doc.on('data', buffers.push.bind(buffers));
+    doc.on('end', () => resolve(Buffer.concat(buffers)));
+    doc.on('error', reject);
+
+    const shopName = settings?.shopName || 'Brothers Enterprises';
+    const shopAddress = settings?.shopAddress || '';
+    const shopPhone = settings?.shopPhone || '';
+
+    // Header
+    doc.fontSize(24).font('Helvetica-Bold').text(shopName, { align: 'center' });
+    if (shopAddress) doc.fontSize(10).font('Helvetica').text(shopAddress, { align: 'center' });
+    if (shopPhone) doc.fontSize(10).text(`Phone: ${shopPhone}`, { align: 'center' });
+    
+    doc.moveDown(2);
+    doc.fontSize(20).font('Helvetica-Bold').text('INVOICE', { align: 'center' });
+    doc.moveDown();
+
+    // Invoice details
+    doc.fontSize(10).font('Helvetica');
+    const invoiceInfoY = doc.y;
+    doc.text(`Invoice #: ${invoice.invoiceNumber}`, 50, invoiceInfoY);
+    doc.text(`Date: ${new Date(invoice.invoiceDate).toLocaleDateString('en-IN')}`, 350, invoiceInfoY, { align: 'right' });
+    doc.moveDown();
+
+    // Customer details
+    doc.fontSize(12).font('Helvetica-Bold').text('Bill To:');
+    doc.fontSize(10).font('Helvetica');
+    doc.text(invoice.customerName || 'Customer');
+    if (invoice.customerPhone) doc.text(`Phone: ${invoice.customerPhone}`);
+    if (invoice.customerEmail) doc.text(`Email: ${invoice.customerEmail}`);
+    doc.moveDown(2);
+
+    // Table header
+    const tableTop = doc.y;
+    doc.fontSize(10).font('Helvetica-Bold');
+    doc.text('Item', 50, tableTop);
+    doc.text('Qty', 300, tableTop, { width: 50, align: 'right' });
+    doc.text('Rate', 350, tableTop, { width: 80, align: 'right' });
+    doc.text('Amount', 430, tableTop, { width: 100, align: 'right' });
+    
+    doc.moveTo(50, tableTop + 15).lineTo(530, tableTop + 15).stroke();
+    
+    // Table items
+    let yPos = tableTop + 25;
+    doc.font('Helvetica');
+    
+    if (invoice.items && Array.isArray(invoice.items)) {
+      invoice.items.forEach((item: any) => {
+        const itemTotal = item.quantity * item.rate;
+        doc.text(item.productName || 'Product', 50, yPos, { width: 200 });
+        doc.text(item.quantity.toString(), 300, yPos, { width: 50, align: 'right' });
+        doc.text(`₹${item.rate.toFixed(2)}`, 350, yPos, { width: 80, align: 'right' });
+        doc.text(`₹${itemTotal.toFixed(2)}`, 430, yPos, { width: 100, align: 'right' });
+        yPos += 20;
+      });
+    }
+
+    doc.moveTo(50, yPos).lineTo(530, yPos).stroke();
+    yPos += 15;
+
+    // Totals
+    doc.font('Helvetica-Bold');
+    doc.text('Subtotal:', 350, yPos);
+    doc.text(`₹${invoice.subtotal.toFixed(2)}`, 430, yPos, { width: 100, align: 'right' });
+    yPos += 20;
+
+    if (invoice.gstRate > 0) {
+      doc.text(`GST (${invoice.gstRate}%):`, 350, yPos);
+      doc.text(`₹${invoice.gstAmount.toFixed(2)}`, 430, yPos, { width: 100, align: 'right' });
+      yPos += 20;
+    }
+
+    doc.fontSize(12);
+    doc.text('Grand Total:', 350, yPos);
+    doc.text(`₹${invoice.grandTotal.toFixed(2)}`, 430, yPos, { width: 100, align: 'right' });
+
+    // Footer
+    doc.fontSize(8).font('Helvetica').text(
+      'Thank you for your business!',
+      50,
+      doc.page.height - 50,
+      { align: 'center' }
+    );
+
+    doc.end();
+  });
 }
 
 // Email Templates
