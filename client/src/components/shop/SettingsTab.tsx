@@ -201,9 +201,13 @@ export default function SettingsTab() {
   const [newUserPassword, setNewUserPassword] = useState("");
 
   // Fetch users
-  const { data: users = [] } = useQuery({
+  const { data: users = [], isLoading: usersLoading } = useQuery({
     queryKey: [api.users.list.path],
-    queryFn: async () => apiRequest("GET", api.users.list.path),
+    queryFn: async () => {
+      const response = await fetch(api.users.list.path);
+      if (!response.ok) return [];
+      return response.json();
+    },
   });
 
   // Create user mutation
