@@ -207,10 +207,10 @@ export default function DashboardTab() {
   ];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* Sales Summary Card */}
       <Card className="border-green-200/50 dark:border-green-900/50 bg-gradient-to-br from-green-50/50 to-green-50/30 dark:from-green-950/30 dark:to-green-950/10 overflow-hidden">
-        <CardHeader className="pb-4">
+        <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <ShoppingCart className="w-5 h-5 text-green-600 dark:text-green-400" />
