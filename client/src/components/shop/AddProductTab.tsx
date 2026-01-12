@@ -1,4 +1,4 @@
- import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
@@ -6,18 +6,18 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { api } from "@shared/routes";
-import { insertProductSchema } from "@shared/schema";
+import { insertProductSchema, type InsertProduct } from "@shared/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/hooks/use-toast";
-import { z } from "zod";
-import { Plus, Loader2 } from "lucide-react";
-
-const formSchema = insertProductSchema;
+import { Plus, Loader2, AlertCircle } from "lucide-react";
+import { useState, useEffect } from "react";
 
 export default function AddProductTab() {
   const { toast } = useToast();
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const [duplicateCode, setDuplicateCode] = useState<string | null>(null);
+  
+  const form = useForm<InsertProduct>({
+    resolver: zodResolver(insertProductSchema),
     defaultValues: {
       name: "",
       brand: "",
@@ -31,18 +31,60 @@ export default function AddProductTab() {
     },
   });
 
+  // Fetch existing products to check for duplicates
+  const { data: products = [] } = useQuery({
+    queryKey: [api.products.list.path],
+    queryFn: async () => {
+      const res = await fetch(api.products.list.path);
+      return res.json();
+    },
+  });
+
+  // Watch for code changes to check for duplicates
+  const codeValue = form.watch("code");
+  
+  useEffect(() => {
+    if (codeValue && codeValue.trim()) {
+      const existingProduct = products.find(
+        (p: any) => p.code.toLowerCase() === codeValue.toLowerCase()
+      );
+      if (existingProduct) {
+        setDuplicateCode(codeValue);
+      } else {
+        setDuplicateCode(null);
+      }
+    } else {
+      setDuplicateCode(null);
+    }
+  }, [codeValue, products]);
+
   const mutation = useMutation({
-    mutationFn: async (data) => {
+    mutationFn: async (data: InsertProduct) => {
+      // Check for duplicate code before submitting
+      const existingProduct = products.find(
+        (p: any) => p.code.toLowerCase() === data.code.toLowerCase()
+      );
+      if (existingProduct) {
+        throw new Error(`Product code "${data.code}" already exists. Please use a different code.`);
+      }
       return apiRequest("POST", api.products.create.path, data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [api.products.list.path] });
       form.reset();
+      setDuplicateCode(null);
       toast({ 
         title: "Success!",
         description: "Product added to inventory"
       });
     },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to add product",
+        variant: "destructive"
+      });
+    }
   });
 
   return (
@@ -105,13 +147,24 @@ export default function AddProductTab() {
                     <FormItem>
                       <FormLabel>Product Code/SKU *</FormLabel>
                       <FormControl>
-                        <Input 
-                          placeholder="e.g., BP-MS-001" 
-                          {...field} 
-                          className="mt-2"
-                          data-testid="input-code" 
-                        />
+                        <div className="relative">
+                          <Input 
+                            placeholder="e.g., BP-MS-001" 
+                            {...field} 
+                            className={`mt-2 ${duplicateCode ? 'border-red-500 focus-visible:ring-red-500 bg-red-50 dark:bg-red-950' : ''}`}
+                            data-testid="input-code" 
+                          />
+                          {duplicateCode && (
+                            <AlertCircle className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-red-500" />
+                          )}
+                        </div>
                       </FormControl>
+                      {duplicateCode && (
+                        <p className="text-sm text-red-500 font-medium flex items-center gap-1 mt-2">
+                          <AlertCircle className="w-4 h-4" />
+                          Product code "{duplicateCode}" already exists!
+                        </p>
+                      )}
                       <FormMessage />
                     </FormItem>
                   )}
@@ -124,7 +177,7 @@ export default function AddProductTab() {
                     <FormItem>
                       <FormLabel>HSN Code</FormLabel>
                       <FormControl>
-                        <Input {...field} className="mt-2" data-testid="input-hsn-code" />
+                        <Input {...field} value={field.value || ""} className="mt-2" data-testid="input-hsn-code" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -143,7 +196,7 @@ export default function AddProductTab() {
                         <Input 
                           type="number" 
                           {...field} 
-                          onChange={(e) => field.onChange(parseInt(e.target.value))} 
+                          onChange={(e) => field.onChange(parseInt(e.target.value) || 0)} 
                           className="mt-2"
                           data-testid="input-stock" 
                         />
@@ -206,6 +259,7 @@ export default function AddProductTab() {
                           type="number" 
                           placeholder="e.g., 10" 
                           {...field} 
+                          value={field.value || ""}
                           className="mt-2"
                           data-testid="input-max-discount" 
                         />
@@ -225,7 +279,7 @@ export default function AddProductTab() {
                         <Input 
                           type="number" 
                           {...field} 
-                          onChange={(e) => field.onChange(parseInt(e.target.value))} 
+                          onChange={(e) => field.onChange(parseInt(e.target.value) || 0)} 
                           className="mt-2"
                           data-testid="input-gst-rate" 
                         />
@@ -239,7 +293,7 @@ export default function AddProductTab() {
               <div className="flex gap-3 pt-4">
                 <Button 
                   type="submit" 
-                  disabled={mutation.isPending} 
+                  disabled={mutation.isPending || !!duplicateCode} 
                   className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white"
                   data-testid="button-add-product"
                 >
@@ -255,6 +309,11 @@ export default function AddProductTab() {
                     </>
                   )}
                 </Button>
+                {duplicateCode && (
+                  <p className="text-sm text-red-500 flex items-center">
+                    Cannot add product with duplicate code
+                  </p>
+                )}
               </div>
             </form>
           </Form>

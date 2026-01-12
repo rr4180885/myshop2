@@ -9,6 +9,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Trash2, Plus, Minus, Printer, ShoppingCart, FileText, Search, Calendar } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatDate } from "@/lib/dateUtils";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 interface CartItem {
   id: number;
@@ -31,6 +33,7 @@ export default function BillingTab() {
   const [dateTo, setDateTo] = useState("");
   const [showInvoicePreview, setShowInvoicePreview] = useState(false);
   const [currentInvoiceData, setCurrentInvoiceData] = useState<any>(null);
+  const [hideGST, setHideGST] = useState(false); // Toggle to hide GST details
 
   const { data: products = [] } = useQuery({
     queryKey: [api.products.list.path],
@@ -95,6 +98,7 @@ export default function BillingTab() {
         subtotal: subtotal.toFixed(2),
         gstAmount: gstAmount.toFixed(2),
         grandTotal: grandTotal.toFixed(2),
+        hideGST, // Pass the GST toggle state
       };
 
       await apiRequest("POST", api.invoices.create.path, invoiceData);
@@ -817,19 +821,36 @@ export default function BillingTab() {
                     )}
                   </div>
 
+                  {/* GST Toggle Switch */}
+                  <div className="flex items-center space-x-2 mb-3 p-2 bg-accent/20 rounded-lg">
+                    <Switch
+                      id="hide-gst"
+                      checked={hideGST}
+                      onCheckedChange={setHideGST}
+                      data-testid="switch-hide-gst"
+                    />
+                    <Label htmlFor="hide-gst" className="text-xs sm:text-sm cursor-pointer">
+                      Hide GST details in bill
+                    </Label>
+                  </div>
+
                   {/* Totals */}
                   <div className="border-t pt-3 sm:pt-4 space-y-2">
-                    <div className="flex justify-between text-xs sm:text-sm">
-                      <span className="text-muted-foreground">Subtotal:</span>
-                      <span className="font-semibold text-foreground" data-testid="text-subtotal">₹{subtotal.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between text-xs sm:text-sm">
-                      <span className="text-muted-foreground">GST:</span>
-                      <span className="font-semibold text-foreground" data-testid="text-gst">₹{gstAmount.toFixed(2)}</span>
-                    </div>
+                    {!hideGST && (
+                      <>
+                        <div className="flex justify-between text-xs sm:text-sm">
+                          <span className="text-muted-foreground">Subtotal:</span>
+                          <span className="font-semibold text-foreground" data-testid="text-subtotal">₹{subtotal.toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between text-xs sm:text-sm">
+                          <span className="text-muted-foreground">GST:</span>
+                          <span className="font-semibold text-foreground" data-testid="text-gst">₹{gstAmount.toFixed(2)}</span>
+                        </div>
+                      </>
+                    )}
                     <div className="flex justify-between text-base sm:text-lg font-bold border-t pt-2 sm:pt-3 mt-2 sm:mt-3">
                       <span>Total:</span>
-                      <span className="text-primary" data-testid="text-grand-total">₹{grandTotal.toFixed(2)}</span>
+                      <span className="text-primary" data-testid="text-grand-total">₹{hideGST ? subtotal.toFixed(2) : grandTotal.toFixed(2)}</span>
                     </div>
                   </div>
 

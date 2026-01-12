@@ -3,16 +3,26 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { api } from "@shared/routes";
-import { TrendingUp, Package, AlertCircle, DollarSign, Search, Sparkles, Tag, Loader2 } from "lucide-react";
+import { TrendingUp, Package, AlertCircle, DollarSign, Search, Sparkles, Tag, Loader2, ShoppingCart, TrendingDown, Calendar } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function DashboardTab() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [salesPeriod, setSalesPeriod] = useState("month"); // "day" or "month"
 
   const { data: products = [], isLoading } = useQuery({
     queryKey: [api.products.list.path],
     queryFn: async () => {
       const res = await fetch(api.products.list.path);
+      return res.json();
+    },
+  });
+
+  const { data: invoices = [] } = useQuery({
+    queryKey: [api.invoices.list.path],
+    queryFn: async () => {
+      const res = await fetch(api.invoices.list.path);
       return res.json();
     },
   });
@@ -67,6 +77,76 @@ export default function DashboardTab() {
     setSearchResults(results.slice(0, 5)); // Limit to top 5 results
   };
 
+  // Calculate sales analytics
+  const calculateSalesAnalytics = () => {
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    let periodInvoices = invoices;
+    
+    if (salesPeriod === "day") {
+      periodInvoices = invoices.filter((inv: any) => {
+        const invDate = new Date(inv.createdAt);
+        return invDate >= startOfToday;
+      });
+    } else {
+      periodInvoices = invoices.filter((inv: any) => {
+        const invDate = new Date(inv.createdAt);
+        return invDate >= startOfMonth;
+      });
+    }
+
+    // Calculate total sales and profit
+    let totalSales = 0;
+    let totalProfit = 0;
+    const productsSoldMap = new Map<string, { name: string; quantity: number; revenue: number; profit: number }>();
+
+    periodInvoices.forEach((invoice: any) => {
+      const items = JSON.parse(invoice.items);
+      const invoiceTotal = Number(invoice.grandTotal);
+      totalSales += invoiceTotal;
+
+      items.forEach((item: any) => {
+        const product = products.find((p: any) => p.id === item.id);
+        if (product) {
+          const quantity = Number(item.quantity) || 0;
+          const sellingPrice = Number(item.sellingPrice) || 0;
+          const purchasePrice = Number(product.purchasePrice) || 0;
+          const revenue = quantity * sellingPrice;
+          const profit = quantity * (sellingPrice - purchasePrice);
+
+          totalProfit += profit;
+
+          const existing = productsSoldMap.get(item.name);
+          if (existing) {
+            existing.quantity += quantity;
+            existing.revenue += revenue;
+            existing.profit += profit;
+          } else {
+            productsSoldMap.set(item.name, {
+              name: item.name,
+              quantity,
+              revenue,
+              profit,
+            });
+          }
+        }
+      });
+    });
+
+    const topProducts = Array.from(productsSoldMap.values())
+      .sort((a, b) => b.quantity - a.quantity)
+      .slice(0, 5);
+
+    return {
+      totalSales,
+      totalProfit,
+      invoiceCount: periodInvoices.length,
+      topProducts,
+    };
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -86,6 +166,8 @@ export default function DashboardTab() {
   const lowStockCount = products.filter((p) => p.stock < 2).length;
   const lowStockItems = products.filter((p) => p.stock < 2);
   const totalStockUnits = products.reduce((sum, p) => sum + p.stock, 0);
+
+  const salesAnalytics = calculateSalesAnalytics();
 
   const stats = [
     {
@@ -124,6 +206,108 @@ export default function DashboardTab() {
 
   return (
     <div className="space-y-8">
+      {/* Sales Summary Card */}
+      <Card className="border-green-200/50 dark:border-green-900/50 bg-gradient-to-br from-green-50/50 to-green-50/30 dark:from-green-950/30 dark:to-green-950/10 overflow-hidden">
+        <CardHeader className="pb-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <ShoppingCart className="w-5 h-5 text-green-600 dark:text-green-400" />
+              <CardTitle className="text-green-900 dark:text-green-400">Sales Summary</CardTitle>
+            </div>
+            <Select value={salesPeriod} onValueChange={setSalesPeriod}>
+              <SelectTrigger className="w-32">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="day">Today</SelectItem>
+                <SelectItem value="month">This Month</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <div className="bg-white/50 dark:bg-slate-800/50 p-4 rounded-lg">
+              <div className="flex items-center gap-2 mb-2">
+                <ShoppingCart className="w-4 h-4 text-green-600 dark:text-green-400" />
+                <p className="text-sm text-slate-600 dark:text-slate-400">Total Sales</p>
+              </div>
+              <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                ₹{salesAnalytics.totalSales.toLocaleString()}
+              </p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                {salesAnalytics.invoiceCount} invoice{salesAnalytics.invoiceCount !== 1 ? 's' : ''}
+              </p>
+            </div>
+            
+            <div className="bg-white/50 dark:bg-slate-800/50 p-4 rounded-lg">
+              <div className="flex items-center gap-2 mb-2">
+                <TrendingUp className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                <p className="text-sm text-slate-600 dark:text-slate-400">Total Profit</p>
+              </div>
+              <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                ₹{salesAnalytics.totalProfit.toLocaleString()}
+              </p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                {salesAnalytics.totalProfit > 0 ? `${((salesAnalytics.totalProfit / salesAnalytics.totalSales) * 100).toFixed(1)}% margin` : 'No sales'}
+              </p>
+            </div>
+            
+            <div className="bg-white/50 dark:bg-slate-800/50 p-4 rounded-lg">
+              <div className="flex items-center gap-2 mb-2">
+                <Calendar className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                <p className="text-sm text-slate-600 dark:text-slate-400">Period</p>
+              </div>
+              <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                {salesPeriod === "day" ? "Today" : "This Month"}
+              </p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                {new Date().toLocaleDateString()}
+              </p>
+            </div>
+          </div>
+
+          {/* Top Selling Products */}
+          {salesAnalytics.topProducts.length > 0 && (
+            <div>
+              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
+                Top Selling Products
+              </h3>
+              <div className="space-y-2">
+                {salesAnalytics.topProducts.map((product, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700"
+                  >
+                    <div className="flex-1">
+                      <p className="font-medium text-slate-900 dark:text-white">{product.name}</p>
+                      <p className="text-sm text-slate-600 dark:text-slate-400">
+                        Sold: {product.quantity} units
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-semibold text-green-600 dark:text-green-400">
+                        ₹{product.revenue.toLocaleString()}
+                      </p>
+                      <p className="text-sm text-blue-600 dark:text-blue-400">
+                        Profit: ₹{product.profit.toLocaleString()}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {salesAnalytics.invoiceCount === 0 && (
+            <div className="text-center py-6 text-slate-600 dark:text-slate-400">
+              <TrendingDown className="w-12 h-12 mx-auto mb-2 opacity-50" />
+              <p>No sales recorded for {salesPeriod === "day" ? "today" : "this month"}</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* AI-Powered Product Price Search */}
       <Card className="border-blue-200/50 dark:border-blue-900/50 bg-gradient-to-br from-blue-50/50 to-blue-50/30 dark:from-blue-950/30 dark:to-blue-950/10 overflow-hidden">
         <CardHeader className="pb-4">
