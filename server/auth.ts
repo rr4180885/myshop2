@@ -66,11 +66,11 @@ export function setupAuth(app: Express) {
 
   // Seed Admin User
   (async () => {
-    const admin = await storage.getUserByUsername("admin");
+    const admin = await storage.getUserByUsername("vivek01");
     if (!admin) {
-      const hashedPassword = await hashPassword("admin1234");
-      await storage.createUser({ username: "admin", password: hashedPassword });
-      console.log("Admin user seeded: admin / admin1234");
+      const hashedPassword = await hashPassword("Vivek@9572");
+      await storage.createUser({ username: "vivek01", password: hashedPassword });
+      console.log("Admin user seeded: vivek01 / Vivek@9572");
     }
   })();
 

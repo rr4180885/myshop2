@@ -67,8 +67,14 @@ export default function AuthPage() {
       <div className="flex items-center justify-center p-4 sm:p-6 md:p-8 lg:p-12 relative z-10">
         <Card className="w-full max-w-md border border-border/50 shadow-2xl shadow-primary/5 bg-card/95 backdrop-blur-sm">
           <CardHeader className="space-y-1 px-4 sm:px-6 pt-6 pb-4">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center mb-4 shadow-lg shadow-primary/30">
-              <Lock className="w-7 h-7 text-primary-foreground" />
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg shadow-primary/30">
+                <Lock className="w-7 h-7 text-primary-foreground" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-foreground">Brother Enterprises</h1>
+                <p className="text-xs text-muted-foreground">Billing System</p>
+              </div>
             </div>
             <CardTitle className="text-2xl sm:text-3xl font-bold bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">
               Welcome back
