@@ -58,185 +58,139 @@ export function getWelcomeEmailTemplate(username: string, settings?: Settings): 
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Welcome to ${shopName}</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      line-height: 1.6;
-      color: #333;
-      background-color: #f4f4f4;
-      margin: 0;
-      padding: 0;
-    }
-    .email-container {
-      max-width: 600px;
-      margin: 20px auto;
-      background: #ffffff;
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-    .header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      padding: 40px 20px;
-      text-align: center;
-      color: white;
-    }
-    .logo {
-      max-width: 120px;
-      height: auto;
-      margin-bottom: 20px;
-    }
-    .header h1 {
-      margin: 0;
-      font-size: 28px;
-      font-weight: 600;
-    }
-    .content {
-      padding: 40px 30px;
-    }
-    .welcome-message {
-      font-size: 18px;
-      color: #667eea;
-      margin-bottom: 20px;
-      font-weight: 600;
-    }
-    .message-text {
-      font-size: 16px;
-      color: #555;
-      margin-bottom: 15px;
-    }
-    .credentials-box {
-      background: #f8f9ff;
-      border-left: 4px solid #667eea;
-      padding: 20px;
-      margin: 25px 0;
-      border-radius: 5px;
-    }
-    .credentials-box p {
-      margin: 8px 0;
-      font-size: 15px;
-    }
-    .credentials-box strong {
-      color: #667eea;
-    }
-    .button {
-      display: inline-block;
-      padding: 14px 35px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      text-decoration: none;
-      border-radius: 25px;
-      font-weight: 600;
-      margin: 20px 0;
-      transition: transform 0.3s ease;
-    }
-    .button:hover {
-      transform: translateY(-2px);
-    }
-    .features {
-      background: #f8f9ff;
-      padding: 25px;
-      margin: 25px 0;
-      border-radius: 8px;
-    }
-    .features h3 {
-      color: #667eea;
-      font-size: 18px;
-      margin-bottom: 15px;
-    }
-    .features ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-    .features li {
-      padding: 8px 0;
-      padding-left: 25px;
-      position: relative;
-    }
-    .features li:before {
-      content: "✓";
-      position: absolute;
-      left: 0;
-      color: #667eea;
-      font-weight: bold;
-    }
-    .footer {
-      background: #f8f9fa;
-      padding: 25px;
-      text-align: center;
-      border-top: 1px solid #e0e0e0;
-    }
-    .footer p {
-      margin: 5px 0;
-      font-size: 14px;
-      color: #777;
-    }
-    .social-links {
-      margin: 15px 0;
-    }
-    .social-links a {
-      display: inline-block;
-      margin: 0 10px;
-      color: #667eea;
-      text-decoration: none;
-    }
-  </style>
 </head>
-<body>
-  <div class="email-container">
-    <div class="header">
-      ${shopLogo ? `<img src="${shopLogo}" alt="${shopName}" class="logo">` : ''}
-      <h1>${shopName}</h1>
-    </div>
-    
-    <div class="content">
-      <div class="welcome-message">Welcome to Our Platform!</div>
-      
-      <p class="message-text">Dear <strong>${username}</strong>,</p>
-      
-      <p class="message-text">
-        Thank you for registering with ${shopName}! We're excited to have you on board. 
-        Your account has been successfully created and is now ready to use.
-      </p>
-      
-      <div class="credentials-box">
-        <p><strong>Username:</strong> ${username}</p>
-        <p><strong>Account Status:</strong> Active ✓</p>
-      </div>
-      
-      <p class="message-text">
-        You can now log in to your account and start managing your business operations 
-        with our comprehensive platform.
-      </p>
-      
-      <div class="features">
-        <h3>What You Can Do:</h3>
-        <ul>
-          <li>Manage inventory and products</li>
-          <li>Create and track invoices</li>
-          <li>Monitor sales analytics</li>
-          <li>Customize settings</li>
-          <li>Generate reports</li>
-        </ul>
-      </div>
-      
-      <p class="message-text">
-        If you have any questions or need assistance, please don't hesitate to reach out 
-        to our support team.
-      </p>
-      
-      <p class="message-text">
-        Best regards,<br>
-        <strong>The ${shopName} Team</strong>
-      </p>
-    </div>
-    
-    <div class="footer">
-      <p>&copy; ${new Date().getFullYear()} ${shopName}. All rights reserved.</p>
-      <p>This is an automated email. Please do not reply to this message.</p>
-    </div>
-  </div>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f5f7fa;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f5f7fa; padding: 40px 20px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="background-color: #ffffff; border-radius: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); overflow: hidden;">
+          
+          <!-- Header -->
+          <tr>
+            <td style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 50px 40px; text-align: center;">
+              ${shopLogo ? `<img src="${shopLogo}" alt="${shopName}" style="max-width: 120px; height: auto; margin-bottom: 20px; display: block; margin-left: auto; margin-right: auto;">` : ''}
+              <h1 style="margin: 0; color: #ffffff; font-size: 32px; font-weight: 700; letter-spacing: -0.5px;">🎉 Welcome Aboard!</h1>
+              <p style="margin: 10px 0 0 0; color: rgba(255,255,255,0.9); font-size: 16px;">${shopName}</p>
+            </td>
+          </tr>
+          
+          <!-- Content -->
+          <tr>
+            <td style="padding: 50px 40px;">
+              
+              <p style="margin: 0 0 20px 0; font-size: 18px; line-height: 1.6; color: #1a202c;">
+                Hello <strong style="color: #10b981;">${username}</strong>!
+              </p>
+              
+              <p style="margin: 0 0 25px 0; font-size: 16px; line-height: 1.6; color: #4a5568;">
+                Thank you for joining ${shopName}! We're thrilled to have you as part of our community. Your account has been successfully created and is ready to use.
+              </p>
+              
+              <!-- Account Info Box -->
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin: 30px 0;">
+                <tr>
+                  <td style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-left: 4px solid #10b981; border-radius: 8px; padding: 25px;">
+                    <p style="margin: 0 0 12px 0; font-size: 14px; color: #10b981; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Your Account Details</p>
+                    <p style="margin: 0 0 10px 0; font-size: 16px; color: #1a202c;">
+                      <strong>Username:</strong> <span style="color: #10b981;">${username}</span>
+                    </p>
+                    <p style="margin: 0; font-size: 16px; color: #1a202c;">
+                      <strong>Status:</strong> <span style="color: #10b981;">✓ Active</span>
+                    </p>
+                  </td>
+                </tr>
+              </table>
+              
+              <p style="margin: 25px 0 30px 0; font-size: 16px; line-height: 1.6; color: #4a5568;">
+                You can now log in to your account and start managing your business operations with our comprehensive platform.
+              </p>
+              
+              <!-- Features Grid -->
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin: 30px 0;">
+                <tr>
+                  <td style="background-color: #f7fafc; border-radius: 12px; padding: 30px;">
+                    <p style="margin: 0 0 20px 0; font-size: 18px; color: #2d3748; font-weight: 600; text-align: center;">✨ What You Can Do</p>
+                    
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                      <tr>
+                        <td style="padding: 12px 0; border-bottom: 1px solid #e2e8f0;">
+                          <p style="margin: 0; font-size: 15px; color: #4a5568; line-height: 1.6;">
+                            <strong style="color: #10b981;">📦</strong> Manage inventory and products
+                          </p>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 12px 0; border-bottom: 1px solid #e2e8f0;">
+                          <p style="margin: 0; font-size: 15px; color: #4a5568; line-height: 1.6;">
+                            <strong style="color: #10b981;">📄</strong> Create and track invoices
+                          </p>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 12px 0; border-bottom: 1px solid #e2e8f0;">
+                          <p style="margin: 0; font-size: 15px; color: #4a5568; line-height: 1.6;">
+                            <strong style="color: #10b981;">📊</strong> Monitor sales analytics
+                          </p>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 12px 0; border-bottom: 1px solid #e2e8f0;">
+                          <p style="margin: 0; font-size: 15px; color: #4a5568; line-height: 1.6;">
+                            <strong style="color: #10b981;">⚙️</strong> Customize settings
+                          </p>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 12px 0;">
+                          <p style="margin: 0; font-size: 15px; color: #4a5568; line-height: 1.6;">
+                            <strong style="color: #10b981;">📈</strong> Generate detailed reports
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+              
+              <!-- Support Note -->
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin: 30px 0;">
+                <tr>
+                  <td style="background-color: #eff6ff; border-left: 4px solid #3b82f6; border-radius: 8px; padding: 20px;">
+                    <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #1e40af;">
+                      <strong>💬 Need Help?</strong> If you have any questions or need assistance, our support team is here to help you get started!
+                    </p>
+                  </td>
+                </tr>
+              </table>
+              
+              <p style="margin: 30px 0 10px 0; font-size: 16px; line-height: 1.6; color: #4a5568;">
+                We're excited to see what you'll achieve!
+              </p>
+              
+              <p style="margin: 10px 0 0 0; font-size: 16px; line-height: 1.6; color: #4a5568;">
+                Best regards,<br>
+                <strong style="color: #10b981;">The ${shopName} Team</strong>
+              </p>
+              
+            </td>
+          </tr>
+          
+          <!-- Footer -->
+          <tr>
+            <td style="background-color: #f7fafc; padding: 30px 40px; text-align: center; border-top: 1px solid #e2e8f0;">
+              <p style="margin: 0 0 8px 0; font-size: 13px; color: #718096;">
+                &copy; ${new Date().getFullYear()} ${shopName}. All rights reserved.
+              </p>
+              <p style="margin: 0; font-size: 12px; color: #a0aec0;">
+                This is an automated email. Please do not reply to this message.
+              </p>
+            </td>
+          </tr>
+          
+        </table>
+      </td>
+    </tr>
+  </table>
 </body>
 </html>
   `;
@@ -253,187 +207,104 @@ export function getPasswordResetEmailTemplate(username: string, otp: string, set
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Password Reset - ${shopName}</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      line-height: 1.6;
-      color: #333;
-      background-color: #f4f4f4;
-      margin: 0;
-      padding: 0;
-    }
-    .email-container {
-      max-width: 600px;
-      margin: 20px auto;
-      background: #ffffff;
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-    .header {
-      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-      padding: 40px 20px;
-      text-align: center;
-      color: white;
-    }
-    .logo {
-      max-width: 120px;
-      height: auto;
-      margin-bottom: 20px;
-    }
-    .header h1 {
-      margin: 0;
-      font-size: 28px;
-      font-weight: 600;
-    }
-    .content {
-      padding: 40px 30px;
-    }
-    .alert-message {
-      font-size: 18px;
-      color: #f5576c;
-      margin-bottom: 20px;
-      font-weight: 600;
-    }
-    .message-text {
-      font-size: 16px;
-      color: #555;
-      margin-bottom: 15px;
-    }
-    .otp-box {
-      background: linear-gradient(135deg, #fff5f7 0%, #ffe5e9 100%);
-      border: 2px solid #f5576c;
-      padding: 30px;
-      margin: 25px 0;
-      border-radius: 10px;
-      text-align: center;
-    }
-    .otp-label {
-      font-size: 14px;
-      color: #666;
-      margin-bottom: 10px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-    .otp-code {
-      font-size: 36px;
-      font-weight: bold;
-      color: #f5576c;
-      letter-spacing: 8px;
-      font-family: 'Courier New', monospace;
-      margin: 10px 0;
-    }
-    .otp-validity {
-      font-size: 13px;
-      color: #888;
-      margin-top: 10px;
-    }
-    .warning-box {
-      background: #fff3cd;
-      border-left: 4px solid #ffc107;
-      padding: 15px;
-      margin: 25px 0;
-      border-radius: 5px;
-    }
-    .warning-box p {
-      margin: 5px 0;
-      font-size: 14px;
-      color: #856404;
-    }
-    .security-tips {
-      background: #f8f9fa;
-      padding: 20px;
-      margin: 25px 0;
-      border-radius: 8px;
-    }
-    .security-tips h3 {
-      color: #f5576c;
-      font-size: 16px;
-      margin-bottom: 12px;
-    }
-    .security-tips ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-    .security-tips li {
-      padding: 6px 0;
-      padding-left: 20px;
-      position: relative;
-      font-size: 14px;
-    }
-    .security-tips li:before {
-      content: "🔒";
-      position: absolute;
-      left: 0;
-    }
-    .footer {
-      background: #f8f9fa;
-      padding: 25px;
-      text-align: center;
-      border-top: 1px solid #e0e0e0;
-    }
-    .footer p {
-      margin: 5px 0;
-      font-size: 14px;
-      color: #777;
-    }
-  </style>
 </head>
-<body>
-  <div class="email-container">
-    <div class="header">
-      ${shopLogo ? `<img src="${shopLogo}" alt="${shopName}" class="logo">` : ''}
-      <h1>${shopName}</h1>
-    </div>
-    
-    <div class="content">
-      <div class="alert-message">Password Reset Request</div>
-      
-      <p class="message-text">Dear <strong>${username}</strong>,</p>
-      
-      <p class="message-text">
-        We received a request to reset your password. Use the OTP (One-Time Password) below 
-        to proceed with resetting your password.
-      </p>
-      
-      <div class="otp-box">
-        <div class="otp-label">Your OTP Code</div>
-        <div class="otp-code">${otp}</div>
-        <div class="otp-validity">⏱️ Valid for 10 minutes</div>
-      </div>
-      
-      <div class="warning-box">
-        <p><strong>⚠️ Important:</strong></p>
-        <p>If you didn't request this password reset, please ignore this email and your password will remain unchanged.</p>
-      </div>
-      
-      <div class="security-tips">
-        <h3>Security Tips:</h3>
-        <ul>
-          <li>Never share your OTP with anyone</li>
-          <li>Our team will never ask for your OTP</li>
-          <li>Always use a strong, unique password</li>
-          <li>Enable two-factor authentication when available</li>
-        </ul>
-      </div>
-      
-      <p class="message-text">
-        If you're experiencing any issues or didn't request this reset, please contact 
-        our support team immediately.
-      </p>
-      
-      <p class="message-text">
-        Best regards,<br>
-        <strong>The ${shopName} Team</strong>
-      </p>
-    </div>
-    
-    <div class="footer">
-      <p>&copy; ${new Date().getFullYear()} ${shopName}. All rights reserved.</p>
-      <p>This is an automated email. Please do not reply to this message.</p>
-    </div>
-  </div>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f5f7fa;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f5f7fa; padding: 40px 20px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="background-color: #ffffff; border-radius: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); overflow: hidden;">
+          
+          <!-- Header -->
+          <tr>
+            <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 50px 40px; text-align: center;">
+              ${shopLogo ? `<img src="${shopLogo}" alt="${shopName}" style="max-width: 120px; height: auto; margin-bottom: 20px; display: block; margin-left: auto; margin-right: auto;">` : ''}
+              <h1 style="margin: 0; color: #ffffff; font-size: 32px; font-weight: 700; letter-spacing: -0.5px;">🔐 Password Reset</h1>
+              <p style="margin: 10px 0 0 0; color: rgba(255,255,255,0.9); font-size: 16px;">${shopName}</p>
+            </td>
+          </tr>
+          
+          <!-- Content -->
+          <tr>
+            <td style="padding: 50px 40px;">
+              
+              <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.6; color: #1a202c;">
+                Hello <strong style="color: #667eea;">${username}</strong>,
+              </p>
+              
+              <p style="margin: 0 0 30px 0; font-size: 16px; line-height: 1.6; color: #4a5568;">
+                We received a request to reset your password. Use the verification code below to proceed with resetting your password.
+              </p>
+              
+              <!-- OTP Box -->
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin: 30px 0;">
+                <tr>
+                  <td style="background: linear-gradient(135deg, #f8f9ff 0%, #e8ecff 100%); border: 3px solid #667eea; border-radius: 12px; padding: 40px; text-align: center;">
+                    <p style="margin: 0 0 15px 0; font-size: 14px; color: #667eea; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px;">Your Verification Code</p>
+                    <div style="font-size: 48px; font-weight: 800; color: #667eea; letter-spacing: 12px; font-family: 'Courier New', Courier, monospace; margin: 20px 0;">${otp}</div>
+                    <p style="margin: 15px 0 0 0; font-size: 14px; color: #718096;">
+                      <strong>⏱️ Valid for 10 minutes</strong>
+                    </p>
+                  </td>
+                </tr>
+              </table>
+              
+              <!-- Warning -->
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin: 30px 0;">
+                <tr>
+                  <td style="background-color: #fff5f5; border-left: 4px solid #fc8181; border-radius: 8px; padding: 20px;">
+                    <p style="margin: 0 0 10px 0; font-size: 14px; color: #c53030; font-weight: 600;">
+                      ⚠️ Security Notice
+                    </p>
+                    <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #742a2a;">
+                      If you didn't request this password reset, please ignore this email. Your password will remain unchanged and your account is secure.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+              
+              <!-- Security Tips -->
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin: 30px 0;">
+                <tr>
+                  <td style="background-color: #f7fafc; border-radius: 8px; padding: 25px;">
+                    <p style="margin: 0 0 15px 0; font-size: 16px; color: #2d3748; font-weight: 600;">🛡️ Security Tips:</p>
+                    <ul style="margin: 0; padding: 0 0 0 20px;">
+                      <li style="margin-bottom: 8px; font-size: 14px; line-height: 1.6; color: #4a5568;">Never share your verification code with anyone</li>
+                      <li style="margin-bottom: 8px; font-size: 14px; line-height: 1.6; color: #4a5568;">Our team will never ask for your OTP</li>
+                      <li style="margin-bottom: 8px; font-size: 14px; line-height: 1.6; color: #4a5568;">Always use a strong, unique password</li>
+                      <li style="margin-bottom: 0; font-size: 14px; line-height: 1.6; color: #4a5568;">Change your password regularly</li>
+                    </ul>
+                  </td>
+                </tr>
+              </table>
+              
+              <p style="margin: 30px 0 10px 0; font-size: 16px; line-height: 1.6; color: #4a5568;">
+                Need help? Contact our support team.
+              </p>
+              
+              <p style="margin: 10px 0 0 0; font-size: 16px; line-height: 1.6; color: #4a5568;">
+                Best regards,<br>
+                <strong style="color: #667eea;">The ${shopName} Team</strong>
+              </p>
+              
+            </td>
+          </tr>
+          
+          <!-- Footer -->
+          <tr>
+            <td style="background-color: #f7fafc; padding: 30px 40px; text-align: center; border-top: 1px solid #e2e8f0;">
+              <p style="margin: 0 0 8px 0; font-size: 13px; color: #718096;">
+                &copy; ${new Date().getFullYear()} ${shopName}. All rights reserved.
+              </p>
+              <p style="margin: 0; font-size: 12px; color: #a0aec0;">
+                This is an automated email. Please do not reply to this message.
+              </p>
+            </td>
+          </tr>
+          
+        </table>
+      </td>
+    </tr>
+  </table>
 </body>
 </html>
   `;
@@ -457,224 +328,153 @@ export function getInvoiceEmailTemplate(
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Invoice ${invoiceNumber} - ${shopName}</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      line-height: 1.6;
-      color: #333;
-      background-color: #f4f4f4;
-      margin: 0;
-      padding: 0;
-    }
-    .email-container {
-      max-width: 600px;
-      margin: 20px auto;
-      background: #ffffff;
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-    .header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      padding: 40px 20px;
-      text-align: center;
-      color: white;
-    }
-    .logo {
-      max-width: 120px;
-      height: auto;
-      margin-bottom: 20px;
-    }
-    .header h1 {
-      margin: 0;
-      font-size: 28px;
-      font-weight: 600;
-    }
-    .header p {
-      margin: 10px 0 0 0;
-      font-size: 16px;
-      opacity: 0.9;
-    }
-    .content {
-      padding: 40px 30px;
-    }
-    .thank-you-message {
-      font-size: 20px;
-      color: #667eea;
-      margin-bottom: 20px;
-      font-weight: 600;
-      text-align: center;
-    }
-    .message-text {
-      font-size: 16px;
-      color: #555;
-      margin-bottom: 15px;
-    }
-    .invoice-summary {
-      background: linear-gradient(135deg, #f8f9ff 0%, #e8ecff 100%);
-      border: 2px solid #667eea;
-      padding: 25px;
-      margin: 25px 0;
-      border-radius: 10px;
-    }
-    .invoice-summary h3 {
-      color: #667eea;
-      margin-top: 0;
-      margin-bottom: 20px;
-      font-size: 18px;
-    }
-    .invoice-detail {
-      display: flex;
-      justify-content: space-between;
-      padding: 10px 0;
-      border-bottom: 1px solid #d0d7ff;
-    }
-    .invoice-detail:last-child {
-      border-bottom: none;
-      margin-top: 10px;
-      padding-top: 15px;
-      border-top: 2px solid #667eea;
-    }
-    .invoice-detail .label {
-      font-weight: 500;
-      color: #666;
-    }
-    .invoice-detail .value {
-      font-weight: 600;
-      color: #333;
-    }
-    .invoice-detail.total .value {
-      font-size: 22px;
-      color: #667eea;
-    }
-    .attachment-notice {
-      background: #e7f3ff;
-      border-left: 4px solid #2196f3;
-      padding: 15px;
-      margin: 25px 0;
-      border-radius: 5px;
-    }
-    .attachment-notice p {
-      margin: 5px 0;
-      font-size: 14px;
-      color: #0c5a99;
-    }
-    .contact-info {
-      background: #f8f9fa;
-      padding: 20px;
-      margin: 25px 0;
-      border-radius: 8px;
-      text-align: center;
-    }
-    .contact-info h3 {
-      color: #667eea;
-      font-size: 16px;
-      margin-bottom: 12px;
-    }
-    .contact-info p {
-      margin: 5px 0;
-      font-size: 14px;
-      color: #666;
-    }
-    .footer {
-      background: #f8f9fa;
-      padding: 25px;
-      text-align: center;
-      border-top: 1px solid #e0e0e0;
-    }
-    .footer p {
-      margin: 5px 0;
-      font-size: 14px;
-      color: #777;
-    }
-    .button {
-      display: inline-block;
-      padding: 12px 30px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      text-decoration: none;
-      border-radius: 25px;
-      font-weight: 600;
-      margin: 15px 0;
-    }
-  </style>
 </head>
-<body>
-  <div class="email-container">
-    <div class="header">
-      ${shopLogo ? `<img src="${shopLogo}" alt="${shopName}" class="logo">` : ''}
-      <h1>${shopName}</h1>
-      <p>Thank You for Your Purchase!</p>
-    </div>
-    
-    <div class="content">
-      <div class="thank-you-message">🎉 Purchase Confirmed!</div>
-      
-      <p class="message-text">Dear <strong>${customerName}</strong>,</p>
-      
-      <p class="message-text">
-        Thank you for your recent purchase! We truly appreciate your business and trust in 
-        ${shopName}. Your invoice has been generated and is attached to this email.
-      </p>
-      
-      <div class="invoice-summary">
-        <h3>Invoice Summary</h3>
-        <div class="invoice-detail">
-          <span class="label">Invoice Number:</span>
-          <span class="value">${invoiceNumber}</span>
-        </div>
-        <div class="invoice-detail">
-          <span class="label">Date:</span>
-          <span class="value">${new Date().toLocaleDateString('en-IN', { 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
-          })}</span>
-        </div>
-        <div class="invoice-detail">
-          <span class="label">Customer:</span>
-          <span class="value">${customerName}</span>
-        </div>
-        <div class="invoice-detail total">
-          <span class="label">Total Amount:</span>
-          <span class="value">₹${grandTotal}</span>
-        </div>
-      </div>
-      
-      <div class="attachment-notice">
-        <p><strong>📎 Invoice Attached</strong></p>
-        <p>Please find your detailed invoice attached to this email in PDF format.</p>
-      </div>
-      
-      <p class="message-text">
-        We hope you're satisfied with your purchase. If you have any questions or concerns 
-        about your invoice, please don't hesitate to contact us.
-      </p>
-      
-      ${shopAddress || shopPhone ? `
-      <div class="contact-info">
-        <h3>Contact Us</h3>
-        ${shopAddress ? `<p>📍 ${shopAddress}</p>` : ''}
-        ${shopPhone ? `<p>📞 ${shopPhone}</p>` : ''}
-      </div>
-      ` : ''}
-      
-      <p class="message-text" style="text-align: center; margin-top: 30px;">
-        Thank you for choosing ${shopName}!<br>
-        We look forward to serving you again.
-      </p>
-      
-      <p class="message-text">
-        Best regards,<br>
-        <strong>The ${shopName} Team</strong>
-      </p>
-    </div>
-    
-    <div class="footer">
-      <p>&copy; ${new Date().getFullYear()} ${shopName}. All rights reserved.</p>
-      <p>This is an automated email. Please do not reply to this message.</p>
-    </div>
-  </div>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f5f7fa;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f5f7fa; padding: 40px 20px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="background-color: #ffffff; border-radius: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); overflow: hidden;">
+          
+          <!-- Header -->
+          <tr>
+            <td style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); padding: 50px 40px; text-align: center;">
+              ${shopLogo ? `<img src="${shopLogo}" alt="${shopName}" style="max-width: 120px; height: auto; margin-bottom: 20px; display: block; margin-left: auto; margin-right: auto;">` : ''}
+              <h1 style="margin: 0; color: #ffffff; font-size: 32px; font-weight: 700; letter-spacing: -0.5px;">📄 Invoice Confirmation</h1>
+              <p style="margin: 10px 0 0 0; color: rgba(255,255,255,0.9); font-size: 16px;">${shopName}</p>
+            </td>
+          </tr>
+          
+          <!-- Content -->
+          <tr>
+            <td style="padding: 50px 40px;">
+              
+              <p style="margin: 0 0 10px 0; font-size: 18px; line-height: 1.6; color: #1a202c; text-align: center;">
+                <strong style="font-size: 24px; color: #3b82f6;">🎉 Thank You!</strong>
+              </p>
+              
+              <p style="margin: 0 0 30px 0; font-size: 16px; line-height: 1.6; color: #4a5568; text-align: center;">
+                Dear <strong style="color: #3b82f6;">${customerName}</strong>
+              </p>
+              
+              <p style="margin: 0 0 30px 0; font-size: 16px; line-height: 1.6; color: #4a5568;">
+                Thank you for your recent purchase! We truly appreciate your business and trust in ${shopName}. Your invoice has been successfully generated.
+              </p>
+              
+              <!-- Invoice Summary Box -->
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin: 30px 0;">
+                <tr>
+                  <td style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border: 3px solid #3b82f6; border-radius: 12px; padding: 30px;">
+                    <p style="margin: 0 0 20px 0; font-size: 18px; color: #1e40af; font-weight: 600; text-align: center;">Invoice Summary</p>
+                    
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                      <tr>
+                        <td style="padding: 12px 0; border-bottom: 1px solid #93c5fd;">
+                          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                            <tr>
+                              <td style="font-size: 14px; color: #64748b; font-weight: 500;">Invoice Number:</td>
+                              <td style="font-size: 14px; color: #1e293b; font-weight: 600; text-align: right;">${invoiceNumber}</td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 12px 0; border-bottom: 1px solid #93c5fd;">
+                          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                            <tr>
+                              <td style="font-size: 14px; color: #64748b; font-weight: 500;">Date:</td>
+                              <td style="font-size: 14px; color: #1e293b; font-weight: 600; text-align: right;">${new Date().toLocaleDateString('en-IN', { 
+                                year: 'numeric', 
+                                month: 'long', 
+                                day: 'numeric' 
+                              })}</td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 12px 0; border-bottom: 1px solid #93c5fd;">
+                          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                            <tr>
+                              <td style="font-size: 14px; color: #64748b; font-weight: 500;">Customer:</td>
+                              <td style="font-size: 14px; color: #1e293b; font-weight: 600; text-align: right;">${customerName}</td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 20px 0 0 0;">
+                          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                            <tr>
+                              <td style="font-size: 16px; color: #1e40af; font-weight: 600;">Total Amount:</td>
+                              <td style="font-size: 24px; color: #3b82f6; font-weight: 800; text-align: right;">₹${grandTotal}</td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+              
+              <!-- Attachment Notice -->
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin: 30px 0;">
+                <tr>
+                  <td style="background-color: #f0f9ff; border-left: 4px solid #0ea5e9; border-radius: 8px; padding: 20px;">
+                    <p style="margin: 0 0 8px 0; font-size: 15px; color: #0c4a6e; font-weight: 600;">
+                      📎 Invoice Document
+                    </p>
+                    <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #164e63;">
+                      Your detailed invoice is attached to this email in PDF format for your records.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+              
+              <p style="margin: 25px 0; font-size: 16px; line-height: 1.6; color: #4a5568;">
+                We hope you're satisfied with your purchase. If you have any questions or concerns about your invoice, please don't hesitate to reach out to us.
+              </p>
+              
+              ${shopAddress || shopPhone ? `
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin: 30px 0;">
+                <tr>
+                  <td style="background-color: #f7fafc; border-radius: 8px; padding: 25px; text-align: center;">
+                    <p style="margin: 0 0 15px 0; font-size: 16px; color: #2d3748; font-weight: 600;">📞 Contact Us</p>
+                    ${shopAddress ? `<p style="margin: 8px 0; font-size: 14px; color: #4a5568; line-height: 1.6;">📍 ${shopAddress}</p>` : ''}
+                    ${shopPhone ? `<p style="margin: 8px 0; font-size: 14px; color: #4a5568; line-height: 1.6;">☎️ ${shopPhone}</p>` : ''}
+                  </td>
+                </tr>
+              </table>
+              ` : ''}
+              
+              <p style="margin: 30px 0 20px 0; font-size: 16px; line-height: 1.6; color: #4a5568; text-align: center;">
+                <strong>Thank you for choosing ${shopName}!</strong><br>
+                We look forward to serving you again.
+              </p>
+              
+              <p style="margin: 10px 0 0 0; font-size: 16px; line-height: 1.6; color: #4a5568;">
+                Best regards,<br>
+                <strong style="color: #3b82f6;">The ${shopName} Team</strong>
+              </p>
+              
+            </td>
+          </tr>
+          
+          <!-- Footer -->
+          <tr>
+            <td style="background-color: #f7fafc; padding: 30px 40px; text-align: center; border-top: 1px solid #e2e8f0;">
+              <p style="margin: 0 0 8px 0; font-size: 13px; color: #718096;">
+                &copy; ${new Date().getFullYear()} ${shopName}. All rights reserved.
+              </p>
+              <p style="margin: 0; font-size: 12px; color: #a0aec0;">
+                This is an automated email. Please do not reply to this message.
+              </p>
+            </td>
+          </tr>
+          
+        </table>
+      </td>
+    </tr>
+  </table>
 </body>
 </html>
   `;
