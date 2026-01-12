@@ -114,6 +114,45 @@ export const api = {
       },
     },
   },
+  users: {
+    list: {
+      method: "GET" as const,
+      path: "/api/users",
+      responses: {
+        200: z.array(z.custom<typeof users.$inferSelect>()),
+      },
+    },
+    create: {
+      method: "POST" as const,
+      path: "/api/users",
+      input: insertUserSchema,
+      responses: {
+        201: z.custom<typeof users.$inferSelect>(),
+        400: errorSchemas.validation,
+      },
+    },
+    changePassword: {
+      method: "PUT" as const,
+      path: "/api/users/:id/password",
+      input: z.object({
+        currentPassword: z.string(),
+        newPassword: z.string().min(6),
+      }),
+      responses: {
+        200: z.object({ message: z.string() }),
+        400: errorSchemas.validation,
+        401: errorSchemas.unauthorized,
+      },
+    },
+    delete: {
+      method: "DELETE" as const,
+      path: "/api/users/:id",
+      responses: {
+        204: z.void(),
+        404: errorSchemas.notFound,
+      },
+    },
+  },
 };
 
 export function buildUrl(path: string, params?: Record<string, string | number>): string {
