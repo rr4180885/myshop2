@@ -5,9 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Settings, Save, Upload, Image as ImageIcon, Loader2, Lock, Unlock } from "lucide-react";
+import { Settings, Save, Upload, Image as ImageIcon, Loader2, Lock, Unlock, Users, UserPlus, Key, Trash2 } from "lucide-react";
 import { queryClient, apiRequest } from "@/lib/queryClient";
-import { api } from "@shared/routes";
+import { api, buildUrl } from "@shared/routes";
+import { useUser } from "@/hooks/use-auth";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -190,6 +191,92 @@ export default function SettingsTab() {
       reader.readAsDataURL(file);
     }
   };
+
+  // User Management State
+  const { data: currentUser } = useUser();
+  const [newUsername, setNewUsername] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [changePasswordUserId, setChangePasswordUserId] = useState("");
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newUserPassword, setNewUserPassword] = useState("");
+
+  // Fetch users
+  const { data: users = [] } = useQuery({
+    queryKey: [api.users.list.path],
+    queryFn: async () => apiRequest("GET", api.users.list.path),
+  });
+
+  // Create user mutation
+  const createUserMutation = useMutation({
+    mutationFn: async (data: { username: string; password: string }) => {
+      return apiRequest("POST", api.users.create.path, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [api.users.list.path] });
+      setNewUsername("");
+      setNewPassword("");
+      toast({
+        title: "User Created!",
+        description: "New user has been created successfully",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to create user",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Change password mutation
+  const changePasswordMutation = useMutation({
+    mutationFn: async (data: { userId: string; currentPassword: string; newPassword: string }) => {
+      const url = buildUrl(api.users.changePassword.path, { id: data.userId });
+      return apiRequest("PUT", url, {
+        currentPassword: data.currentPassword,
+        newPassword: data.newPassword,
+      });
+    },
+    onSuccess: () => {
+      setChangePasswordUserId("");
+      setCurrentPassword("");
+      setNewUserPassword("");
+      toast({
+        title: "Password Changed!",
+        description: "Password has been updated successfully",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to change password",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Delete user mutation
+  const deleteUserMutation = useMutation({
+    mutationFn: async (userId: string) => {
+      const url = buildUrl(api.users.delete.path, { id: userId });
+      return apiRequest("DELETE", url);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [api.users.list.path] });
+      toast({
+        title: "User Deleted!",
+        description: "User has been removed successfully",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete user",
+        variant: "destructive",
+      });
+    },
+  });
 
   return (
     <div className="max-w-3xl space-y-6">
@@ -471,6 +558,174 @@ export default function SettingsTab() {
               >
                 Reset to Defaults
               </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* User Management Section */}
+      <Card className="border-purple-200/50 dark:border-purple-900/50">
+        <CardHeader className="bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900 dark:to-purple-800 border-b border-purple-200/50 dark:border-purple-700/50">
+          <CardTitle className="flex items-center gap-2">
+            <Users className="w-5 h-5" />
+            User Management
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="pt-8">
+          {/* Create New User */}
+          <div className="mb-8 pb-8 border-b border-slate-200/50 dark:border-slate-700/50">
+            <h3 className="font-semibold text-slate-900 dark:text-white text-sm uppercase tracking-wide text-slate-600 dark:text-slate-400 mb-4">
+              <UserPlus className="w-4 h-4 inline mr-2" />
+              Create New User
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Username</label>
+                <Input
+                  value={newUsername}
+                  onChange={(e) => setNewUsername(e.target.value)}
+                  placeholder="Enter username (min 3 characters)"
+                  className="mt-2"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Password</label>
+                <Input
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="Enter password (min 6 characters)"
+                  className="mt-2"
+                />
+              </div>
+            </div>
+            <Button
+              onClick={() => {
+                if (newUsername.length < 3) {
+                  toast({ title: "Username must be at least 3 characters", variant: "destructive" });
+                  return;
+                }
+                if (newPassword.length < 6) {
+                  toast({ title: "Password must be at least 6 characters", variant: "destructive" });
+                  return;
+                }
+                createUserMutation.mutate({ username: newUsername, password: newPassword });
+              }}
+              disabled={createUserMutation.isPending || !newUsername || !newPassword}
+              className="mt-4 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700"
+            >
+              {createUserMutation.isPending ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Creating...
+                </>
+              ) : (
+                <>
+                  <UserPlus className="w-4 h-4 mr-2" />
+                  Create User
+                </>
+              )}
+            </Button>
+          </div>
+
+          {/* Existing Users List */}
+          <div>
+            <h3 className="font-semibold text-slate-900 dark:text-white text-sm uppercase tracking-wide text-slate-600 dark:text-slate-400 mb-4">
+              <Users className="w-4 h-4 inline mr-2" />
+              Existing Users ({users.length})
+            </h3>
+            <div className="space-y-3">
+              {users.map((user: any) => (
+                <div
+                  key={user.id}
+                  className="p-4 border border-slate-200 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-900"
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium text-slate-900 dark:text-white">{user.username}</p>
+                      <p className="text-sm text-slate-500 dark:text-slate-400">
+                        {user.id === currentUser?.id && "(Current User)"}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {changePasswordUserId === user.id ? (
+                        <div className="flex items-center gap-2">
+                          <Input
+                            type="password"
+                            placeholder="Current password"
+                            value={currentPassword}
+                            onChange={(e) => setCurrentPassword(e.target.value)}
+                            className="w-40"
+                          />
+                          <Input
+                            type="password"
+                            placeholder="New password"
+                            value={newUserPassword}
+                            onChange={(e) => setNewUserPassword(e.target.value)}
+                            className="w-40"
+                          />
+                          <Button
+                            size="sm"
+                            onClick={() => {
+                              if (newUserPassword.length < 6) {
+                                toast({ title: "Password must be at least 6 characters", variant: "destructive" });
+                                return;
+                              }
+                              changePasswordMutation.mutate({
+                                userId: user.id,
+                                currentPassword,
+                                newPassword: newUserPassword,
+                              });
+                            }}
+                            disabled={changePasswordMutation.isPending}
+                          >
+                            {changePasswordMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save"}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              setChangePasswordUserId("");
+                              setCurrentPassword("");
+                              setNewUserPassword("");
+                            }}
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      ) : (
+                        <>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setChangePasswordUserId(user.id)}
+                            className="border-blue-300 dark:border-blue-600"
+                          >
+                            <Key className="w-4 h-4 mr-1" />
+                            Change Password
+                          </Button>
+                          {user.id !== currentUser?.id && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                if (confirm(`Are you sure you want to delete user "${user.username}"?`)) {
+                                  deleteUserMutation.mutate(user.id);
+                                }
+                              }}
+                              disabled={deleteUserMutation.isPending}
+                              className="border-red-300 dark:border-red-600 text-red-600 dark:text-red-400"
+                            >
+                              <Trash2 className="w-4 h-4 mr-1" />
+                              Delete
+                            </Button>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </CardContent>
