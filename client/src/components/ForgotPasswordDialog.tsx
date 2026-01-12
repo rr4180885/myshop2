@@ -137,10 +137,10 @@ export function ForgotPasswordDialog() {
           Forgot password?
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Reset Password</DialogTitle>
-          <DialogDescription>
+      <DialogContent className="sm:max-w-md max-w-[95vw] max-h-[90vh] overflow-y-auto">
+        <DialogHeader className="space-y-3">
+          <DialogTitle className="text-xl sm:text-2xl">Reset Password</DialogTitle>
+          <DialogDescription className="text-sm sm:text-base">
             {step === "email" && "Enter your email to receive a reset code"}
             {step === "otp" && "Enter the 6-digit code sent to your email"}
             {step === "password" && "Create a new password"}
@@ -148,7 +148,7 @@ export function ForgotPasswordDialog() {
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
+        <div className="space-y-4 py-4 px-1">
           {step === "email" && (
             <div className="space-y-2">
               <Label htmlFor="email">Email Address</Label>

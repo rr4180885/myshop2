@@ -75,6 +75,29 @@ export async function registerRoutes(app: Express): Promise<void> {
     try {
       const input = insertInvoiceSchema.parse(req.body);
       const invoice = await storage.createInvoice(input);
+      
+      // Send invoice email if customer email is provided
+      if (invoice.customerEmail && invoice.customerEmail.trim() !== '') {
+        try {
+          const settings = await storage.getSettings();
+          const emailHtml = getInvoiceEmailTemplate(
+            invoice.invoiceNumber,
+            invoice.customerName || 'Valued Customer',
+            invoice.grandTotal.toString(),
+            settings
+          );
+          await sendEmail({
+            to: invoice.customerEmail,
+            subject: `Invoice ${invoice.invoiceNumber} - ${settings?.shopName || 'Brothers Enterprises'}`,
+            html: emailHtml,
+          });
+          console.log(`✉️ Invoice email sent successfully`);
+        } catch (emailError) {
+          console.error('Failed to send invoice email:', emailError);
+          // Don't fail invoice creation if email fails
+        }
+      }
+      
       res.status(201).json(invoice);
     } catch (err) {
       if (err instanceof z.ZodError) {
@@ -140,7 +163,7 @@ export async function registerRoutes(app: Express): Promise<void> {
             subject: `Welcome to ${settings?.shopName || 'Brothers Enterprises'}!`,
             html: emailHtml,
           });
-          console.log(`✉️ Welcome email sent to ${user.email}`);
+          console.log(`✉️ Welcome email sent successfully`);
         } catch (emailError) {
           console.error('Failed to send welcome email:', emailError);
           // Don't fail user creation if email fails
@@ -222,7 +245,7 @@ export async function registerRoutes(app: Express): Promise<void> {
           subject: 'Password Reset Request',
           html: emailHtml,
         });
-        console.log(`✉️ Password reset OTP sent to ${email}`);
+        console.log(`✉️ Password reset OTP sent successfully`);
         res.json({ message: "Password reset OTP has been sent to your email" });
       } catch (emailError) {
         console.error('Failed to send password reset email:', emailError);
@@ -270,46 +293,6 @@ export async function registerRoutes(app: Express): Promise<void> {
     } catch (err) {
       console.error('Password reset error:', err);
       res.status(500).json({ message: "An error occurred. Please try again." });
-    }
-  });
-
-  // Update invoice creation to send email
-  app.post(api.invoices.create.path, async (req, res) => {
-    try {
-      const input = insertInvoiceSchema.parse(req.body);
-      const invoice = await storage.createInvoice(input);
-      
-      // Send invoice email if customer email is provided
-      if (invoice.customerEmail && invoice.customerEmail.trim() !== '') {
-        try {
-          const settings = await storage.getSettings();
-          const emailHtml = getInvoiceEmailTemplate(
-            invoice.invoiceNumber,
-            invoice.customerName || 'Valued Customer',
-            invoice.grandTotal.toString(),
-            settings
-          );
-          await sendEmail({
-            to: invoice.customerEmail,
-            subject: `Invoice ${invoice.invoiceNumber} - ${settings?.shopName || 'Brothers Enterprises'}`,
-            html: emailHtml,
-          });
-          console.log(`✉️ Invoice email sent to ${invoice.customerEmail}`);
-        } catch (emailError) {
-          console.error('Failed to send invoice email:', emailError);
-          // Don't fail invoice creation if email fails
-        }
-      }
-      
-      res.status(201).json(invoice);
-    } catch (err) {
-      if (err instanceof z.ZodError) {
-        return res.status(400).json({
-          message: err.errors[0].message,
-          field: err.errors[0].path.join("."),
-        });
-      }
-      throw err;
     }
   });
 }
