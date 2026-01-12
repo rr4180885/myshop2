@@ -42,6 +42,43 @@ export const api = {
         200: z.custom<typeof users.$inferSelect | null>(),
       },
     },
+    requestPasswordReset: {
+      method: "POST" as const,
+      path: "/api/auth/request-reset",
+      input: z.object({
+        email: z.string().email(),
+      }),
+      responses: {
+        200: z.object({ message: z.string() }),
+        404: errorSchemas.notFound,
+      },
+    },
+    verifyOTP: {
+      method: "POST" as const,
+      path: "/api/auth/verify-otp",
+      input: z.object({
+        email: z.string().email(),
+        otp: z.string(),
+      }),
+      responses: {
+        200: z.object({ message: z.string(), valid: z.boolean() }),
+        404: errorSchemas.notFound,
+      },
+    },
+    resetPassword: {
+      method: "POST" as const,
+      path: "/api/auth/reset-password",
+      input: z.object({
+        email: z.string().email(),
+        otp: z.string(),
+        newPassword: z.string().min(6),
+      }),
+      responses: {
+        200: z.object({ message: z.string() }),
+        400: errorSchemas.validation,
+        404: errorSchemas.notFound,
+      },
+    },
   },
   products: {
     list: {

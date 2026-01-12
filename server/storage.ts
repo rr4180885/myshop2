@@ -12,10 +12,15 @@ export interface IStorage {
   // Users
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
   getUsers(): Promise<User[]>;
   createUser(user: InsertUser): Promise<User>;
   changeUserPassword(id: string, currentPassword: string, newPassword: string): Promise<boolean>;
   deleteUser(id: string): Promise<void>;
+  setResetOTP(userId: string, otp: string, expiry: string): Promise<void>;
+  verifyResetOTP(userId: string, otp: string): Promise<boolean>;
+  resetPasswordWithOTP(userId: string, newPassword: string): Promise<void>;
+  updateUserEmail(userId: string, email: string): Promise<void>;
   
   // Products
   getProducts(): Promise<Product[]>;
@@ -99,6 +104,11 @@ export class DBStorage implements IStorage {
     return result[0];
   }
 
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const result = await this.db.select().from(users).where(eq(users.email, email));
+    return result[0];
+  }
+
   async getUsers(): Promise<User[]> {
     return this.db.select().from(users);
   }
@@ -138,6 +148,55 @@ export class DBStorage implements IStorage {
 
   async deleteUser(id: string): Promise<void> {
     await this.db.delete(users).where(eq(users.id, id));
+  }
+
+  async setResetOTP(userId: string, otp: string, expiry: string): Promise<void> {
+    await this.db.update(users).set({ 
+      resetOtp: otp, 
+      resetOtpExpiry: expiry 
+    }).where(eq(users.id, userId));
+  }
+
+  async verifyResetOTP(userId: string, otp: string): Promise<boolean> {
+    const user = await this.getUser(userId);
+    if (!user || !user.resetOtp || !user.resetOtpExpiry) {
+      return false;
+    }
+    
+    const now = new Date();
+    const expiry = new Date(user.resetOtpExpiry);
+    
+    if (now > expiry) {
+      // OTP expired, clear it
+      await this.db.update(users).set({ 
+        resetOtp: null, 
+        resetOtpExpiry: null 
+      }).where(eq(users.id, userId));
+      return false;
+    }
+    
+    return user.resetOtp === otp;
+  }
+
+  async resetPasswordWithOTP(userId: string, newPassword: string): Promise<void> {
+    const { scrypt, randomBytes } = await import("crypto");
+    const { promisify } = await import("util");
+    const scryptAsync = promisify(scrypt);
+    
+    // Hash new password
+    const salt = randomBytes(16).toString("hex");
+    const buf = (await scryptAsync(newPassword, salt, 64)) as Buffer;
+    const hashedPassword = `${buf.toString("hex")}.${salt}`;
+    
+    await this.db.update(users).set({ 
+      password: hashedPassword,
+      resetOtp: null,
+      resetOtpExpiry: null
+    }).where(eq(users.id, userId));
+  }
+
+  async updateUserEmail(userId: string, email: string): Promise<void> {
+    await this.db.update(users).set({ email }).where(eq(users.id, userId));
   }
 
   // Products
@@ -264,12 +323,23 @@ export class MemStorage implements IStorage {
   async getUserByUsername(username: string): Promise<User | undefined> {
     return Array.from(this.users.values()).find(user => user.username === username);
   }
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    return Array.from(this.users.values()).find(user => user.email === email);
+  }
   async getUsers(): Promise<User[]> {
     return Array.from(this.users.values());
   }
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = randomUUID();
-    const user: User = { ...insertUser, id };
+    const user: User = { 
+      ...insertUser, 
+      id,
+      email: insertUser.email || '',
+      isActive: 1,
+      resetOtp: null,
+      resetOtpExpiry: null,
+      createdAt: new Date().toISOString()
+    };
     this.users.set(id, user);
     return user;
   }
@@ -301,6 +371,62 @@ export class MemStorage implements IStorage {
   }
   async deleteUser(id: string): Promise<void> {
     this.users.delete(id);
+  }
+
+  async setResetOTP(userId: string, otp: string, expiry: string): Promise<void> {
+    const user = this.users.get(userId);
+    if (user) {
+      user.resetOtp = otp;
+      user.resetOtpExpiry = expiry;
+      this.users.set(userId, user);
+    }
+  }
+
+  async verifyResetOTP(userId: string, otp: string): Promise<boolean> {
+    const user = this.users.get(userId);
+    if (!user || !user.resetOtp || !user.resetOtpExpiry) {
+      return false;
+    }
+    
+    const now = new Date();
+    const expiry = new Date(user.resetOtpExpiry);
+    
+    if (now > expiry) {
+      // OTP expired, clear it
+      user.resetOtp = null;
+      user.resetOtpExpiry = null;
+      this.users.set(userId, user);
+      return false;
+    }
+    
+    return user.resetOtp === otp;
+  }
+
+  async resetPasswordWithOTP(userId: string, newPassword: string): Promise<void> {
+    const { scrypt, randomBytes } = await import("crypto");
+    const { promisify } = await import("util");
+    const scryptAsync = promisify(scrypt);
+    
+    const user = this.users.get(userId);
+    if (!user) return;
+    
+    // Hash new password
+    const salt = randomBytes(16).toString("hex");
+    const buf = (await scryptAsync(newPassword, salt, 64)) as Buffer;
+    const hashedPassword = `${buf.toString("hex")}.${salt}`;
+    
+    user.password = hashedPassword;
+    user.resetOtp = null;
+    user.resetOtpExpiry = null;
+    this.users.set(userId, user);
+  }
+
+  async updateUserEmail(userId: string, email: string): Promise<void> {
+    const user = this.users.get(userId);
+    if (user) {
+      user.email = email;
+      this.users.set(userId, user);
+    }
   }
 
   // Products

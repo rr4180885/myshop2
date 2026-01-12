@@ -7,7 +7,10 @@ export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
+  email: text("email").notNull().default(""),
   isActive: integer("is_active").notNull().default(1), // 1 = active, 0 = locked
+  resetOtp: text("reset_otp"),
+  resetOtpExpiry: text("reset_otp_expiry"),
   createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
 });
 
@@ -43,6 +46,7 @@ export const invoices = pgTable("invoices", {
   invoiceNumber: text("invoice_number").notNull().unique(),
   customerName: text("customer_name"),
   customerPhone: text("customer_phone"),
+  customerEmail: text("customer_email"),
   items: text("items").notNull(), // JSON stringified
   subtotal: numeric("subtotal", { precision: 12, scale: 2 }).notNull(),
   gstAmount: numeric("gst_amount", { precision: 12, scale: 2 }).notNull(),
@@ -53,6 +57,7 @@ export const invoices = pgTable("invoices", {
 export const insertUserSchema = z.object({
   username: z.string().min(3),
   password: z.string().min(6),
+  email: z.string().email().optional(),
 });
 
 export const insertProductSchema = createInsertSchema(products, {

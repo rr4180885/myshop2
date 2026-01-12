@@ -92,6 +92,26 @@ async function initializeDatabase() {
       await db.execute(sql`
         ALTER TABLE users ADD COLUMN IF NOT EXISTS created_at TEXT DEFAULT CURRENT_TIMESTAMP;
       `);
+      await db.execute(sql`
+        ALTER TABLE users ADD COLUMN IF NOT EXISTS email TEXT NOT NULL DEFAULT '';
+      `);
+      await db.execute(sql`
+        ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_otp TEXT;
+      `);
+      await db.execute(sql`
+        ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_otp_expiry TEXT;
+      `);
+      await db.execute(sql`
+        ALTER TABLE invoices ADD COLUMN IF NOT EXISTS customer_email TEXT;
+      `);
+      console.log("✓ Email columns added to users and invoices tables");
+      
+      // Update existing users with default email
+      await db.execute(sql`
+        UPDATE users SET email = 'rr4180885@gmail.com' WHERE email = '' OR email IS NULL;
+      `);
+      console.log("✓ Default email set for existing users");
+      
       console.log("✓ Migrations completed successfully");
     } catch (error) {
       console.log("⚠️  Migration warning (may be already applied):", error);
