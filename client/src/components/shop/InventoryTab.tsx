@@ -5,13 +5,14 @@ import { Input } from "@/components/ui/input";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { api } from "@shared/routes";
 import { useState } from "react";
-import { Trash2, Edit2, Check, X, Loader2, Package } from "lucide-react";
+import { Trash2, Edit2, Check, X, Loader2, Package, Search } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function InventoryTab() {
   const { toast } = useToast();
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editValues, setEditValues] = useState<Record<string, any>>({});
+  const [searchQuery, setSearchQuery] = useState("");
 
   const { data: products = [], isLoading } = useQuery({
     queryKey: [api.products.list.path],
@@ -51,6 +52,13 @@ export default function InventoryTab() {
     updateMutation.mutate({ id, ...editValues });
   };
 
+  // Filter products based on search query
+  const filteredProducts = products.filter((product: any) =>
+    product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    product.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    product.brand.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -63,15 +71,39 @@ export default function InventoryTab() {
     <div className="space-y-4">
       <Card className="border-slate-200/50 dark:border-slate-700/50 shadow-lg">
         <CardHeader className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 border-b border-slate-200/50 dark:border-slate-700/50 pb-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-              <Package className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                <Package className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div>
+                <CardTitle className="text-lg">Product Inventory</CardTitle>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                  Manage your products ({products.length} total)
+                </p>
+              </div>
             </div>
-            <div>
-              <CardTitle className="text-lg">Product Inventory</CardTitle>
-              <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-                Manage your products ({products.length} total)
-              </p>
+            
+            {/* Search Bar */}
+            <div className="relative w-full sm:w-72">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Input
+                type="text"
+                placeholder="Search by name, code, or brand..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 h-10 bg-white dark:bg-slate-900"
+              />
+              {searchQuery && (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 p-0"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              )}
             </div>
           </div>
         </CardHeader>
@@ -116,7 +148,18 @@ export default function InventoryTab() {
                     </tr>
                   </thead>
                   <tbody className="bg-white dark:bg-slate-950">
-                    {products.map((product, index) => (
+                    {filteredProducts.length === 0 ? (
+                      <tr>
+                        <td colSpan={8} className="p-12 text-center">
+                          <div className="text-slate-500 dark:text-slate-400">
+                            <Search className="w-12 h-12 mx-auto mb-3 opacity-20" />
+                            <p className="font-medium mb-1">No products found</p>
+                            <p className="text-sm">Try adjusting your search terms</p>
+                          </div>
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredProducts.map((product: any, index: number) => (
                       <tr 
                         key={product.id} 
                         className={`border-b border-slate-200/50 dark:border-slate-800/50 hover:bg-blue-50/50 dark:hover:bg-blue-950/20 transition-all duration-150 ${
@@ -240,7 +283,8 @@ export default function InventoryTab() {
                           )}
                         </td>
                       </tr>
-                    ))}
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>
