@@ -67,11 +67,25 @@ export async function generateInvoicePDF(invoice: any, settings?: Settings): Pro
     const items = typeof invoice.items === 'string' ? JSON.parse(invoice.items) : invoice.items;
 
     // Header with Logo and Shop Name
-    doc.fontSize(20).font('Helvetica-Bold').text(shopName, 50, 50);
-    doc.fontSize(18).font('Helvetica-Bold').fillColor('#2563eb').text('TAX INVOICE', 400, 50, { align: 'right' });
+    let headerY = 50;
+    
+    // Add logo if available
+    if (settings?.logoPath && settings.logoPath.trim() !== '') {
+      try {
+        // Note: In production, you'd need to fetch the logo from URL or use a local file
+        // For now, we'll just reserve space and show company name
+        // doc.image(settings.logoPath, 50, headerY, { width: 60, height: 60 });
+        // headerY is adjusted if logo is added
+      } catch (err) {
+        console.log('Logo not added to PDF:', err);
+      }
+    }
+    
+    doc.fontSize(20).font('Helvetica-Bold').text(shopName, 50, headerY);
+    doc.fontSize(18).font('Helvetica-Bold').fillColor('#2563eb').text('TAX INVOICE', 400, headerY, { align: 'right' });
     
     // Header underline
-    doc.moveTo(50, 75).lineTo(545, 75).lineWidth(2).stroke('#1e293b');
+    doc.moveTo(50, headerY + 25).lineTo(545, headerY + 25).lineWidth(2).stroke('#1e293b');
     
     // Shop Details (left) and Invoice Details (right)
     let currentY = 85;
