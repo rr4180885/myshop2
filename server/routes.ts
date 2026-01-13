@@ -77,12 +77,16 @@ export async function registerRoutes(app: Express): Promise<void> {
       const invoice = await storage.createInvoice(input);
       
       // Send invoice email if customer email is provided
+      console.log('📧 Checking invoice email:', invoice.customerEmail);
       if (invoice.customerEmail && invoice.customerEmail.trim() !== '') {
         try {
+          console.log('📤 Attempting to send invoice email to:', invoice.customerEmail);
           const settings = await storage.getSettings();
           
           // Generate PDF
+          console.log('📄 Generating PDF for invoice:', invoice.invoiceNumber);
           const pdfBuffer = await generateInvoicePDF(invoice, settings);
+          console.log('✅ PDF generated successfully, size:', pdfBuffer.length, 'bytes');
           
           // Get email template
           const emailHtml = getInvoiceEmailTemplate(
@@ -93,6 +97,7 @@ export async function registerRoutes(app: Express): Promise<void> {
           );
           
           // Send email with PDF attachment
+          console.log('📨 Sending email with PDF attachment...');
           await sendEmail({
             to: invoice.customerEmail,
             subject: `Invoice ${invoice.invoiceNumber} - ${settings?.shopName || 'Brothers Enterprises'}`,
@@ -102,11 +107,14 @@ export async function registerRoutes(app: Express): Promise<void> {
               data: pdfBuffer
             }]
           });
-          console.log(`✉️ Invoice email sent successfully with PDF attachment`);
+          console.log(`✅ ✉️ Invoice email sent successfully to ${invoice.customerEmail} with PDF attachment!`);
         } catch (emailError) {
-          console.error('Failed to send invoice email:', emailError);
+          console.error('❌ Failed to send invoice email:', emailError);
+          console.error('Error details:', JSON.stringify(emailError, null, 2));
           // Don't fail invoice creation if email fails
         }
+      } else {
+        console.log('ℹ️ No email address provided, skipping invoice email');
       }
       
       res.status(201).json(invoice);
