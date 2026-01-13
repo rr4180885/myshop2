@@ -3,6 +3,8 @@ import Mailgun from 'mailgun.js';
 import type { Settings } from '@shared/schema';
 import PDFDocument from 'pdfkit';
 import type { Invoice } from '@shared/schema';
+import https from 'https';
+import http from 'http';
 
 // Mailgun configuration
 const MAILGUN_API_KEY = process.env.MAILGUN_API_KEY || '42b8ce75-291b2041';
@@ -43,6 +45,36 @@ export async function sendEmail(options: EmailOptions) {
   }
 }
 
+// Helper function to fetch image from URL
+async function fetchImageAsBuffer(url: string): Promise<Buffer | null> {
+  return new Promise((resolve) => {
+    try {
+      const protocol = url.startsWith('https') ? https : http;
+      protocol.get(url, (response) => {
+        if (response.statusCode !== 200) {
+          console.log(`Failed to fetch image: ${url}, status: ${response.statusCode}`);
+          resolve(null);
+          return;
+        }
+        
+        const chunks: Buffer[] = [];
+        response.on('data', (chunk) => chunks.push(chunk));
+        response.on('end', () => resolve(Buffer.concat(chunks)));
+        response.on('error', (err) => {
+          console.log(`Error fetching image: ${err.message}`);
+          resolve(null);
+        });
+      }).on('error', (err) => {
+        console.log(`Error fetching image: ${err.message}`);
+        resolve(null);
+      });
+    } catch (err) {
+      console.log(`Exception fetching image: ${err}`);
+      resolve(null);
+    }
+  });
+}
+
 // Generate OTP
 export function generateOTP(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -50,7 +82,7 @@ export function generateOTP(): string {
 
 // Generate Invoice PDF - Matching BillingTab Professional Design
 export async function generateInvoicePDF(invoice: any, settings?: Settings): Promise<Buffer> {
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
     const doc = new PDFDocument({ margin: 40, size: 'A4' });
     const buffers: Buffer[] = [];
 
@@ -68,20 +100,26 @@ export async function generateInvoicePDF(invoice: any, settings?: Settings): Pro
 
     // Header with Logo and Shop Name
     let headerY = 50;
+    let shopNameX = 50;
     
-    // Add logo if available
+    // Fetch and add logo if available
     if (settings?.logoPath && settings.logoPath.trim() !== '') {
       try {
-        // Note: In production, you'd need to fetch the logo from URL or use a local file
-        // For now, we'll just reserve space and show company name
-        // doc.image(settings.logoPath, 50, headerY, { width: 60, height: 60 });
-        // headerY is adjusted if logo is added
+        console.log('🖼️ Fetching logo for PDF:', settings.logoPath);
+        const logoBuffer = await fetchImageAsBuffer(settings.logoPath);
+        if (logoBuffer) {
+          doc.image(logoBuffer, 50, headerY, { width: 60, height: 60 });
+          shopNameX = 120; // Move shop name to the right of logo
+          console.log('✅ Logo added to PDF');
+        } else {
+          console.log('⚠️ Logo fetch failed, using text only');
+        }
       } catch (err) {
-        console.log('Logo not added to PDF:', err);
+        console.log('❌ Error adding logo to PDF:', err);
       }
     }
     
-    doc.fontSize(20).font('Helvetica-Bold').text(shopName, 50, headerY);
+    doc.fontSize(20).font('Helvetica-Bold').text(shopName, shopNameX, headerY);
     doc.fontSize(18).font('Helvetica-Bold').fillColor('#2563eb').text('TAX INVOICE', 400, headerY, { align: 'right' });
     
     // Header underline
@@ -231,6 +269,23 @@ export async function generateInvoicePDF(invoice: any, settings?: Settings): Pro
 
     // Signature Section
     currentY = doc.page.height - 100;
+    
+    // Fetch and add signature if available
+    if (settings?.signaturePath && settings.signaturePath.trim() !== '') {
+      try {
+        console.log('✍️ Fetching signature for PDF:', settings.signaturePath);
+        const signatureBuffer = await fetchImageAsBuffer(settings.signaturePath);
+        if (signatureBuffer) {
+          doc.image(signatureBuffer, 420, currentY - 50, { width: 100, height: 40, align: 'center' });
+          console.log('✅ Signature added to PDF');
+        } else {
+          console.log('⚠️ Signature fetch failed, using text only');
+        }
+      } catch (err) {
+        console.log('❌ Error adding signature to PDF:', err);
+      }
+    }
+    
     doc.fontSize(8).fillColor('#000000').font('Helvetica-Bold');
     doc.text('Authorized Signature', 420, currentY, { width: 125, align: 'center' });
     doc.moveTo(420, currentY - 5).lineTo(545, currentY - 5).stroke('#94a3b8');
