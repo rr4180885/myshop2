@@ -513,7 +513,7 @@ export async function initializeStorage() {
       ssl: { rejectUnauthorized: false },
       max: 10,
       idle_timeout: 20,
-      connect_timeout: 30,
+      connect_timeout: 60,  // Increased for better stability
       prepare: false,  // CRITICAL for Supabase transaction pooler (port 6543)
     });
     

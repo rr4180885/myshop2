@@ -23,7 +23,7 @@ async function initializeDatabase() {
       ssl: { rejectUnauthorized: false }, 
       max: 1,
       prepare: false,  // CRITICAL for Supabase transaction pooler
-      connect_timeout: 30,
+      connect_timeout: 60,  // Increased for better stability
       idle_timeout: 30,
     });
     const db = drizzle(client);
