@@ -63,13 +63,19 @@ let initialized = false;
 async function initialize() {
   if (initialized) return;
   
-  // Initialize database tables if using PostgreSQL
-  if (process.env.DATABASE_URL) {
-    try {
-      await initializeDatabase();
-    } catch (error) {
-      console.error("⚠️  Database initialization failed, but continuing:", error);
+  // Initialize database tables ONLY if explicitly requested via environment variable
+  // In production, tables should already exist - no need to run migrations on every startup
+  if (process.env.RUN_DB_INIT === 'true') {
+    console.log("🔧 RUN_DB_INIT=true detected, initializing database...");
+    if (process.env.DATABASE_URL) {
+      try {
+        await initializeDatabase();
+      } catch (error) {
+        console.error("⚠️  Database initialization failed, but continuing:", error);
+      }
     }
+  } else {
+    console.log("✓ Skipping database initialization (tables already exist)");
   }
   
   await initializeStorage();
