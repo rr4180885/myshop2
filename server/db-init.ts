@@ -18,7 +18,14 @@ async function initializeDatabase() {
   console.log("🔌 Connecting to database...");
   
   try {
-    const client = postgres(dbUrl, { ssl: { rejectUnauthorized: false }, max: 1 });
+    // Supabase Transaction Pooler requires prepare: false
+    const client = postgres(dbUrl, { 
+      ssl: { rejectUnauthorized: false }, 
+      max: 1,
+      prepare: false,  // CRITICAL for Supabase transaction pooler
+      connect_timeout: 30,
+      idle_timeout: 30,
+    });
     const db = drizzle(client);
 
     console.log("✓ Connected to database");
