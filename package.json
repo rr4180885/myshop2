@@ -10,6 +10,8 @@
     "check": "tsc",
     "db:init": "tsx server/db-init.ts",
     "db:push": "drizzle-kit push",
+    "db:backup": "tsx server/backup-data.ts",
+    "db:restore": "tsx server/restore-data.ts",
     "lint": "eslint . --ext .ts,.tsx",
     "format": "prettier --write ."
   },

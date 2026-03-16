@@ -1,6 +1,6 @@
 /**
  * Database initialization and migration script
- * Run this once to set up Supabase tables
+ * Run this once to set up PostgreSQL tables
  */
 import { drizzle } from "drizzle-orm/postgres-js";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
@@ -18,13 +18,10 @@ async function initializeDatabase() {
   console.log("🔌 Connecting to database...");
   
   try {
-    // Supabase Transaction Pooler requires prepare: false
+    // Connect to PostgreSQL database
     const client = postgres(dbUrl, { 
       ssl: { rejectUnauthorized: false }, 
       max: 1,
-      prepare: false,  // CRITICAL for Supabase transaction pooler
-      connect_timeout: 60,  // Increased for better stability
-      idle_timeout: 30,
     });
     const db = drizzle(client);
 

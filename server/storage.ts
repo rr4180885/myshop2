@@ -80,7 +80,7 @@ export class DBStorage implements IStorage {
 
       for (const p of defaultProducts) {
         try {
-          await this.db.insert(products).values(p);
+          await this.db.insert(products).values(p).onConflictDoNothing();
         } catch (e) {
           // Product with this code already exists, skip
           console.log(`Product ${p.code} already exists, skipping`);
@@ -507,7 +507,7 @@ export async function initializeStorage() {
 
   try {
     console.log("🔌 Initializing PostgreSQL connection...");
-    console.log(`📍 Database: ${dbUrl.includes('supabase') ? 'Supabase' : 'PostgreSQL'}`);
+    console.log(`📍 Database: PostgreSQL`);
     
     const client = postgres(dbUrl, { 
       ssl: { rejectUnauthorized: false },
