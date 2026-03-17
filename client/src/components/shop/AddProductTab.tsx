@@ -89,12 +89,14 @@ export default function AddProductTab() {
 
   return (
     <div className="max-w-2xl">
-      <Card className="border-slate-200/50 dark:border-slate-700/50">
-        <CardHeader className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 border-b border-slate-200/50 dark:border-slate-700/50">
-          <CardTitle className="flex items-center gap-2">
-            <Plus className="w-5 h-5" />
-            Add New Product
-          </CardTitle>
+      <Card className="premium-card">
+        <CardHeader>
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+              <Plus className="w-6 h-6 text-primary" />
+            </div>
+            <CardTitle className="text-xl font-display">Add New Product</CardTitle>
+          </div>
         </CardHeader>
         <CardContent className="pt-8">
           <Form {...form}>
@@ -105,12 +107,12 @@ export default function AddProductTab() {
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Product Name *</FormLabel>
+                      <FormLabel className="font-semibold">Product Name *</FormLabel>
                       <FormControl>
                         <Input 
                           placeholder="e.g., Brake Pad Set" 
                           {...field} 
-                          className="mt-2"
+                          className="mt-2 border-primary/20 focus-visible:ring-primary"
                           data-testid="input-product-name" 
                         />
                       </FormControl>
@@ -124,12 +126,12 @@ export default function AddProductTab() {
                   name="brand"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Brand/Model *</FormLabel>
+                      <FormLabel className="font-semibold">Brand/Model *</FormLabel>
                       <FormControl>
                         <Input 
                           placeholder="e.g., Maruti Swift" 
                           {...field} 
-                          className="mt-2"
+                          className="mt-2 border-primary/20 focus-visible:ring-primary"
                           data-testid="input-brand" 
                         />
                       </FormControl>
@@ -145,22 +147,22 @@ export default function AddProductTab() {
                   name="code"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Product Code/SKU *</FormLabel>
+                      <FormLabel className="font-semibold">Product Code/SKU *</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Input 
                             placeholder="e.g., BP-MS-001" 
                             {...field} 
-                            className={`mt-2 ${duplicateCode ? 'border-red-500 focus-visible:ring-red-500 bg-red-50 dark:bg-red-950' : ''}`}
+                            className={`mt-2 ${duplicateCode ? 'border-destructive focus-visible:ring-destructive bg-destructive/10' : 'border-primary/20 focus-visible:ring-primary'}`}
                             data-testid="input-code" 
                           />
                           {duplicateCode && (
-                            <AlertCircle className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-red-500" />
+                            <AlertCircle className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-destructive" />
                           )}
                         </div>
                       </FormControl>
                       {duplicateCode && (
-                        <p className="text-sm text-red-500 font-medium flex items-center gap-1 mt-2">
+                        <p className="text-sm text-destructive font-bold flex items-center gap-1 mt-2">
                           <AlertCircle className="w-4 h-4" />
                           Product code "{duplicateCode}" already exists!
                         </p>
@@ -175,9 +177,9 @@ export default function AddProductTab() {
                   name="hsnCode"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>HSN Code</FormLabel>
+                      <FormLabel className="font-semibold">HSN Code</FormLabel>
                       <FormControl>
-                        <Input {...field} value={field.value || ""} className="mt-2" data-testid="input-hsn-code" />
+                        <Input {...field} value={field.value || ""} className="mt-2 border-primary/20 focus-visible:ring-primary" data-testid="input-hsn-code" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -191,13 +193,13 @@ export default function AddProductTab() {
                   name="stock"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Stock Quantity</FormLabel>
+                      <FormLabel className="font-semibold">Stock Quantity</FormLabel>
                       <FormControl>
                         <Input 
                           type="number" 
                           {...field} 
                           onChange={(e) => field.onChange(parseInt(e.target.value) || 0)} 
-                          className="mt-2"
+                          className="mt-2 border-primary/20 focus-visible:ring-primary"
                           data-testid="input-stock" 
                         />
                       </FormControl>
@@ -211,13 +213,13 @@ export default function AddProductTab() {
                   name="purchasePrice"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Purchase Price *</FormLabel>
+                      <FormLabel className="font-semibold">Purchase Price *</FormLabel>
                       <FormControl>
                         <Input 
                           type="number" 
                           placeholder="₹" 
                           {...field} 
-                          className="mt-2"
+                          className="mt-2 border-primary/20 focus-visible:ring-primary"
                           data-testid="input-purchase-price" 
                         />
                       </FormControl>
@@ -231,13 +233,13 @@ export default function AddProductTab() {
                   name="sellingPrice"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Selling Price *</FormLabel>
+                      <FormLabel className="font-semibold">Selling Price *</FormLabel>
                       <FormControl>
                         <Input 
                           type="number" 
                           placeholder="₹" 
                           {...field} 
-                          className="mt-2"
+                          className="mt-2 border-primary/20 focus-visible:ring-primary"
                           data-testid="input-selling-price" 
                         />
                       </FormControl>
@@ -253,14 +255,14 @@ export default function AddProductTab() {
                   name="maxDiscount"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Maximum Discount % (Optional)</FormLabel>
+                      <FormLabel className="font-semibold">Maximum Discount % (Optional)</FormLabel>
                       <FormControl>
                         <Input 
                           type="number" 
                           placeholder="e.g., 10" 
                           {...field} 
                           value={field.value || ""}
-                          className="mt-2"
+                          className="mt-2 border-primary/20 focus-visible:ring-primary"
                           data-testid="input-max-discount" 
                         />
                       </FormControl>
@@ -274,13 +276,13 @@ export default function AddProductTab() {
                   name="gstRate"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>GST Rate %</FormLabel>
+                      <FormLabel className="font-semibold">GST Rate %</FormLabel>
                       <FormControl>
                         <Input 
                           type="number" 
                           {...field} 
                           onChange={(e) => field.onChange(parseInt(e.target.value) || 0)} 
-                          className="mt-2"
+                          className="mt-2 border-primary/20 focus-visible:ring-primary"
                           data-testid="input-gst-rate" 
                         />
                       </FormControl>
@@ -294,7 +296,7 @@ export default function AddProductTab() {
                 <Button 
                   type="submit" 
                   disabled={mutation.isPending || !!duplicateCode} 
-                  className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white"
+                  className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg"
                   data-testid="button-add-product"
                 >
                   {mutation.isPending ? (
@@ -310,7 +312,7 @@ export default function AddProductTab() {
                   )}
                 </Button>
                 {duplicateCode && (
-                  <p className="text-sm text-red-500 flex items-center">
+                  <p className="text-sm text-destructive font-semibold flex items-center">
                     Cannot add product with duplicate code
                   </p>
                 )}
