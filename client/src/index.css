@@ -1,66 +1,94 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Orbitron:wght@400;500;600;700;800;900&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --font-body: 'Plus Jakarta Sans', sans-serif;
-  --font-display: 'Space Grotesk', sans-serif;
+  /* Premium Automotive Theme - Brothers Enterprises */
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display: 'Orbitron', 'Inter', sans-serif;
 
-  /* HSL Values */
-  --background: 220 100% 99%;
-  --foreground: 222 47% 11%;
+  /* Light Mode - Automotive Workshop Theme */
+  --background: 0 0% 98%;
+  --foreground: 222 15% 15%;
   
-  --primary: 221 83% 53%;
-  --primary-foreground: 210 40% 98%;
+  /* Primary: Premium Orange (Automotive/Workshop) */
+  --primary: 24 95% 53%;
+  --primary-foreground: 0 0% 100%;
   
-  --secondary: 210 40% 96%;
-  --secondary-foreground: 222 47% 11%;
+  /* Secondary: Deep Charcoal */
+  --secondary: 220 13% 18%;
+  --secondary-foreground: 0 0% 98%;
   
-  --muted: 210 40% 96%;
-  --muted-foreground: 215 16% 47%;
+  /* Muted: Light Gray */
+  --muted: 220 13% 95%;
+  --muted-foreground: 220 9% 46%;
   
-  --accent: 262 83% 58%;
-  --accent-foreground: 210 40% 98%;
+  /* Accent: Electric Blue (Performance) */
+  --accent: 214 100% 50%;
+  --accent-foreground: 0 0% 100%;
   
+  /* Destructive: Red */
   --destructive: 0 84% 60%;
-  --destructive-foreground: 210 40% 98%;
+  --destructive-foreground: 0 0% 98%;
 
-  --border: 214 32% 91%;
-  --input: 214 32% 91%;
-  --ring: 221 83% 53%;
+  /* Success: Green */
+  --success: 142 76% 36%;
+  --success-foreground: 0 0% 100%;
+
+  /* Warning: Amber */
+  --warning: 38 92% 50%;
+  --warning-foreground: 0 0% 100%;
+
+  --border: 220 13% 91%;
+  --input: 220 13% 91%;
+  --ring: 24 95% 53%;
   
   --card: 0 0% 100%;
-  --card-foreground: 222 47% 11%;
+  --card-foreground: 222 15% 15%;
 
   --radius: 0.75rem;
 }
 
 .dark {
-  --background: 222 47% 11%;
+  /* Dark Mode - Premium Workshop Theme */
+  --background: 222 20% 10%;
   --foreground: 210 40% 98%;
   
-  --primary: 217 91% 60%;
-  --primary-foreground: 222 47% 11%;
+  /* Primary: Vibrant Orange */
+  --primary: 24 100% 60%;
+  --primary-foreground: 222 20% 10%;
   
-  --secondary: 217 19% 27%;
+  /* Secondary: Lighter Charcoal */
+  --secondary: 220 13% 20%;
   --secondary-foreground: 210 40% 98%;
   
-  --muted: 217 19% 27%;
-  --muted-foreground: 215 20% 65%;
+  /* Muted: Dark Gray */
+  --muted: 220 13% 18%;
+  --muted-foreground: 220 9% 65%;
   
-  --accent: 262 83% 58%;
-  --accent-foreground: 210 40% 98%;
+  /* Accent: Bright Blue */
+  --accent: 214 100% 58%;
+  --accent-foreground: 222 20% 10%;
   
-  --destructive: 0 62% 30%;
+  /* Destructive: Red */
+  --destructive: 0 72% 50%;
   --destructive-foreground: 210 40% 98%;
+
+  /* Success: Green */
+  --success: 142 76% 45%;
+  --success-foreground: 222 20% 10%;
+
+  /* Warning: Amber */
+  --warning: 38 92% 58%;
+  --warning-foreground: 222 20% 10%;
   
-  --border: 217 19% 27%;
-  --input: 217 19% 27%;
-  --ring: 224 76% 48%;
+  --border: 220 13% 22%;
+  --input: 220 13% 22%;
+  --ring: 24 100% 60%;
   
-  --card: 222 47% 11%;
+  --card: 220 13% 13%;
   --card-foreground: 210 40% 98%;
 }
 
@@ -68,27 +96,171 @@
   * {
     @apply border-border;
   }
+  
   body {
     @apply bg-background text-foreground antialiased;
     font-family: var(--font-body);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
   
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
     @apply font-bold tracking-tight text-foreground;
+    letter-spacing: -0.02em;
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-muted;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-primary/20 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-primary/30;
   }
 }
 
 @layer utilities {
+  /* Glass Morphism */
   .glass {
-    @apply bg-white/70 backdrop-blur-lg border border-white/20 shadow-lg;
+    @apply bg-white/80 backdrop-blur-xl border border-white/40 shadow-xl;
   }
+  
   .dark .glass {
-    @apply bg-black/40 border-white/10;
+    @apply bg-black/40 backdrop-blur-xl border-white/10;
+  }
+
+  /* Premium Gradients */
+  .gradient-primary {
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
+  }
+
+  .gradient-dark {
+    background: linear-gradient(135deg, #1a1d29 0%, #2d3142 100%);
+  }
+
+  .gradient-automotive {
+    background: linear-gradient(135deg, #ff6b35 0%, #ff8e53 50%, #ffa574 100%);
+  }
+
+  /* Automotive Pattern Background */
+  .pattern-dots {
+    background-image: radial-gradient(circle at 1px 1px, hsl(var(--primary) / 0.08) 1px, transparent 0);
+    background-size: 24px 24px;
+  }
+
+  .pattern-grid {
+    background-image: 
+      linear-gradient(hsl(var(--border)) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--border)) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+
+  /* Animations */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slideIn {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: -1000px 0;
+    }
+    100% {
+      background-position: 1000px 0;
+    }
+  }
+
+  .animate-fadeIn {
+    animation: fadeIn 0.5s ease-out;
+  }
+
+  .animate-slideIn {
+    animation: slideIn 0.3s ease-out;
+  }
+
+  .animate-shimmer {
+    animation: shimmer 3s infinite;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      hsl(var(--primary) / 0.1) 50%,
+      transparent 100%
+    );
+    background-size: 1000px 100%;
+  }
+
+  /* Premium Card Effects */
+  .premium-card {
+    @apply bg-card border border-border/50 rounded-2xl shadow-lg;
+    @apply hover:shadow-xl hover:border-primary/30;
+    @apply transition-all duration-300;
+  }
+
+  .premium-card-dark {
+    @apply bg-gradient-to-br from-card via-card to-primary/5;
+    @apply border border-border/30 rounded-2xl shadow-2xl;
+  }
+
+  /* Text Gradients */
+  .text-gradient-primary {
+    @apply bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent;
+  }
+
+  .text-gradient-automotive {
+    @apply bg-gradient-to-r from-orange-500 via-orange-400 to-yellow-500 bg-clip-text text-transparent;
+  }
+
+  /* Button Enhancements */
+  .btn-premium {
+    @apply relative overflow-hidden;
+    @apply before:absolute before:inset-0;
+    @apply before:bg-white/20 before:translate-x-[-100%];
+    @apply before:transition-transform before:duration-300;
+    @apply hover:before:translate-x-[100%];
+  }
+
+  /* Badge Styles */
+  .badge-premium {
+    @apply inline-flex items-center gap-1.5 px-3 py-1;
+    @apply rounded-full text-xs font-semibold;
+    @apply bg-gradient-to-r from-primary/10 to-accent/10;
+    @apply border border-primary/20;
+    @apply shadow-sm;
+  }
+
+  /* Focus Rings */
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background;
   }
 }
 
-/* Print styles for invoice - enforce single page */
+/* Print styles for invoice */
 @media print {
   @page {
     size: A4;
@@ -105,7 +277,6 @@
     padding: 0 !important;
   }
   
-  /* Hide toast notifications during print */
   [data-sonner-toaster],
   [class*="Toaster"],
   [role="status"],
@@ -113,12 +284,10 @@
     display: none !important;
   }
   
-  /* Force content to fit on one page */
   .print\:p-6 {
     padding: 12mm !important;
   }
   
-  /* Compact text sizes for print */
   .print\:p-6 h1 {
     font-size: 18px !important;
     line-height: 1.2 !important;
@@ -142,7 +311,6 @@
     font-size: 11px !important;
   }
   
-  /* Compact margins for print */
   .print\:mb-4 {
     margin-bottom: 8px !important;
   }
@@ -167,7 +335,6 @@
     gap: 6px !important;
   }
   
-  /* Prevent page breaks */
   table, tr, td, th {
     page-break-inside: avoid !important;
   }
@@ -176,12 +343,10 @@
     page-break-inside: avoid !important;
   }
   
-  /* Hide non-print elements */
   .print\:hidden {
     display: none !important;
   }
   
-  /* Compact image sizes */
   .print\:w-16 {
     width: 48px !important;
     height: 48px !important;
@@ -192,9 +357,46 @@
     margin-bottom: 0 !important;
   }
   
-  /* Ensure single page */
   html, body {
     height: auto !important;
     overflow: visible !important;
+  }
+}
+
+/* Loading States */
+.skeleton {
+  @apply animate-pulse bg-muted rounded;
+}
+
+/* Premium Badge Variants */
+.badge-success {
+  @apply bg-success/10 text-success border-success/20;
+}
+
+.badge-warning {
+  @apply bg-warning/10 text-warning border-warning/20;
+}
+
+.badge-error {
+  @apply bg-destructive/10 text-destructive border-destructive/20;
+}
+
+/* Status Indicators */
+.status-dot {
+  @apply w-2 h-2 rounded-full;
+}
+
+.status-dot-success {
+  @apply bg-success animate-pulse;
+  box-shadow: 0 0 0 0 hsla(var(--success), 0.4);
+  animation: pulse-success 2s infinite;
+}
+
+@keyframes pulse-success {
+  0%, 100% {
+    box-shadow: 0 0 0 0 hsla(var(--success), 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px hsla(var(--success), 0);
   }
 }

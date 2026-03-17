@@ -14,7 +14,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Lock, ShieldCheck, Zap, TrendingUp, Moon, Sun } from "lucide-react";
+import { Loader2, Car, Shield, Gauge, Wrench, Moon, Sun, Zap, Star } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { ForgotPasswordDialog } from "@/components/ForgotPasswordDialog";
 
@@ -33,7 +33,7 @@ export default function AuthPage() {
 
   if (isUserLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
@@ -48,56 +48,70 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen grid lg:grid-cols-2 bg-gradient-to-br from-background via-background to-primary/5">
-      {/* Theme Toggle Button - Positioned absolutely */}
+    <div className="min-h-screen grid lg:grid-cols-2 relative overflow-hidden bg-background">
+      {/* Theme Toggle */}
       <Button
         onClick={toggleTheme}
         variant="outline"
         size="icon"
-        className="fixed top-4 right-4 z-50 rounded-full w-11 h-11 shadow-lg hover:shadow-xl transition-all duration-300 bg-card/80 backdrop-blur-sm border-border/50 hover:border-primary/50"
+        className="fixed top-6 right-6 z-50 rounded-xl w-12 h-12 shadow-xl hover:shadow-2xl transition-all duration-300 glass border-border/50 hover:border-primary/50 hover:scale-110"
         aria-label="Toggle theme"
       >
         {theme === 'dark' ? (
-          <Sun className="h-5 w-5 text-primary transition-transform duration-500 rotate-0" />
+          <Sun className="h-5 w-5 text-primary" />
         ) : (
-          <Moon className="h-5 w-5 text-primary transition-transform duration-500 rotate-0" />
+          <Moon className="h-5 w-5 text-primary" />
         )}
       </Button>
       
-      {/* Left Side - Form */}
-      <div className="flex items-center justify-center p-4 sm:p-6 md:p-8 lg:p-12 relative z-10">
-        <Card className="w-full max-w-md border border-border/50 shadow-2xl shadow-primary/5 bg-card/95 backdrop-blur-sm">
-          <CardHeader className="space-y-1 px-4 sm:px-6 pt-6 pb-4">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg shadow-primary/30">
-                <Lock className="w-7 h-7 text-primary-foreground" />
+      {/* Left Side - Auth Form */}
+      <div className="flex items-center justify-center p-6 sm:p-8 md:p-12 lg:p-16 relative z-10 pattern-dots">
+        <Card className="w-full max-w-lg premium-card-dark">
+          <CardHeader className="space-y-1 px-6 sm:px-8 pt-8 pb-6">
+            {/* Logo */}
+            <div className="flex items-center gap-4 mb-6">
+              <div className="relative">
+                <div className="w-16 h-16 rounded-2xl gradient-automotive flex items-center justify-center shadow-2xl shadow-primary/30 rotate-3 hover:rotate-0 transition-transform duration-300">
+                  <Car className="w-8 h-8 text-white" />
+                </div>
+                <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-accent flex items-center justify-center">
+                  <Star className="w-3 h-3 text-white fill-white" />
+                </div>
               </div>
               <div>
-                <h1 className="text-xl font-bold text-foreground">Brother Enterprises</h1>
-                <p className="text-xs text-muted-foreground">Billing System</p>
+                <h1 className="text-2xl font-display font-black text-foreground tracking-tight">
+                  Brothers Enterprises
+                </h1>
+                <p className="text-sm font-semibold text-gradient-automotive">
+                  Automotive Workshop Management
+                </p>
               </div>
             </div>
-            <CardTitle className="text-2xl sm:text-3xl font-bold bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">
-              Welcome back
+
+            <CardTitle className="text-3xl sm:text-4xl font-display font-black text-foreground">
+              Welcome Back
             </CardTitle>
-            <CardDescription className="text-sm sm:text-base text-muted-foreground mt-2">
-              Sign in to access your shop management dashboard
+            <CardDescription className="text-base text-muted-foreground">
+              Sign in to manage your automotive workshop
             </CardDescription>
           </CardHeader>
-          <CardContent className="px-4 sm:px-6 pb-6">
+
+          <CardContent className="px-6 sm:px-8 pb-8">
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 <FormField
                   control={form.control}
                   name="username"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-sm font-semibold">Username</FormLabel>
+                      <FormLabel className="text-sm font-bold text-foreground">
+                        Username
+                      </FormLabel>
                       <FormControl>
                         <Input 
                           placeholder="Enter your username" 
                           {...field} 
-                          className="h-11 sm:h-12 rounded-xl bg-background/60 border-border/60 focus:border-primary focus:bg-background transition-all duration-200 focus:shadow-lg focus:shadow-primary/10"
+                          className="h-12 rounded-xl bg-muted/50 border-border/60 focus:border-primary focus:bg-background transition-all duration-200 focus:shadow-lg focus:shadow-primary/10 text-base font-medium focus-ring"
                           autoComplete="username"
                         />
                       </FormControl>
@@ -105,18 +119,21 @@ export default function AuthPage() {
                     </FormItem>
                   )}
                 />
+
                 <FormField
                   control={form.control}
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-sm font-semibold">Password</FormLabel>
+                      <FormLabel className="text-sm font-bold text-foreground">
+                        Password
+                      </FormLabel>
                       <FormControl>
                         <Input 
                           type="password" 
                           placeholder="Enter your password" 
                           {...field}
-                          className="h-11 sm:h-12 rounded-xl bg-background/60 border-border/60 focus:border-primary focus:bg-background transition-all duration-200 focus:shadow-lg focus:shadow-primary/10"
+                          className="h-12 rounded-xl bg-muted/50 border-border/60 focus:border-primary focus:bg-background transition-all duration-200 focus:shadow-lg focus:shadow-primary/10 text-base font-medium focus-ring"
                           autoComplete="current-password"
                         />
                       </FormControl>
@@ -131,44 +148,47 @@ export default function AuthPage() {
                 
                 <Button
                   type="submit" 
-                  className="w-full h-11 sm:h-12 text-base font-semibold rounded-xl bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 transition-all duration-300 shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 hover:-translate-y-0.5 mt-6"
+                  className="w-full h-13 text-base font-bold rounded-xl gradient-automotive hover:opacity-90 transition-all duration-300 shadow-xl shadow-primary/40 hover:shadow-2xl hover:shadow-primary/50 hover:-translate-y-0.5 btn-premium"
                   disabled={isPending}
                 >
                   {isPending ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                       Signing in...
                     </>
                   ) : (
                     <>
-                      <Lock className="mr-2 h-4 w-4" />
-                      Sign in securely
+                      <Shield className="mr-2 h-5 w-5" />
+                      Sign In Securely
                     </>
                   )}
                 </Button>
               </form>
             </Form>
 
-            {/* Features */}
+            {/* Features Grid */}
             <div className="mt-8 pt-6 border-t border-border/50">
-              <div className="grid grid-cols-3 gap-3 sm:gap-4">
-                <div className="text-center">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 mx-auto rounded-xl bg-primary/10 flex items-center justify-center mb-2">
-                    <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+              <div className="grid grid-cols-3 gap-4">
+                <div className="text-center group hover:scale-105 transition-transform duration-200">
+                  <div className="w-12 h-12 mx-auto rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-2 group-hover:bg-primary/20 transition-colors">
+                    <Shield className="w-6 h-6 text-primary" />
                   </div>
-                  <p className="text-xs sm:text-sm font-medium text-foreground/80">Secure</p>
+                  <p className="text-xs font-bold text-foreground">Secure</p>
+                  <p className="text-xs text-muted-foreground">Protected</p>
                 </div>
-                <div className="text-center">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 mx-auto rounded-xl bg-primary/10 flex items-center justify-center mb-2">
-                    <Zap className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+                <div className="text-center group hover:scale-105 transition-transform duration-200">
+                  <div className="w-12 h-12 mx-auto rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center mb-2 group-hover:bg-accent/20 transition-colors">
+                    <Zap className="w-6 h-6 text-accent" />
                   </div>
-                  <p className="text-xs sm:text-sm font-medium text-foreground/80">Fast</p>
+                  <p className="text-xs font-bold text-foreground">Fast</p>
+                  <p className="text-xs text-muted-foreground">Lightning</p>
                 </div>
-                <div className="text-center">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 mx-auto rounded-xl bg-primary/10 flex items-center justify-center mb-2">
-                    <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+                <div className="text-center group hover:scale-105 transition-transform duration-200">
+                  <div className="w-12 h-12 mx-auto rounded-xl bg-success/10 border border-success/20 flex items-center justify-center mb-2 group-hover:bg-success/20 transition-colors">
+                    <Gauge className="w-6 h-6 text-success" />
                   </div>
-                  <p className="text-xs sm:text-sm font-medium text-foreground/80">Reliable</p>
+                  <p className="text-xs font-bold text-foreground">Reliable</p>
+                  <p className="text-xs text-muted-foreground">24/7 Uptime</p>
                 </div>
               </div>
             </div>
@@ -176,64 +196,73 @@ export default function AuthPage() {
         </Card>
       </div>
 
-      {/* Right Side - Visual (Hidden on mobile) */}
-      <div className="hidden lg:flex relative bg-gradient-to-br from-zinc-900 via-zinc-900 to-zinc-800 items-center justify-center p-12 overflow-hidden">
-        {/* Animated background shapes */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-1/4 -right-1/4 w-[800px] h-[800px] bg-gradient-to-br from-primary/20 to-primary/5 rounded-full blur-3xl opacity-60 animate-pulse" style={{ animationDuration: '8s' }} />
-          <div className="absolute -bottom-1/4 -left-1/4 w-[700px] h-[700px] bg-gradient-to-tr from-blue-500/15 to-cyan-500/15 rounded-full blur-3xl opacity-50 animate-pulse" style={{ animationDuration: '10s', animationDelay: '1s' }} />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-full blur-3xl opacity-40 animate-pulse" style={{ animationDuration: '12s', animationDelay: '2s' }} />
+      {/* Right Side - Premium Visual */}
+      <div className="hidden lg:flex relative bg-gradient-to-br from-secondary via-secondary/95 to-secondary/90 items-center justify-center p-12 overflow-hidden">
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0 overflow-hidden opacity-30">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-primary rounded-full blur-3xl opacity-20 animate-pulse" style={{ animationDuration: '8s' }} />
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-accent rounded-full blur-3xl opacity-15 animate-pulse" style={{ animationDuration: '10s', animationDelay: '2s' }} />
         </div>
+
+        {/* Grid Pattern */}
+        <div className="absolute inset-0 pattern-grid opacity-10" />
         
-        <div className="relative z-10 max-w-lg text-white">
-          <div className="mb-8">
-            <div className="inline-block px-4 py-2 rounded-full bg-primary/20 border border-primary/30 mb-6">
-              <span className="text-sm font-semibold text-primary-foreground">Shop Management System</span>
-            </div>
-            <h2 className="text-4xl xl:text-5xl font-bold mb-6 leading-tight">
-              Manage Your Shop with
-              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-primary via-blue-400 to-cyan-400 mt-2">
-                Confidence & Control
+        <div className="relative z-10 max-w-xl text-white space-y-8">
+          {/* Badge */}
+          <div className="inline-block px-5 py-2 rounded-full bg-primary/20 border border-primary/30 backdrop-blur-sm">
+            <span className="text-sm font-bold text-primary-foreground flex items-center gap-2">
+              <Wrench className="w-4 h-4" />
+              Professional Workshop Management
+            </span>
+          </div>
+
+          {/* Heading */}
+          <div>
+            <h2 className="text-5xl xl:text-6xl font-display font-black mb-6 leading-tight">
+              Manage Your
+              <span className="block text-gradient-automotive mt-2">
+                Automotive Business
               </span>
             </h2>
-            <p className="text-lg text-zinc-300 leading-relaxed">
-              Streamline your inventory, billing, and customer management with our powerful and intuitive dashboard.
+            <p className="text-xl text-gray-300 leading-relaxed font-medium">
+              Complete workshop management system designed for modern automotive businesses. Track inventory, manage billing, and grow your enterprise.
             </p>
           </div>
           
-          <div className="grid grid-cols-1 gap-4">
-            <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 hover:bg-white/10">
+          {/* Features */}
+          <div className="grid grid-cols-1 gap-4 pt-4">
+            <div className="bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/10 hover:border-primary/30 hover:bg-white/10 transition-all duration-300 group">
               <div className="flex items-start gap-4">
-                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center flex-shrink-0 shadow-lg shadow-primary/30">
-                  <ShieldCheck className="w-5 h-5 text-primary-foreground" />
+                <div className="h-12 w-12 rounded-xl gradient-automotive flex items-center justify-center flex-shrink-0 shadow-lg shadow-primary/30 group-hover:scale-110 transition-transform">
+                  <Car className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-white mb-1 text-lg">Enterprise Security</h3>
-                  <p className="text-sm text-zinc-400">Protected with industry-leading encryption and authentication standards.</p>
+                  <h3 className="font-display font-bold text-white mb-2 text-lg">Inventory Management</h3>
+                  <p className="text-sm text-gray-400 leading-relaxed">Real-time tracking of spare parts, accessories, and workshop supplies with smart alerts.</p>
                 </div>
               </div>
             </div>
             
-            <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 hover:bg-white/10">
+            <div className="bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/10 hover:border-accent/30 hover:bg-white/10 transition-all duration-300 group">
               <div className="flex items-start gap-4">
-                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center flex-shrink-0 shadow-lg shadow-blue-500/30">
-                  <Zap className="w-5 h-5 text-white" />
+                <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-accent to-accent/80 flex items-center justify-center flex-shrink-0 shadow-lg shadow-accent/30 group-hover:scale-110 transition-transform">
+                  <Gauge className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-white mb-1 text-lg">Lightning Performance</h3>
-                  <p className="text-sm text-zinc-400">Optimized for speed with real-time updates and instant responses.</p>
+                  <h3 className="font-display font-bold text-white mb-2 text-lg">Performance Analytics</h3>
+                  <p className="text-sm text-gray-400 leading-relaxed">Detailed insights and reports to optimize your workshop operations and revenue.</p>
                 </div>
               </div>
             </div>
             
-            <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 hover:bg-white/10">
+            <div className="bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/10 hover:border-success/30 hover:bg-white/10 transition-all duration-300 group">
               <div className="flex items-start gap-4">
-                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0 shadow-lg shadow-purple-500/30">
-                  <TrendingUp className="w-5 h-5 text-white" />
+                <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-success to-success/80 flex items-center justify-center flex-shrink-0 shadow-lg shadow-success/30 group-hover:scale-110 transition-transform">
+                  <Shield className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-white mb-1 text-lg">Analytics & Insights</h3>
-                  <p className="text-sm text-zinc-400">Make data-driven decisions with comprehensive reporting tools.</p>
+                  <h3 className="font-display font-bold text-white mb-2 text-lg">Enterprise Security</h3>
+                  <p className="text-sm text-gray-400 leading-relaxed">Bank-level encryption and security protocols to protect your business data.</p>
                 </div>
               </div>
             </div>
