@@ -69,16 +69,16 @@ export default function InventoryTab() {
 
   return (
     <div className="space-y-4">
-      <Card className="border-slate-200/50 dark:border-slate-700/50 shadow-lg">
-        <CardHeader className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 border-b border-slate-200/50 dark:border-slate-700/50 pb-4">
+      <Card className="premium-card">
+        <CardHeader className="pb-4">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-                <Package className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+              <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+                <Package className="w-6 h-6 text-primary" />
               </div>
               <div>
-                <CardTitle className="text-lg">Product Inventory</CardTitle>
-                <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                <CardTitle className="text-xl font-display">Product Inventory</CardTitle>
+                <p className="text-sm text-muted-foreground mt-1 font-medium">
                   Manage your products ({products.length} total)
                 </p>
               </div>
@@ -119,30 +119,30 @@ export default function InventoryTab() {
               {/* Scrollable table container with fixed header */}
               <div className="overflow-auto max-h-[600px]" style={{ scrollbarGutter: 'stable' }}>
                 <table className="w-full relative">
-                  <thead className="sticky top-0 z-10 bg-slate-900 dark:bg-slate-800">
-                    <tr className="border-b-2 border-slate-700 dark:border-slate-600">
-                      <th className="text-left p-3 font-semibold text-slate-200 text-xs uppercase tracking-wider whitespace-nowrap">
+                  <thead className="sticky top-0 z-10 bg-gradient-to-r from-primary to-primary/90">
+                    <tr className="border-b-2 border-primary-foreground/20">
+                      <th className="text-left p-3 font-bold text-primary-foreground text-xs uppercase tracking-wider whitespace-nowrap">
                         Code
                       </th>
-                      <th className="text-left p-3 font-semibold text-slate-200 text-xs uppercase tracking-wider whitespace-nowrap">
+                      <th className="text-left p-3 font-bold text-primary-foreground text-xs uppercase tracking-wider whitespace-nowrap">
                         Product
                       </th>
-                      <th className="text-left p-3 font-semibold text-slate-200 text-xs uppercase tracking-wider whitespace-nowrap">
+                      <th className="text-left p-3 font-bold text-primary-foreground text-xs uppercase tracking-wider whitespace-nowrap">
                         Brand
                       </th>
-                      <th className="text-right p-3 font-semibold text-slate-200 text-xs uppercase tracking-wider whitespace-nowrap">
+                      <th className="text-right p-3 font-bold text-primary-foreground text-xs uppercase tracking-wider whitespace-nowrap">
                         Stock
                       </th>
-                      <th className="text-right p-3 font-semibold text-slate-200 text-xs uppercase tracking-wider whitespace-nowrap">
+                      <th className="text-right p-3 font-bold text-primary-foreground text-xs uppercase tracking-wider whitespace-nowrap">
                         Buy Price
                       </th>
-                      <th className="text-right p-3 font-semibold text-slate-200 text-xs uppercase tracking-wider whitespace-nowrap">
+                      <th className="text-right p-3 font-bold text-primary-foreground text-xs uppercase tracking-wider whitespace-nowrap">
                         Sell Price
                       </th>
-                      <th className="text-right p-3 font-semibold text-slate-200 text-xs uppercase tracking-wider whitespace-nowrap">
+                      <th className="text-right p-3 font-bold text-primary-foreground text-xs uppercase tracking-wider whitespace-nowrap">
                         GST %
                       </th>
-                      <th className="text-center p-3 font-semibold text-slate-200 text-xs uppercase tracking-wider whitespace-nowrap">
+                      <th className="text-center p-3 font-bold text-primary-foreground text-xs uppercase tracking-wider whitespace-nowrap">
                         Actions
                       </th>
                     </tr>
@@ -162,24 +162,24 @@ export default function InventoryTab() {
                       filteredProducts.map((product: any, index: number) => (
                       <tr 
                         key={product.id} 
-                        className={`border-b border-slate-200/50 dark:border-slate-800/50 hover:bg-blue-50/50 dark:hover:bg-blue-950/20 transition-all duration-150 ${
-                          index % 2 === 0 ? 'bg-slate-50/30 dark:bg-slate-900/30' : ''
+                        className={`border-b border-border hover:bg-primary/5 transition-all duration-150 ${
+                          index % 2 === 0 ? 'bg-muted/30' : ''
                         }`}
                         data-testid={`row-product-${product.id}`}
                       >
-                        <td className="p-3 text-sm font-mono text-slate-700 dark:text-slate-300 whitespace-nowrap">
+                        <td className="p-3 text-sm font-mono text-foreground/80 whitespace-nowrap">
                           {product.code}
                         </td>
-                        <td className="p-3 text-sm font-medium text-slate-900 dark:text-white whitespace-nowrap">
+                        <td className="p-3 text-sm font-bold text-foreground whitespace-nowrap">
                           {product.name}
                         </td>
-                        <td className="p-3 text-sm text-slate-600 dark:text-slate-400 whitespace-nowrap">
+                        <td className="p-3 text-sm text-muted-foreground whitespace-nowrap">
                           {product.brand}
                         </td>
-                        <td className={`p-3 text-right text-sm font-semibold whitespace-nowrap ${
+                        <td className={`p-3 text-right text-sm font-bold whitespace-nowrap ${
                           product.stock < 10 
-                            ? "text-red-600 dark:text-red-400" 
-                            : "text-green-600 dark:text-green-400"
+                            ? "text-warning" 
+                            : "text-success"
                         }`}>
                           {editingId === product.id ? (
                             <Input
@@ -192,7 +192,7 @@ export default function InventoryTab() {
                             product.stock
                           )}
                         </td>
-                        <td className="p-3 text-right text-sm text-slate-700 dark:text-slate-300 whitespace-nowrap">
+                        <td className="p-3 text-right text-sm text-foreground/70 whitespace-nowrap">
                           {editingId === product.id ? (
                             <Input
                               type="number"
@@ -204,7 +204,7 @@ export default function InventoryTab() {
                             `₹${product.purchasePrice}`
                           )}
                         </td>
-                        <td className="p-3 text-right text-sm font-medium text-slate-900 dark:text-white whitespace-nowrap">
+                        <td className="p-3 text-right text-sm font-bold text-foreground whitespace-nowrap">
                           {editingId === product.id ? (
                             <Input
                               type="number"
@@ -216,7 +216,7 @@ export default function InventoryTab() {
                             `₹${product.sellingPrice}`
                           )}
                         </td>
-                        <td className="p-3 text-right text-sm text-slate-600 dark:text-slate-400 whitespace-nowrap">
+                        <td className="p-3 text-right text-sm text-muted-foreground whitespace-nowrap">
                           {editingId === product.id ? (
                             <Input
                               type="number"
@@ -236,7 +236,7 @@ export default function InventoryTab() {
                                 variant="outline"
                                 onClick={() => saveEdit(product.id)}
                                 disabled={updateMutation.isPending}
-                                className="h-8 w-8 p-0 border-green-500/50 text-green-600 hover:bg-green-50 hover:border-green-500 dark:hover:bg-green-950/30"
+                                className="h-8 w-8 p-0 border-success/50 text-success hover:bg-success/10 hover:border-success"
                                 data-testid={`button-save-${product.id}`}
                               >
                                 {updateMutation.isPending ? (
@@ -260,7 +260,7 @@ export default function InventoryTab() {
                                 size="sm"
                                 variant="ghost"
                                 onClick={() => startEdit(product)}
-                                className="h-8 w-8 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-950/30"
+                                className="h-8 w-8 p-0 text-accent hover:text-accent/80 hover:bg-accent/10"
                                 data-testid={`button-edit-${product.id}`}
                               >
                                 <Edit2 className="w-4 h-4" />
@@ -270,7 +270,7 @@ export default function InventoryTab() {
                                 variant="ghost"
                                 onClick={() => deleteMutation.mutate(product.id)}
                                 disabled={deleteMutation.isPending}
-                                className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30"
+                                className="h-8 w-8 p-0 text-destructive hover:text-destructive/80 hover:bg-destructive/10"
                                 data-testid={`button-delete-${product.id}`}
                               >
                                 {deleteMutation.isPending ? (
@@ -300,21 +300,28 @@ export default function InventoryTab() {
       
       {/* Summary footer */}
       {products.length > 0 && (
-        <div className="flex justify-between items-center px-4 py-2 bg-slate-100 dark:bg-slate-900 rounded-lg text-sm">
-          <span className="text-slate-600 dark:text-slate-400">
-            Total Products: <span className="font-semibold text-slate-900 dark:text-white">{products.length}</span>
-          </span>
-          <span className="text-slate-600 dark:text-slate-400">
-            Low Stock Items: <span className="font-semibold text-red-600 dark:text-red-400">
-              {products.filter((p: any) => p.stock < 10).length}
-            </span>
-          </span>
-          <span className="text-slate-600 dark:text-slate-400">
-            Total Stock Value: <span className="font-semibold text-green-600 dark:text-green-400">
-              ₹{products.reduce((sum: number, p: any) => sum + (Number(p.purchasePrice) * p.stock), 0).toLocaleString()}
-            </span>
-          </span>
-        </div>
+        <Card className="premium-card">
+          <CardContent className="p-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+              <div className="text-center p-3 bg-accent/5 rounded-lg border border-accent/20">
+                <p className="text-muted-foreground font-semibold uppercase text-xs tracking-wide mb-1">Total Products</p>
+                <p className="text-2xl font-display font-black text-accent">{products.length}</p>
+              </div>
+              <div className="text-center p-3 bg-warning/5 rounded-lg border border-warning/20">
+                <p className="text-muted-foreground font-semibold uppercase text-xs tracking-wide mb-1">Low Stock Items</p>
+                <p className="text-2xl font-display font-black text-warning">
+                  {products.filter((p: any) => p.stock < 10).length}
+                </p>
+              </div>
+              <div className="text-center p-3 bg-success/5 rounded-lg border border-success/20">
+                <p className="text-muted-foreground font-semibold uppercase text-xs tracking-wide mb-1">Total Stock Value</p>
+                <p className="text-2xl font-display font-black text-success">
+                  ₹{products.reduce((sum: number, p: any) => sum + (Number(p.purchasePrice) * p.stock), 0).toLocaleString()}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       )}
     </div>
   );
