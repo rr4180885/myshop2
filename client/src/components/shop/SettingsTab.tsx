@@ -316,17 +316,19 @@ export default function SettingsTab() {
         </AlertDialogContent>
       </AlertDialog>
 
-      <Card className="border-slate-200/50 dark:border-slate-700/50">
-        <CardHeader className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 border-b border-slate-200/50 dark:border-slate-700/50">
+      <Card className="premium-card">
+        <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <Settings className="w-5 h-5" />
-              Shop Configuration
-            </CardTitle>
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+                <Settings className="w-6 h-6 text-primary" />
+              </div>
+              <CardTitle className="text-xl font-display">Shop Configuration</CardTitle>
+            </div>
             <div className="flex items-center gap-2">
               {isUnlocked ? (
                 <>
-                  <span className="text-sm text-green-600 dark:text-green-400 flex items-center gap-1">
+                  <span className="text-sm text-success flex items-center gap-1 font-semibold">
                     <Unlock className="w-4 h-4" />
                     Unlocked
                   </span>
@@ -334,7 +336,7 @@ export default function SettingsTab() {
                     variant="outline"
                     size="sm"
                     onClick={handleLock}
-                    className="border-slate-300 dark:border-slate-600"
+                    className="border-success text-success hover:bg-success/10"
                   >
                     <Lock className="w-4 h-4 mr-1" />
                     Lock
@@ -342,7 +344,7 @@ export default function SettingsTab() {
                 </>
               ) : (
                 <>
-                  <span className="text-sm text-orange-600 dark:text-orange-400 flex items-center gap-1">
+                  <span className="text-sm text-warning flex items-center gap-1 font-semibold">
                     <Lock className="w-4 h-4" />
                     Locked
                   </span>
@@ -350,7 +352,7 @@ export default function SettingsTab() {
                     variant="outline"
                     size="sm"
                     onClick={() => setShowPasswordDialog(true)}
-                    className="border-slate-300 dark:border-slate-600"
+                    className="border-warning text-warning hover:bg-warning/10"
                   >
                     <Unlock className="w-4 h-4 mr-1" />
                     Unlock
@@ -541,7 +543,7 @@ export default function SettingsTab() {
               <Button 
                 onClick={handleSave}
                 disabled={saveMutation.isPending || !isUnlocked}
-                className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white"
+                className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg"
                 data-testid="button-save-settings"
               >
                 {saveMutation.isPending ? (
@@ -570,12 +572,14 @@ export default function SettingsTab() {
       </Card>
 
       {/* User Management Section */}
-      <Card className="border-purple-200/50 dark:border-purple-900/50">
-        <CardHeader className="bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900 dark:to-purple-800 border-b border-purple-200/50 dark:border-purple-700/50">
-          <CardTitle className="flex items-center gap-2">
-            <Users className="w-5 h-5" />
-            User Management
-          </CardTitle>
+      <Card className="premium-card">
+        <CardHeader>
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center">
+              <Users className="w-6 h-6 text-accent" />
+            </div>
+            <CardTitle className="text-xl font-display">User Management</CardTitle>
+          </div>
         </CardHeader>
         <CardContent className="pt-8">
           {/* Create New User */}
@@ -635,7 +639,7 @@ export default function SettingsTab() {
                 createUserMutation.mutate({ username: newUsername, password: newPassword, email: newEmail });
               }}
               disabled={createUserMutation.isPending || !newUsername || !newPassword || !newEmail}
-              className="mt-4 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700"
+              className="mt-4 bg-gradient-to-r from-accent to-accent/90 hover:from-accent/90 hover:to-accent shadow-lg"
             >
               {createUserMutation.isPending ? (
                 <>
@@ -722,7 +726,7 @@ export default function SettingsTab() {
                             size="sm"
                             variant="outline"
                             onClick={() => setChangePasswordUserId(user.id)}
-                            className="border-blue-300 dark:border-blue-600"
+                            className="border-accent text-accent hover:bg-accent/10"
                           >
                             <Key className="w-4 h-4 mr-1" />
                             Change Password
@@ -737,7 +741,7 @@ export default function SettingsTab() {
                                 }
                               }}
                               disabled={deleteUserMutation.isPending}
-                              className="border-red-300 dark:border-red-600 text-red-600 dark:text-red-400"
+                              className="border-destructive text-destructive hover:bg-destructive/10"
                             >
                               <Trash2 className="w-4 h-4 mr-1" />
                               Delete
