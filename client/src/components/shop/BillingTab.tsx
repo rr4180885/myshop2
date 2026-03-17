@@ -658,10 +658,10 @@ export default function BillingTab() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
             <div className="lg:col-span-2 space-y-4 md:space-y-6">
               {/* Customer Info */}
-              <Card className="bg-card border shadow-md">
+              <Card className="premium-card">
                 <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
-                    <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <CardTitle className="flex items-center gap-2 text-base sm:text-lg font-display">
+                    <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                     Customer Details
                   </CardTitle>
                 </CardHeader>
@@ -706,9 +706,9 @@ export default function BillingTab() {
               </Card>
 
               {/* Product Search */}
-              <Card className="bg-card border shadow-md">
+              <Card className="premium-card">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-base sm:text-lg">Search Products</CardTitle>
+                  <CardTitle className="text-base sm:text-lg font-display">Search Products</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="relative">
@@ -725,9 +725,9 @@ export default function BillingTab() {
               </Card>
 
               {/* Products List */}
-              <Card className="bg-card border shadow-md">
+              <Card className="premium-card">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-base sm:text-lg">Available Products ({filteredProducts.length})</CardTitle>
+                  <CardTitle className="text-base sm:text-lg font-display">Available Products ({filteredProducts.length})</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[400px] overflow-y-auto pr-2">
@@ -747,7 +747,7 @@ export default function BillingTab() {
                             size="sm"
                             onClick={() => addToCart(product)}
                             disabled={product.stock === 0}
-                            className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shrink-0"
+                            className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shrink-0"
                             data-testid={`button-add-to-cart-${product.id}`}
                           >
                             <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -777,9 +777,9 @@ export default function BillingTab() {
 
             {/* Cart Sidebar */}
             <div>
-              <Card className="sticky top-4 bg-card border shadow-xl" data-testid="card-cart">
+              <Card className="sticky top-4 premium-card shadow-xl" data-testid="card-cart">
                 <CardHeader className="bg-primary/10 border-b pb-3">
-                  <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                  <CardTitle className="flex items-center gap-2 text-base sm:text-lg font-display">
                     <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                     Cart ({cart.length})
                   </CardTitle>
@@ -872,7 +872,7 @@ export default function BillingTab() {
                   </div>
 
                   <Button
-                    className="w-full mt-4 sm:mt-6 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold h-10 sm:h-11"
+                    className="w-full mt-4 sm:mt-6 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary font-semibold h-10 sm:h-11 shadow-lg"
                     onClick={() => invoiceCounterMutation.mutate(cart)}
                     disabled={cart.length === 0 || invoiceCounterMutation.isPending}
                     data-testid="button-generate-invoice"
@@ -887,9 +887,9 @@ export default function BillingTab() {
         </TabsContent>
 
         <TabsContent value="history">
-          <Card className="bg-card border shadow-md">
+          <Card className="premium-card">
             <CardHeader>
-              <CardTitle className="text-base sm:text-lg">Invoice History ({filteredInvoices.length})</CardTitle>
+              <CardTitle className="text-base sm:text-lg font-display">Invoice History ({filteredInvoices.length})</CardTitle>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mt-4">
                 <div className="relative sm:col-span-1">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -1129,7 +1129,7 @@ export default function BillingTab() {
             <div className="flex gap-3 sm:gap-4 p-4 sm:p-6 bg-slate-100 border-t sticky bottom-0">
               <Button
                 onClick={handlePrint}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold"
+                className="flex-1 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary font-semibold shadow-lg"
               >
                 <Printer className="w-4 h-4 mr-2" />
                 Print Invoice
