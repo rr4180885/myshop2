@@ -176,45 +176,47 @@ export default function DashboardTab() {
       title: "Total Products",
       value: totalProducts,
       icon: Package,
-      color: "from-blue-500 to-blue-600",
-      bg: "bg-blue-50 dark:bg-blue-950",
-      textColor: "text-blue-600 dark:text-blue-400",
+      color: "from-accent to-accent/80",
+      bg: "bg-accent/10",
+      textColor: "text-accent",
     },
     {
       title: "Stock Value",
       value: `₹${totalStockValue.toLocaleString()}`,
       icon: DollarSign,
-      color: "from-green-500 to-green-600",
-      bg: "bg-green-50 dark:bg-green-950",
-      textColor: "text-green-600 dark:text-green-400",
+      color: "from-success to-success/80",
+      bg: "bg-success/10",
+      textColor: "text-success",
     },
     {
       title: "Total Units",
       value: totalStockUnits,
       icon: TrendingUp,
-      color: "from-purple-500 to-purple-600",
-      bg: "bg-purple-50 dark:bg-purple-950",
-      textColor: "text-purple-600 dark:text-purple-400",
+      color: "from-primary to-primary/80",
+      bg: "bg-primary/10",
+      textColor: "text-primary",
     },
     {
       title: "Low Stock Alert",
       value: lowStockCount,
       icon: AlertCircle,
-      color: "from-red-500 to-red-600",
-      bg: "bg-red-50 dark:bg-red-950",
-      textColor: "text-red-600 dark:text-red-400",
+      color: "from-warning to-warning/80",
+      bg: "bg-warning/10",
+      textColor: "text-warning",
     },
   ];
 
   return (
     <div className="space-y-6">
       {/* Sales Summary Card */}
-      <Card className="border-green-200/50 dark:border-green-900/50 bg-gradient-to-br from-green-50/50 to-green-50/30 dark:from-green-950/30 dark:to-green-950/10 overflow-hidden">
+      <Card className="premium-card border-success/20 bg-gradient-to-br from-success/5 to-success/10">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <ShoppingCart className="w-5 h-5 text-green-600 dark:text-green-400" />
-              <CardTitle className="text-green-900 dark:text-green-400">Sales Summary</CardTitle>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-success/10 border border-success/20 flex items-center justify-center">
+                <ShoppingCart className="w-5 h-5 text-success" />
+              </div>
+              <CardTitle className="font-display">Sales Summary</CardTitle>
             </div>
             <Select value={salesPeriod} onValueChange={setSalesPeriod}>
               <SelectTrigger className="w-32">
@@ -228,42 +230,48 @@ export default function DashboardTab() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            <div className="bg-white/50 dark:bg-slate-800/50 p-4 rounded-lg">
-              <div className="flex items-center gap-2 mb-2">
-                <ShoppingCart className="w-4 h-4 text-green-600 dark:text-green-400" />
-                <p className="text-sm text-slate-600 dark:text-slate-400">Total Sales</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div className="bg-card/50 border border-border/50 p-5 rounded-xl hover:border-success/30 transition-colors">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-8 h-8 rounded-lg bg-success/10 flex items-center justify-center">
+                  <ShoppingCart className="w-4 h-4 text-success" />
+                </div>
+                <p className="text-sm font-semibold text-muted-foreground">Total Sales</p>
               </div>
-              <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+              <p className="text-3xl font-display font-black text-success">
                 ₹{salesAnalytics.totalSales.toLocaleString()}
               </p>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              <p className="text-xs text-muted-foreground mt-2">
                 {salesAnalytics.invoiceCount} invoice{salesAnalytics.invoiceCount !== 1 ? 's' : ''}
               </p>
             </div>
             
-            <div className="bg-white/50 dark:bg-slate-800/50 p-4 rounded-lg">
-              <div className="flex items-center gap-2 mb-2">
-                <TrendingUp className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                <p className="text-sm text-slate-600 dark:text-slate-400">Total Profit</p>
+            <div className="bg-card/50 border border-border/50 p-5 rounded-xl hover:border-accent/30 transition-colors">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center">
+                  <TrendingUp className="w-4 h-4 text-accent" />
+                </div>
+                <p className="text-sm font-semibold text-muted-foreground">Total Profit</p>
               </div>
-              <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+              <p className="text-3xl font-display font-black text-accent">
                 ₹{salesAnalytics.totalProfit.toLocaleString()}
               </p>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              <p className="text-xs text-muted-foreground mt-2">
                 {salesAnalytics.totalProfit > 0 ? `${((salesAnalytics.totalProfit / salesAnalytics.totalSales) * 100).toFixed(1)}% margin` : 'No sales'}
               </p>
             </div>
             
-            <div className="bg-white/50 dark:bg-slate-800/50 p-4 rounded-lg">
-              <div className="flex items-center gap-2 mb-2">
-                <Calendar className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                <p className="text-sm text-slate-600 dark:text-slate-400">Period</p>
+            <div className="bg-card/50 border border-border/50 p-5 rounded-xl hover:border-primary/30 transition-colors">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Calendar className="w-4 h-4 text-primary" />
+                </div>
+                <p className="text-sm font-semibold text-muted-foreground">Period</p>
               </div>
-              <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+              <p className="text-2xl font-display font-black text-primary">
                 {salesPeriod === "day" ? "Today" : "This Month"}
               </p>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              <p className="text-xs text-muted-foreground mt-2">
                 {new Date().toLocaleDateString()}
               </p>
             </div>
@@ -272,26 +280,27 @@ export default function DashboardTab() {
           {/* Top Selling Products */}
           {salesAnalytics.topProducts.length > 0 && (
             <div>
-              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
+              <h3 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-primary" />
                 Top Selling Products
               </h3>
               <div className="space-y-2">
                 {salesAnalytics.topProducts.map((product, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700"
+                    className="flex items-center justify-between p-4 bg-card border border-border rounded-xl hover:border-primary/30 transition-colors"
                   >
                     <div className="flex-1">
-                      <p className="font-medium text-slate-900 dark:text-white">{product.name}</p>
-                      <p className="text-sm text-slate-600 dark:text-slate-400">
+                      <p className="font-bold text-foreground">{product.name}</p>
+                      <p className="text-sm text-muted-foreground">
                         Sold: {product.quantity} units
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="font-semibold text-green-600 dark:text-green-400">
+                      <p className="font-bold text-success text-lg">
                         ₹{product.revenue.toLocaleString()}
                       </p>
-                      <p className="text-sm text-blue-600 dark:text-blue-400">
+                      <p className="text-sm text-accent font-semibold">
                         Profit: ₹{product.profit.toLocaleString()}
                       </p>
                     </div>
@@ -311,13 +320,15 @@ export default function DashboardTab() {
       </Card>
 
       {/* AI-Powered Product Price Search */}
-      <Card className="border-blue-200/50 dark:border-blue-900/50 bg-gradient-to-br from-blue-50/50 to-blue-50/30 dark:from-blue-950/30 dark:to-blue-950/10 overflow-hidden">
+      <Card className="premium-card border-accent/20 bg-gradient-to-br from-accent/5 to-accent/10">
         <CardHeader className="pb-4">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-            <CardTitle className="text-blue-900 dark:text-blue-400">Instant Product Price Search</CardTitle>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center">
+              <Sparkles className="w-5 h-5 text-accent" />
+            </div>
+            <CardTitle className="font-display">Instant Product Price Search</CardTitle>
           </div>
-          <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">
+          <p className="text-sm text-muted-foreground mt-2">
             Search by name, SKU, brand, category, or use natural language queries like "products under 500" or "low stock items"
           </p>
         </CardHeader>
@@ -335,31 +346,33 @@ export default function DashboardTab() {
           
           {/* Search Results */}
           {searchResults.length > 0 && (
-            <div className="mt-4 space-y-2">
-              <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+            <div className="mt-4 space-y-3">
+              <p className="text-sm font-bold text-foreground">
                 Found {searchResults.length} result{searchResults.length !== 1 ? 's' : ''}:
               </p>
               {searchResults.map((product) => (
                 <div
                   key={product.id}
-                  className="flex items-center justify-between p-4 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-blue-400 dark:hover:border-blue-600 transition-colors"
+                  className="flex items-center justify-between p-4 bg-card border border-border rounded-xl hover:border-accent/50 hover:shadow-lg transition-all"
                   data-testid={`search-result-${product.id}`}
                 >
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <Tag className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                      <p className="font-semibold text-slate-900 dark:text-white">{product.name}</p>
+                      <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <Tag className="w-4 h-4 text-primary" />
+                      </div>
+                      <p className="font-bold text-foreground">{product.name}</p>
                     </div>
-                    <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                    <p className="text-sm text-muted-foreground mt-1 ml-10">
                       {product.brand} • Code: {product.code} • HSN: {product.hsnCode || '8708'}
                     </p>
                   </div>
                   <div className="text-right ml-4">
-                    <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                    <p className="text-2xl font-display font-black text-primary">
                       ₹{product.sellingPrice}
                     </p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                      Stock: <span className={product.stock < 10 ? "text-orange-600 font-semibold" : "text-green-600 font-semibold"}>{product.stock}</span> units
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Stock: <span className={product.stock < 10 ? "text-warning font-bold" : "text-success font-bold"}>{product.stock}</span> units
                     </p>
                   </div>
                 </div>
@@ -368,8 +381,8 @@ export default function DashboardTab() {
           )}
           
           {searchQuery && searchResults.length === 0 && (
-            <div className="mt-4 p-4 bg-slate-100 dark:bg-slate-800 rounded-lg text-center">
-              <p className="text-slate-600 dark:text-slate-400">
+            <div className="mt-4 p-4 bg-muted/50 rounded-xl text-center border border-border">
+              <p className="text-muted-foreground">
                 No products found matching "{searchQuery}"
               </p>
             </div>
@@ -384,17 +397,17 @@ export default function DashboardTab() {
           return (
             <Card 
               key={idx} 
-              className="border-slate-200/50 dark:border-slate-700/50 hover:shadow-lg transition-shadow duration-300 overflow-hidden"
+              className="premium-card group hover:scale-[1.02] transition-all duration-300"
               data-testid={`card-${stat.title.toLowerCase().replace(/\s+/g, "-")}`}
             >
               <CardContent className="p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div className={`p-3 rounded-lg bg-gradient-to-br ${stat.color}`}>
+                <div className="flex items-center justify-between mb-4">
+                  <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.color} shadow-lg group-hover:scale-110 transition-transform`}>
                     <Icon className="w-6 h-6 text-white" />
                   </div>
                 </div>
-                <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">{stat.title}</p>
-                <p className="text-3xl font-display font-bold text-slate-900 dark:text-white mt-2">
+                <p className="text-sm text-muted-foreground font-bold uppercase tracking-wide">{stat.title}</p>
+                <p className="text-4xl font-display font-black text-foreground mt-2">
                   {stat.value}
                 </p>
               </CardContent>
@@ -405,20 +418,24 @@ export default function DashboardTab() {
 
       {/* Low Stock Alert Section - Collapsible */}
       {lowStockItems.length > 0 && (
-        <Card className="border-orange-200/50 dark:border-orange-900/50 bg-gradient-to-br from-orange-50/50 to-orange-50/30 dark:from-orange-950/30 dark:to-orange-950/10 overflow-hidden" data-testid="card-low-stock-alert">
-          <CardHeader className="pb-4 border-b border-orange-200/30 dark:border-orange-900/30">
+        <Card className="premium-card border-warning/20 bg-gradient-to-br from-warning/5 to-warning/10" data-testid="card-low-stock-alert">
+          <CardHeader className="pb-4 border-b border-border/30">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <AlertCircle className="w-5 h-5 text-orange-600 dark:text-orange-400" />
-                <CardTitle className="text-orange-900 dark:text-orange-400">Low Stock Alert</CardTitle>
-                <span className="text-sm text-orange-600 dark:text-orange-400">({lowStockItems.length} items)</span>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-warning/10 border border-warning/20 flex items-center justify-center">
+                  <AlertCircle className="w-5 h-5 text-warning" />
+                </div>
+                <div>
+                  <CardTitle className="font-display">Low Stock Alert</CardTitle>
+                  <span className="text-sm text-warning font-semibold">({lowStockItems.length} items)</span>
+                </div>
               </div>
               {lowStockItems.length > 2 && (
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setLowStockExpanded(!lowStockExpanded)}
-                  className="text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300"
+                  className="text-warning hover:bg-warning/10"
                 >
                   {lowStockExpanded ? (
                     <>
@@ -440,22 +457,22 @@ export default function DashboardTab() {
               {(lowStockExpanded ? lowStockItems : lowStockItems.slice(0, 2)).map((item: any) => (
                 <div
                   key={item.id}
-                  className="flex items-center justify-between p-3 bg-white/50 dark:bg-slate-800/50 rounded-lg hover:bg-white/80 dark:hover:bg-slate-800 transition-colors"
+                  className="flex items-center justify-between p-4 bg-card border border-border rounded-xl hover:border-warning/30 hover:shadow-md transition-all"
                   data-testid={`text-low-stock-${item.id}`}
                 >
                   <div>
-                    <p className="font-medium text-slate-900 dark:text-white">{item.name}</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">{item.code}</p>
+                    <p className="font-bold text-foreground">{item.name}</p>
+                    <p className="text-sm text-muted-foreground">{item.code}</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold text-orange-600 dark:text-orange-400">{item.stock} units</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">⚠️ Below 2</p>
+                    <p className="font-bold text-warning text-lg">{item.stock} units</p>
+                    <p className="text-xs text-muted-foreground">⚠️ Below 2</p>
                   </div>
                 </div>
               ))}
             </div>
             {!lowStockExpanded && lowStockItems.length > 2 && (
-              <p className="text-center text-sm text-orange-600 dark:text-orange-400 mt-3">
+              <p className="text-center text-sm text-warning font-semibold mt-3">
                 +{lowStockItems.length - 2} more items
               </p>
             )}
@@ -464,23 +481,23 @@ export default function DashboardTab() {
       )}
 
       {/* Quick Stats */}
-      <Card className="border-slate-200/50 dark:border-slate-700/50">
+      <Card className="premium-card">
         <CardHeader>
-          <CardTitle>Inventory Summary</CardTitle>
+          <CardTitle className="font-display">Inventory Summary</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-3 gap-6">
-            <div className="space-y-2">
-              <p className="text-sm text-slate-600 dark:text-slate-400">Average Stock Level</p>
-              <p className="text-2xl font-bold">{(totalStockUnits / totalProducts).toFixed(1)}</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="space-y-2 p-4 bg-muted/30 rounded-xl border border-border">
+              <p className="text-sm text-muted-foreground font-bold uppercase tracking-wide">Average Stock Level</p>
+              <p className="text-3xl font-display font-black text-accent">{(totalStockUnits / totalProducts).toFixed(1)}</p>
             </div>
-            <div className="space-y-2">
-              <p className="text-sm text-slate-600 dark:text-slate-400">Products with Stock</p>
-              <p className="text-2xl font-bold">{products.filter(p => p.stock > 0).length}</p>
+            <div className="space-y-2 p-4 bg-muted/30 rounded-xl border border-border">
+              <p className="text-sm text-muted-foreground font-bold uppercase tracking-wide">Products with Stock</p>
+              <p className="text-3xl font-display font-black text-success">{products.filter(p => p.stock > 0).length}</p>
             </div>
-            <div className="space-y-2">
-              <p className="text-sm text-slate-600 dark:text-slate-400">Out of Stock</p>
-              <p className="text-2xl font-bold text-red-600">{products.filter(p => p.stock === 0).length}</p>
+            <div className="space-y-2 p-4 bg-muted/30 rounded-xl border border-border">
+              <p className="text-sm text-muted-foreground font-bold uppercase tracking-wide">Out of Stock</p>
+              <p className="text-3xl font-display font-black text-destructive">{products.filter(p => p.stock === 0).length}</p>
             </div>
           </div>
         </CardContent>
