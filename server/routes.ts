@@ -3,7 +3,7 @@ import { storage } from "./storage";
 import { setupAuth } from "./auth";
 import { api } from "@shared/routes";
 import { z } from "zod";
-import { insertProductSchema, insertInvoiceSchema, insertSettingsSchema, insertUserSchema } from "@shared/schema";
+import { insertProductSchema, insertInvoiceSchema, insertSettingsSchema, insertUserSchema, type Invoice } from "@shared/schema";
 import { sendEmail, generateOTP, getWelcomeEmailTemplate, getPasswordResetEmailTemplate, getInvoiceEmailTemplate, generateInvoicePDF } from "./email";
 import { scrypt, randomBytes } from "crypto";
 import { promisify } from "util";
@@ -14,6 +14,38 @@ async function hashPassword(password: string) {
   const salt = randomBytes(16).toString("hex");
   const buf = (await scryptAsync(password, salt, 64)) as Buffer;
   return `${buf.toString("hex")}.${salt}`;
+}
+
+async function updateStockFromInvoiceItems(itemsJson: string) {
+  const items = JSON.parse(itemsJson) as Array<{ id: number; quantity: number; isMisc?: boolean }>;
+  for (const item of items) {
+    if (item.isMisc) continue;
+    const product = await storage.getProduct(item.id);
+    if (product) {
+      await storage.updateProduct(item.id, { stock: product.stock - item.quantity });
+    }
+  }
+}
+
+async function sendInvoiceEmailAsync(invoice: Invoice) {
+  const settings = await storage.getSettings();
+  const pdfBuffer = await generateInvoicePDF(invoice, settings);
+  const emailHtml = getInvoiceEmailTemplate(
+    invoice.invoiceNumber,
+    invoice.customerName || "Valued Customer",
+    invoice.grandTotal.toString(),
+    settings
+  );
+  await sendEmail({
+    to: invoice.customerEmail!,
+    subject: `Invoice ${invoice.invoiceNumber} - ${settings?.shopName || "Brothers Enterprises"}`,
+    html: emailHtml,
+    attachments: [{
+      filename: `Invoice-${invoice.invoiceNumber}.pdf`,
+      data: pdfBuffer,
+    }],
+  });
+  console.log(`✉️ Invoice email sent to ${invoice.customerEmail}`);
 }
 
 export async function registerRoutes(app: Express): Promise<void> {
@@ -74,49 +106,9 @@ export async function registerRoutes(app: Express): Promise<void> {
   app.post(api.invoices.create.path, async (req, res) => {
     try {
       const input = insertInvoiceSchema.parse(req.body);
-      const invoice = await storage.createInvoice(input);
-      
-      // Send invoice email if customer email is provided
-      console.log('📧 Checking invoice email:', invoice.customerEmail);
-      if (invoice.customerEmail && invoice.customerEmail.trim() !== '') {
-        try {
-          console.log('📤 Attempting to send invoice email to:', invoice.customerEmail);
-          const settings = await storage.getSettings();
-          
-          // Generate PDF
-          console.log('📄 Generating PDF for invoice:', invoice.invoiceNumber);
-          const pdfBuffer = await generateInvoicePDF(invoice, settings);
-          console.log('✅ PDF generated successfully, size:', pdfBuffer.length, 'bytes');
-          
-          // Get email template
-          const emailHtml = getInvoiceEmailTemplate(
-            invoice.invoiceNumber,
-            invoice.customerName || 'Valued Customer',
-            invoice.grandTotal.toString(),
-            settings
-          );
-          
-          // Send email with PDF attachment
-          console.log('📨 Sending email with PDF attachment...');
-          await sendEmail({
-            to: invoice.customerEmail,
-            subject: `Invoice ${invoice.invoiceNumber} - ${settings?.shopName || 'Brothers Enterprises'}`,
-            html: emailHtml,
-            attachments: [{
-              filename: `Invoice-${invoice.invoiceNumber}.pdf`,
-              data: pdfBuffer
-            }]
-          });
-          console.log(`✅ ✉️ Invoice email sent successfully to ${invoice.customerEmail} with PDF attachment!`);
-        } catch (emailError) {
-          console.error('❌ Failed to send invoice email:', emailError);
-          console.error('Error details:', JSON.stringify(emailError, null, 2));
-          // Don't fail invoice creation if email fails
-        }
-      } else {
-        console.log('ℹ️ No email address provided, skipping invoice email');
-      }
-      
+      const invoiceNumber = await storage.getNextInvoiceNumber();
+      const invoice = await storage.createInvoice({ ...input, invoiceNumber });
+      await updateStockFromInvoiceItems(input.items);
       res.status(201).json(invoice);
     } catch (err) {
       if (err instanceof z.ZodError) {
@@ -125,7 +117,30 @@ export async function registerRoutes(app: Express): Promise<void> {
           field: err.errors[0].path.join("."),
         });
       }
-      throw err;
+      const pgCode = (err as { code?: string })?.code;
+      if (pgCode === "23505") {
+        return res.status(409).json({ message: "Invoice already exists. Please try again." });
+      }
+      console.error("Invoice creation failed:", err);
+      return res.status(500).json({ message: "Failed to create invoice" });
+    }
+  });
+
+  app.post("/api/invoices/:id/send-email", async (req, res) => {
+    try {
+      const id = Number(req.params.id);
+      const invoice = await storage.getInvoice(id);
+      if (!invoice) {
+        return res.status(404).json({ message: "Invoice not found" });
+      }
+      if (!invoice.customerEmail?.trim()) {
+        return res.status(400).json({ message: "No customer email on this invoice" });
+      }
+      await sendInvoiceEmailAsync(invoice);
+      res.json({ message: "Invoice email sent" });
+    } catch (err) {
+      console.error("Failed to send invoice email:", err);
+      return res.status(500).json({ message: "Failed to send invoice email" });
     }
   });
 

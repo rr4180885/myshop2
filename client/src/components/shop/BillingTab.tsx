@@ -74,10 +74,6 @@ export default function BillingTab() {
         }
       }
 
-      const counter = parseInt(localStorage.getItem("invoiceCounter") || "1");
-      const invoiceNumber = `INV-${new Date().getFullYear()}-${String(counter).padStart(5, "0")}`;
-      localStorage.setItem("invoiceCounter", String(counter + 1));
-
       const cartItems = items.map(item => ({
         ...item,
         amount: (item.quantity * item.sellingPrice).toFixed(2)
@@ -96,7 +92,6 @@ export default function BillingTab() {
       const grandTotal = items.reduce((sum, item) => sum + item.quantity * item.sellingPrice, 0);
 
       const invoiceData = {
-        invoiceNumber,
         customerName: customerName || "Walk-in Customer",
         customerPhone: customerPhone || "N/A",
         customerEmail: customerEmail || "",
@@ -104,22 +99,23 @@ export default function BillingTab() {
         subtotal: subtotal.toFixed(2),
         gstAmount: gstAmount.toFixed(2),
         grandTotal: grandTotal.toFixed(2),
-        hideGST, // Pass the GST toggle state
+        hideGST,
       };
 
-      await apiRequest("POST", api.invoices.create.path, invoiceData);
+      const res = await apiRequest("POST", api.invoices.create.path, invoiceData);
+      const invoice = await res.json();
 
-      for (const item of items) {
-        if (item.isMisc) continue;
-        const product = products.find(p => p.id === item.id);
-        if (product) {
-          await apiRequest("PUT", api.products.update.path.replace(":id", String(item.id)), {
-            stock: product.stock - item.quantity
-          });
-        }
+      // Send email in a separate request so invoice creation stays fast on Vercel
+      if (customerEmail?.trim() && invoice.id) {
+        fetch(`/api/invoices/${invoice.id}/send-email`, {
+          method: "POST",
+          credentials: "include",
+        }).catch(() => {
+          toast({ title: "Invoice created", description: "Email could not be sent.", variant: "destructive" });
+        });
       }
 
-      return { ...invoiceData, items: cartItems };
+      return { ...invoice, items: cartItems, hideGST };
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: [api.products.list.path] });

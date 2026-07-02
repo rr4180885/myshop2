@@ -3,7 +3,7 @@ import { randomUUID } from "crypto";
 import session from "express-session";
 import createMemoryStore from "memorystore";
 import connectPgSimple from "connect-pg-simple";
-import { eq, sql } from "drizzle-orm";
+import { eq, sql, like } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 
@@ -62,6 +62,8 @@ export interface IStorage {
   
   // Invoices
   getInvoices(): Promise<Invoice[]>;
+  getInvoice(id: number): Promise<Invoice | undefined>;
+  getNextInvoiceNumber(): Promise<string>;
   createInvoice(invoice: InsertInvoice): Promise<Invoice>;
   
   // Settings
@@ -258,6 +260,27 @@ export class DBStorage implements IStorage {
   // Invoices
   async getInvoices(): Promise<Invoice[]> {
     return this.db.select().from(invoices);
+  }
+
+  async getInvoice(id: number): Promise<Invoice | undefined> {
+    const result = await this.db.select().from(invoices).where(eq(invoices.id, id));
+    return result[0];
+  }
+
+  async getNextInvoiceNumber(): Promise<string> {
+    const year = new Date().getFullYear();
+    const prefix = `INV-${year}-`;
+    const rows = await this.db
+      .select({ invoiceNumber: invoices.invoiceNumber })
+      .from(invoices)
+      .where(like(invoices.invoiceNumber, `${prefix}%`));
+
+    const maxNum = rows.reduce((max, row) => {
+      const num = parseInt(row.invoiceNumber.slice(prefix.length), 10);
+      return Number.isNaN(num) ? max : Math.max(max, num);
+    }, 0);
+
+    return `${prefix}${String(maxNum + 1).padStart(5, "0")}`;
   }
 
   async createInvoice(invoice: InsertInvoice): Promise<Invoice> {
@@ -480,6 +503,17 @@ export class MemStorage implements IStorage {
 
   // Invoices
   async getInvoices(): Promise<Invoice[]> { return Array.from(this.invoices.values()); }
+  async getInvoice(id: number): Promise<Invoice | undefined> { return this.invoices.get(id); }
+  async getNextInvoiceNumber(): Promise<string> {
+    const year = new Date().getFullYear();
+    const prefix = `INV-${year}-`;
+    const nums = Array.from(this.invoices.values())
+      .filter((inv) => inv.invoiceNumber.startsWith(prefix))
+      .map((inv) => parseInt(inv.invoiceNumber.slice(prefix.length), 10))
+      .filter((n) => !Number.isNaN(n));
+    const next = nums.length ? Math.max(...nums) + 1 : 1;
+    return `${prefix}${String(next).padStart(5, "0")}`;
+  }
   async createInvoice(invoice: InsertInvoice): Promise<Invoice> {
     const id = this.invoiceIdCounter++;
     const newInvoice: Invoice = { 

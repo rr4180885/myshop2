@@ -71,6 +71,9 @@ export const insertProductSchema = createInsertSchema(products, {
 export const insertInvoiceSchema = createInsertSchema(invoices).omit({
   id: true,
   createdAt: true,
+  invoiceNumber: true,
+}).extend({
+  invoiceNumber: z.string().optional(),
 });
 
 export const insertSettingsSchema = createInsertSchema(settings).partial().omit({
