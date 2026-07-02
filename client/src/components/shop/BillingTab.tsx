@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import PageHeader from "@/components/shop/PageHeader";
+import PageShell from "@/components/shop/PageShell";
 import SectionCard from "@/components/shop/SectionCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -672,8 +673,8 @@ export default function BillingTab() {
   };
 
   return (
-    <>
-      <PageHeader title="Billing" icon={ShoppingCart} />
+    <PageShell>
+      <PageHeader title="Billing" description="Create invoices and view history" icon={ShoppingCart} />
 
       <Tabs defaultValue="billing" className="w-full">
         <TabsList className="page-tabs">
@@ -687,143 +688,152 @@ export default function BillingTab() {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="billing">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
-            <div className="lg:col-span-2 space-y-4 md:space-y-6">
-              <SectionCard title="Customer" icon={ShoppingCart}>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="form-label">Name</label>
-                      <Input
-                        placeholder="Customer name"
-                        value={customerName}
-                        onChange={(e) => setCustomerName(e.target.value)}
-                        className="mt-1.5 input-modern"
-                        data-testid="input-customer-name"
-                      />
-                    </div>
-                    <div>
-                      <label className="form-label">Phone</label>
-                      <Input
-                        placeholder="Phone number"
-                        value={customerPhone}
-                        onChange={(e) => setCustomerPhone(e.target.value)}
-                        className="mt-1.5 input-modern"
-                        data-testid="input-customer-phone"
-                      />
-                    </div>
-                    <div className="sm:col-span-2">
-                      <label className="form-label">Email</label>
-                      <Input
-                        type="email"
-                        placeholder="Email for invoice copy"
-                        value={customerEmail}
-                        onChange={(e) => setCustomerEmail(e.target.value)}
-                        className="mt-1.5 input-modern"
-                        data-testid="input-customer-email"
-                      />
-                    </div>
-                  </div>
-              </SectionCard>
+        <TabsContent value="billing" className="space-y-4 mt-0">
+          <SectionCard title="Customer Details" icon={ShoppingCart}>
+            <div className="form-grid-3">
+              <div>
+                <label className="form-label">Customer Name</label>
+                <Input
+                  placeholder="Walk-in customer"
+                  value={customerName}
+                  onChange={(e) => setCustomerName(e.target.value)}
+                  className="mt-1.5 input-modern"
+                  data-testid="input-customer-name"
+                />
+              </div>
+              <div>
+                <label className="form-label">Phone</label>
+                <Input
+                  placeholder="Phone number"
+                  value={customerPhone}
+                  onChange={(e) => setCustomerPhone(e.target.value)}
+                  className="mt-1.5 input-modern"
+                  data-testid="input-customer-phone"
+                />
+              </div>
+              <div>
+                <label className="form-label">Email</label>
+                <Input
+                  type="email"
+                  placeholder="For invoice copy"
+                  value={customerEmail}
+                  onChange={(e) => setCustomerEmail(e.target.value)}
+                  className="mt-1.5 input-modern"
+                  data-testid="input-customer-email"
+                />
+              </div>
+            </div>
+          </SectionCard>
 
-              <SectionCard title="Search Products" icon={Search}>
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input
-                      placeholder="Name, brand, code, or HSN..."
-                      value={search}
-                      onChange={(e) => setSearch(e.target.value)}
-                      className="w-full pl-9 input-modern"
-                      data-testid="input-product-search"
-                    />
-                  </div>
-              </SectionCard>
+          <div className="grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-4 items-start">
+            {/* Left: products */}
+            <div className="space-y-4 min-w-0">
+              {/* Search + misc toolbar */}
+              <div className="surface-card p-4 space-y-3">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search products by name, code, brand..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="pl-9 input-modern"
+                    data-testid="input-product-search"
+                  />
+                </div>
+                <div className="flex flex-col sm:flex-row gap-2 pt-1 border-t border-border/60">
+                  <Input
+                    placeholder="Misc item name"
+                    value={miscName}
+                    onChange={(e) => setMiscName(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && addMiscToCart()}
+                    className="input-modern flex-1"
+                  />
+                  <Input
+                    type="number"
+                    placeholder="Amount ₹"
+                    value={miscAmount}
+                    onChange={(e) => setMiscAmount(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && addMiscToCart()}
+                    className="input-modern w-full sm:w-28"
+                    min="0"
+                    step="0.01"
+                  />
+                  <Button onClick={addMiscToCart} variant="secondary" className="shrink-0">
+                    <Plus className="w-4 h-4 mr-1" />
+                    Misc
+                  </Button>
+                </div>
+              </div>
 
-              <SectionCard title="Misc Item" icon={Plus} className="border-dashed">
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <div className="flex-1">
-                      <label className="form-label">Item Name</label>
-                      <Input
-                        placeholder="Labour, packaging, etc."
-                        value={miscName}
-                        onChange={(e) => setMiscName(e.target.value)}
-                        onKeyDown={(e) => e.key === "Enter" && addMiscToCart()}
-                        className="mt-1.5 input-modern"
-                      />
-                    </div>
-                    <div className="w-full sm:w-36">
-                      <label className="form-label">Amount (₹)</label>
-                      <Input
-                        type="number"
-                        placeholder="0.00"
-                        value={miscAmount}
-                        onChange={(e) => setMiscAmount(e.target.value)}
-                        onKeyDown={(e) => e.key === "Enter" && addMiscToCart()}
-                        className="mt-1.5 input-modern"
-                        min="0"
-                        step="0.01"
-                      />
-                    </div>
-                    <div className="sm:self-end">
-                      <Button onClick={addMiscToCart} className="w-full sm:w-auto h-10 mt-1.5 sm:mt-0">
-                        <Plus className="w-4 h-4 mr-1.5" />
-                        Add
-                      </Button>
-                    </div>
-                  </div>
-              </SectionCard>
-
-              <SectionCard title={`Products (${filteredProducts.length})`} icon={Package}>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[400px] overflow-y-auto">
-                    {filteredProducts.map(product => (
-                      <div 
-                        key={product.id} 
-                        className="p-3 border border-border/60 rounded-lg hover:border-primary/40 hover:bg-muted/20 transition-colors"
-                        data-testid={`card-product-${product.id}`}
-                      >
-                        <div className="flex justify-between items-start mb-2">
-                          <div className="flex-1 min-w-0 pr-2">
-                            <div className="font-medium text-foreground text-sm truncate">{product.name}</div>
-                            <div className="text-xs text-muted-foreground">{product.code}</div>
-                          </div>
-                          <Button
-                            size="sm"
-                            onClick={() => addToCart(product)}
-                            disabled={product.stock === 0}
-                            className="shrink-0 h-8 w-8 p-0"
-                            data-testid={`button-add-to-cart-${product.id}`}
-                          >
-                            <Plus className="w-4 h-4" />
-                          </Button>
-                        </div>
-                        <div className="flex justify-between text-xs text-muted-foreground">
-                          <span>₹{product.sellingPrice}</span>
-                          <span className={product.stock < 10 ? "text-warning" : "text-success"}>
-                            Stock {product.stock}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+              {/* Product table */}
+              <SectionCard title={`Products (${filteredProducts.length})`} icon={Package} noPadding>
+                <div className="overflow-x-auto max-h-[calc(100vh-22rem)] overflow-y-auto">
+                  <table className="data-table">
+                    <thead>
+                      <tr>
+                        <th>Product</th>
+                        <th>Code</th>
+                        <th className="text-right">Price</th>
+                        <th className="text-right">Stock</th>
+                        <th className="text-center w-16">Add</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredProducts.length === 0 ? (
+                        <tr>
+                          <td colSpan={5} className="text-center py-8 text-muted-foreground text-sm">
+                            No products match your search
+                          </td>
+                        </tr>
+                      ) : (
+                        filteredProducts.map((product: any) => (
+                          <tr key={product.id} data-testid={`card-product-${product.id}`}>
+                            <td className="font-medium">{product.name}</td>
+                            <td className="text-muted-foreground font-mono text-xs">{product.code}</td>
+                            <td className="text-right tabular-nums">₹{product.sellingPrice}</td>
+                            <td className={`text-right font-medium ${product.stock < 10 ? "text-warning" : "text-success"}`}>
+                              {product.stock}
+                            </td>
+                            <td className="text-center">
+                              <Button
+                                size="sm"
+                                onClick={() => addToCart(product)}
+                                disabled={product.stock === 0}
+                                className="btn-icon"
+                                data-testid={`button-add-to-cart-${product.id}`}
+                              >
+                                <Plus className="w-4 h-4" />
+                              </Button>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
               </SectionCard>
             </div>
 
-            {/* Cart Sidebar */}
-            <div>
-              <div className="sticky top-4 surface-card overflow-hidden" data-testid="card-cart">
-                <div className="flex items-center gap-2 border-b border-border/60 px-5 py-4 bg-primary/5">
-                  <ShoppingCart className="w-4 h-4 text-primary" />
-                  <h2 className="text-sm font-semibold">Cart ({cart.length})</h2>
+            {/* Right: cart */}
+            <div className="xl:sticky xl:top-20">
+              <div className="surface-card overflow-hidden" data-testid="card-cart">
+                <div className="flex items-center justify-between border-b border-border/60 px-4 py-3 bg-muted/30">
+                  <div className="flex items-center gap-2">
+                    <ShoppingCart className="w-4 h-4 text-primary" />
+                    <h2 className="text-sm font-semibold">Cart</h2>
+                  </div>
+                  <span className="text-xs text-muted-foreground">{cart.length} items</span>
                 </div>
-                <div className="p-5">
-                  <div className="space-y-2 max-h-64 overflow-y-auto mb-4">
+
+                <div className="p-4">
+                  <div className="space-y-2 min-h-[120px] max-h-[calc(100vh-28rem)] overflow-y-auto mb-4">
                     {cart.length === 0 ? (
-                      <p className="text-center text-muted-foreground py-6 sm:py-8 text-sm">No items in cart</p>
+                      <p className="text-center text-muted-foreground py-8 text-sm">Cart is empty</p>
                     ) : (
                       cart.map(item => (
                         <div
                           key={item.id}
-                          className={`p-3 rounded-lg border space-y-2 ${item.isMisc ? "bg-warning/5 border-warning/30" : "bg-muted/30 border-border/60"}`}
+                          className={`p-3 rounded-lg border ${item.isMisc ? "border-warning/30 bg-warning/5" : "border-border/60 bg-muted/20"}`}
                           data-testid={`cart-item-${item.id}`}
                         >
                           <div className="flex items-start justify-between gap-1">
@@ -839,9 +849,9 @@ export default function BillingTab() {
                               </span>
                               <Button
                                 size="sm"
-                                variant="ghost"
+                                variant="outline"
                                 onClick={() => removeFromCart(item.id)}
-                                className="text-destructive hover:text-destructive hover:bg-destructive/10 h-7 px-2"
+                                className="btn-icon text-destructive hover:text-destructive"
                                 data-testid={`button-remove-${item.id}`}
                               >
                                 <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -882,9 +892,9 @@ export default function BillingTab() {
                                 </span>
                                 <Button
                                   size="sm"
-                                  variant="ghost"
+                                  variant="outline"
                                   onClick={() => removeFromCart(item.id)}
-                                  className="text-destructive hover:text-destructive hover:bg-destructive/10 h-7 px-2"
+                                  className="btn-icon text-destructive hover:text-destructive"
                                   data-testid={`button-remove-${item.id}`}
                                 >
                                   <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -897,7 +907,7 @@ export default function BillingTab() {
                     )}
                   </div>
 
-                  <div className="flex items-center gap-2 mb-3 p-2 rounded-lg bg-muted/30">
+                  <div className="flex items-center gap-2 mb-3 py-2 border-t border-border/60">
                     <Switch
                       id="hide-gst"
                       checked={hideGST}
@@ -1194,6 +1204,6 @@ export default function BillingTab() {
           </div>
         </div>
       )}
-    </>
+    </PageShell>
   );
 }

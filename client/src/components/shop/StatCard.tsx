@@ -14,7 +14,7 @@ const variantStyles = {
   default: "bg-primary/10 text-primary ring-primary/15",
   success: "bg-success/10 text-success ring-success/15",
   warning: "bg-warning/10 text-warning ring-warning/15",
-  accent: "bg-accent/10 text-accent ring-accent/15",
+  accent: "bg-primary/10 text-primary ring-primary/15",
 };
 
 export default function StatCard({ label, value, hint, icon: Icon, variant = "default" }: StatCardProps) {

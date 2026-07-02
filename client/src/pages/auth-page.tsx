@@ -49,7 +49,7 @@ export default function AuthPage() {
         {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
       </Button>
 
-      <div className="flex items-center justify-center p-6 sm:p-10 lg:p-16">
+      <div className="flex items-center justify-center p-6 sm:p-10 lg:p-16 pattern-dots">
         <div className="w-full max-w-md space-y-8">
           <div className="space-y-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-primary-foreground">

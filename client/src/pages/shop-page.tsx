@@ -152,7 +152,8 @@ export default function ShopPage() {
           </Button>
 
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate text-muted-foreground">{shopName}</p>
+            <h1 className="text-sm font-semibold truncate">{activeTabObj?.label}</h1>
+            <p className="text-xs text-muted-foreground truncate">{shopName}</p>
           </div>
 
           <Button variant="outline" size="icon" className="h-9 w-9 shrink-0" onClick={toggleTheme} title="Toggle theme">
@@ -160,7 +161,7 @@ export default function ShopPage() {
           </Button>
         </header>
 
-        <div className="flex-1 overflow-auto">
+        <div className="flex-1 overflow-auto pattern-dots">
           <div className="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8 animate-fadeIn">
             {ActiveComponent && <ActiveComponent />}
           </div>

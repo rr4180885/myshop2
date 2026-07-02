@@ -7,7 +7,10 @@ import StatCard from "@/components/shop/StatCard";
 import PageHeader from "@/components/shop/PageHeader";
 import SectionCard from "@/components/shop/SectionCard";
 import EmptyState from "@/components/shop/EmptyState";
-import { TrendingUp, Package, AlertCircle, DollarSign, Search, Loader2, ShoppingCart, TrendingDown, ChevronDown, ChevronUp, LayoutDashboard } from "lucide-react";
+import PageShell from "@/components/shop/PageShell";
+import ListRow from "@/components/shop/ListRow";
+import LoadingSpinner from "@/components/shop/LoadingSpinner";
+import { TrendingUp, Package, AlertCircle, DollarSign, Search, ShoppingCart, TrendingDown, ChevronDown, ChevronUp, LayoutDashboard } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function DashboardTab() {
@@ -153,14 +156,7 @@ export default function DashboardTab() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-center space-y-4">
-          <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto" />
-          <p className="text-muted-foreground">Loading dashboard...</p>
-        </div>
-      </div>
-    );
+    return <LoadingSpinner label="Loading dashboard..." />;
   }
 
   const totalProducts = products.length;
@@ -175,20 +171,21 @@ export default function DashboardTab() {
   const salesAnalytics = calculateSalesAnalytics();
 
   const stats = [
-    { label: "Total Products", value: totalProducts, icon: Package, variant: "accent" as const },
+    { label: "Total Products", value: totalProducts, icon: Package, variant: "default" as const },
     { label: "Stock Value", value: `₹${totalStockValue.toLocaleString()}`, icon: DollarSign, variant: "success" as const },
     { label: "Total Units", value: totalStockUnits, icon: TrendingUp, variant: "default" as const },
     { label: "Low Stock", value: lowStockCount, icon: AlertCircle, variant: "warning" as const, hint: lowStockCount > 0 ? "Needs attention" : "All good" },
   ];
 
   return (
-    <div className="space-y-6">
+    <PageShell>
       <PageHeader
         title="Dashboard"
+        description={`${totalProducts} products · ${salesAnalytics.invoiceCount} invoices ${salesPeriod === "day" ? "today" : "this month"}`}
         icon={LayoutDashboard}
         actions={
           <Select value={salesPeriod} onValueChange={setSalesPeriod}>
-            <SelectTrigger className="w-36 h-9">
+            <SelectTrigger className="w-36 h-9 input-modern">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -218,7 +215,7 @@ export default function DashboardTab() {
             </div>
             <div className="section-stat">
               <p className="section-stat-label">Total Profit</p>
-              <p className="section-stat-value text-accent">
+              <p className="section-stat-value text-primary">
                 ₹{salesAnalytics.totalProfit.toLocaleString()}
               </p>
               <p className="text-xs text-muted-foreground mt-1">
@@ -242,19 +239,17 @@ export default function DashboardTab() {
               </h3>
               <div className="space-y-2">
                 {salesAnalytics.topProducts.map((product, index) => (
-                  <div
+                  <ListRow
                     key={index}
-                    className="flex items-center justify-between p-3 rounded-lg border border-border/60 hover:bg-muted/30 transition-colors"
-                  >
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-foreground truncate">{product.name}</p>
-                      <p className="text-xs text-muted-foreground">{product.quantity} sold</p>
-                    </div>
-                    <div className="text-right shrink-0 ml-4">
-                      <p className="font-semibold text-success tabular-nums">₹{product.revenue.toLocaleString()}</p>
-                      <p className="text-xs text-muted-foreground tabular-nums">Profit ₹{product.profit.toLocaleString()}</p>
-                    </div>
-                  </div>
+                    title={product.name}
+                    subtitle={`${product.quantity} sold`}
+                    right={
+                      <>
+                        <p className="font-semibold text-success tabular-nums">₹{product.revenue.toLocaleString()}</p>
+                        <p className="text-xs text-muted-foreground tabular-nums">Profit ₹{product.profit.toLocaleString()}</p>
+                      </>
+                    }
+                  />
                 ))}
               </div>
             </div>
@@ -283,22 +278,18 @@ export default function DashboardTab() {
           {searchResults.length > 0 && (
             <div className="mt-4 space-y-2">
               {searchResults.map((product) => (
-                <div
+                <ListRow
                   key={product.id}
-                  className="flex items-center justify-between p-3 rounded-lg border border-border/60 hover:bg-muted/30 transition-colors"
+                  title={product.name}
+                  subtitle={`${product.brand} · ${product.code}`}
+                  right={
+                    <>
+                      <p className="font-semibold text-primary tabular-nums">₹{product.sellingPrice}</p>
+                      <p className="text-xs text-muted-foreground">Stock {product.stock}</p>
+                    </>
+                  }
                   data-testid={`search-result-${product.id}`}
-                >
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-foreground truncate">{product.name}</p>
-                    <p className="text-xs text-muted-foreground truncate">
-                      {product.brand} · {product.code}
-                    </p>
-                  </div>
-                  <div className="text-right shrink-0 ml-4">
-                    <p className="font-semibold text-primary tabular-nums">₹{product.sellingPrice}</p>
-                    <p className="text-xs text-muted-foreground">Stock: {product.stock}</p>
-                  </div>
-                </div>
+                />
               ))}
             </div>
           )}
@@ -316,7 +307,7 @@ export default function DashboardTab() {
           icon={AlertCircle}
           headerClassName="border-warning/20"
           actions={
-              lowStockItems.length > 2 ? (
+              lowStockItems.length > 3 ? (
                 <Button
                   variant="ghost"
                   size="sm"
@@ -334,44 +325,23 @@ export default function DashboardTab() {
           data-testid="card-low-stock-alert"
         >
             <div className="space-y-2">
-              {(lowStockExpanded ? lowStockItems : lowStockItems.slice(0, 2)).map((item: any) => (
-                <div
+              {(lowStockExpanded ? lowStockItems : lowStockItems.slice(0, 3)).map((item: any) => (
+                <ListRow
                   key={item.id}
-                  className="flex items-center justify-between p-3 rounded-lg border border-border/60"
+                  title={item.name}
+                  subtitle={item.code}
+                  right={<span className="font-semibold text-warning">{item.stock} left</span>}
                   data-testid={`text-low-stock-${item.id}`}
-                >
-                  <div className="min-w-0">
-                    <p className="font-medium text-foreground truncate">{item.name}</p>
-                    <p className="text-xs text-muted-foreground">{item.code}</p>
-                  </div>
-                  <p className="font-semibold text-warning shrink-0 ml-4">{item.stock} left</p>
-                </div>
+                />
               ))}
             </div>
-            {!lowStockExpanded && lowStockItems.length > 2 && (
+            {!lowStockExpanded && lowStockItems.length > 3 && (
               <p className="text-center text-xs text-muted-foreground mt-3">
-                +{lowStockItems.length - 2} more
+                +{lowStockItems.length - 3} more
               </p>
             )}
         </SectionCard>
       )}
-
-      <SectionCard title="Inventory Summary" icon={Package}>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="section-stat">
-              <p className="section-stat-label">Avg Stock</p>
-              <p className="section-stat-value">{totalProducts ? (totalStockUnits / totalProducts).toFixed(1) : "0"}</p>
-            </div>
-            <div className="section-stat">
-              <p className="section-stat-label">In Stock</p>
-              <p className="section-stat-value text-success">{products.filter(p => p.stock > 0).length}</p>
-            </div>
-            <div className="section-stat">
-              <p className="section-stat-label">Out of Stock</p>
-              <p className="section-stat-value text-destructive">{products.filter(p => p.stock === 0).length}</p>
-            </div>
-          </div>
-      </SectionCard>
-    </div>
+    </PageShell>
   );
 }

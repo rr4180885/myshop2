@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import PageHeader from "@/components/shop/PageHeader";
+import PageShell from "@/components/shop/PageShell";
+import LoadingSpinner from "@/components/shop/LoadingSpinner";
 import SectionCard from "@/components/shop/SectionCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +14,6 @@ import { api, buildUrl } from "@shared/routes";
 import { useUser } from "@/hooks/use-auth";
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -38,6 +39,7 @@ export default function SettingsTab() {
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
   const [passwordInput, setPasswordInput] = useState("");
+  const [isVerifyingPassword, setIsVerifyingPassword] = useState(false);
   const [settings, setSettings] = useState<SettingsForm>({
     shopName: "Brothers Enterprises",
     shopAddress: "",
@@ -89,8 +91,22 @@ export default function SettingsTab() {
   });
 
   const handleUnlockAttempt = async () => {
+    if (!passwordInput.trim()) {
+      toast({
+        title: "Password required",
+        description: "Enter your login password",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsVerifyingPassword(true);
     try {
-      await apiRequest("POST", api.auth.verifyPassword.path, { password: passwordInput });
+      const res = await apiRequest("POST", api.auth.verifyPassword.path, { password: passwordInput });
+      const data = (await res.json()) as { valid?: boolean };
+      if (data.valid !== true) {
+        throw new Error("Invalid password");
+      }
       setIsUnlocked(true);
       setShowPasswordDialog(false);
       setPasswordInput("");
@@ -105,6 +121,8 @@ export default function SettingsTab() {
         variant: "destructive",
       });
       setPasswordInput("");
+    } finally {
+      setIsVerifyingPassword(false);
     }
   };
 
@@ -153,14 +171,7 @@ export default function SettingsTab() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-center space-y-4">
-          <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto" />
-          <p className="text-muted-foreground">Loading settings...</p>
-        </div>
-      </div>
-    );
+    return <LoadingSpinner label="Loading settings..." />;
   }
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -286,7 +297,7 @@ export default function SettingsTab() {
   });
 
   return (
-    <div className="max-w-3xl space-y-6">
+    <PageShell narrow>
       <AlertDialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -306,12 +317,24 @@ export default function SettingsTab() {
                   handleUnlockAttempt();
                 }
               }}
+              className="input-modern"
               autoFocus
             />
           </div>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setPasswordInput("")}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleUnlockAttempt}>Unlock</AlertDialogAction>
+            <AlertDialogCancel onClick={() => setPasswordInput("")} disabled={isVerifyingPassword}>
+              Cancel
+            </AlertDialogCancel>
+            <Button onClick={handleUnlockAttempt} disabled={isVerifyingPassword}>
+              {isVerifyingPassword ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Verifying...
+                </>
+              ) : (
+                "Unlock"
+              )}
+            </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -573,6 +596,6 @@ export default function SettingsTab() {
             </div>
           </div>
       </SectionCard>
-    </div>
+    </PageShell>
   );
 }
