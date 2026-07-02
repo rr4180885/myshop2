@@ -79,6 +79,17 @@ export const api = {
         404: errorSchemas.notFound,
       },
     },
+    verifyPassword: {
+      method: "POST" as const,
+      path: "/api/auth/verify-password",
+      input: z.object({
+        password: z.string(),
+      }),
+      responses: {
+        200: z.object({ valid: z.literal(true) }),
+        401: errorSchemas.unauthorized,
+      },
+    },
   },
   products: {
     list: {

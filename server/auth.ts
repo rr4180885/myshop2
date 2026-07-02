@@ -7,6 +7,7 @@ import { promisify } from "util";
 import { storage } from "./storage";
 import { User } from "@shared/schema";
 import { api } from "@shared/routes";
+import { z } from "zod";
 
 const scryptAsync = promisify(scrypt);
 
@@ -96,5 +97,24 @@ export function setupAuth(app: Express) {
       return res.json(null); // Return null instead of 401 for "me" check
     }
     res.json(req.user);
+  });
+
+  app.post(api.auth.verifyPassword.path, async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+    try {
+      const { password } = api.auth.verifyPassword.input.parse(req.body);
+      const user = await storage.getUser((req.user as User).id);
+      if (!user || !(await comparePasswords(password, user.password))) {
+        return res.status(401).json({ message: "Incorrect password" });
+      }
+      res.json({ valid: true as const });
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({ message: err.errors[0].message });
+      }
+      throw err;
+    }
   });
 }

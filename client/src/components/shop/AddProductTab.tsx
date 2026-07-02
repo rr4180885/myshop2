@@ -3,7 +3,6 @@ import { useForm } from "react-hook-form";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { api } from "@shared/routes";
 import { insertProductSchema, type InsertProduct } from "@shared/schema";
@@ -90,13 +89,8 @@ export default function AddProductTab() {
 
   return (
     <div className="max-w-3xl">
-      <PageHeader
-        title="Add Product"
-        description="Add a new spare part or accessory to your inventory."
-        icon={Plus}
-      />
-      <Card className="surface-card">
-        <CardContent className="pt-6">
+      <PageHeader title="Add Product" icon={Plus} />
+      <div className="surface-card p-6 max-w-3xl">
           <Form {...form}>
             <form onSubmit={form.handleSubmit((data) => mutation.mutate(data))} className="space-y-6">
               <div className="grid grid-cols-2 gap-6">
@@ -105,12 +99,12 @@ export default function AddProductTab() {
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="font-semibold">Product Name *</FormLabel>
+                      <FormLabel>Product Name</FormLabel>
                       <FormControl>
                         <Input 
-                          placeholder="e.g., Brake Pad Set" 
+                          placeholder="Brake Pad Set" 
                           {...field} 
-                          className="mt-2 border-primary/20 focus-visible:ring-primary"
+                          className="input-modern"
                           data-testid="input-product-name" 
                         />
                       </FormControl>
@@ -294,7 +288,6 @@ export default function AddProductTab() {
                 <Button 
                   type="submit" 
                   disabled={mutation.isPending || !!duplicateCode} 
-                  className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg"
                   data-testid="button-add-product"
                 >
                   {mutation.isPending ? (
@@ -317,8 +310,7 @@ export default function AddProductTab() {
               </div>
             </form>
           </Form>
-        </CardContent>
-      </Card>
+      </div>
     </div>
   );
 }

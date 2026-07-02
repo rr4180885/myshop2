@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { api } from "@shared/routes";
 import StatCard from "@/components/shop/StatCard";
 import PageHeader from "@/components/shop/PageHeader";
-import { TrendingUp, Package, AlertCircle, DollarSign, Search, Sparkles, Tag, Loader2, ShoppingCart, TrendingDown, Calendar, ChevronDown, ChevronUp, LayoutDashboard } from "lucide-react";
+import SectionCard from "@/components/shop/SectionCard";
+import EmptyState from "@/components/shop/EmptyState";
+import { TrendingUp, Package, AlertCircle, DollarSign, Search, Loader2, ShoppingCart, TrendingDown, ChevronDown, ChevronUp, LayoutDashboard } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function DashboardTab() {
@@ -184,7 +185,6 @@ export default function DashboardTab() {
     <div className="space-y-6">
       <PageHeader
         title="Dashboard"
-        description="Overview of sales, inventory health, and quick product lookup."
         icon={LayoutDashboard}
         actions={
           <Select value={salesPeriod} onValueChange={setSalesPeriod}>
@@ -205,71 +205,54 @@ export default function DashboardTab() {
         ))}
       </div>
 
-      {/* Sales Summary */}
-      <Card className="surface-card">
-        <CardHeader className="pb-3 border-b border-border/60">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-success/10 text-success">
-              <ShoppingCart className="h-4 w-4" />
-            </div>
-            <CardTitle className="text-base font-semibold">Sales Summary</CardTitle>
-          </div>
-        </CardHeader>
-        <CardContent className="pt-5">
+      <SectionCard title="Sales Summary" icon={ShoppingCart}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div className="rounded-lg border border-border/60 bg-muted/20 p-4">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Total Sales</p>
-              <p className="mt-2 text-2xl font-semibold text-success tabular-nums">
+            <div className="section-stat">
+              <p className="section-stat-label">Total Sales</p>
+              <p className="section-stat-value text-success">
                 ₹{salesAnalytics.totalSales.toLocaleString()}
               </p>
               <p className="text-xs text-muted-foreground mt-1">
                 {salesAnalytics.invoiceCount} invoice{salesAnalytics.invoiceCount !== 1 ? "s" : ""}
               </p>
             </div>
-            <div className="rounded-lg border border-border/60 bg-muted/20 p-4">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Total Profit</p>
-              <p className="mt-2 text-2xl font-semibold text-accent tabular-nums">
+            <div className="section-stat">
+              <p className="section-stat-label">Total Profit</p>
+              <p className="section-stat-value text-accent">
                 ₹{salesAnalytics.totalProfit.toLocaleString()}
               </p>
               <p className="text-xs text-muted-foreground mt-1">
-                {salesAnalytics.totalProfit > 0 ? `${((salesAnalytics.totalProfit / salesAnalytics.totalSales) * 100).toFixed(1)}% margin` : "No sales"}
+                {salesAnalytics.totalProfit > 0 ? `${((salesAnalytics.totalProfit / salesAnalytics.totalSales) * 100).toFixed(1)}% margin` : "—"}
               </p>
             </div>
-            <div className="rounded-lg border border-border/60 bg-muted/20 p-4">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Period</p>
-              <p className="mt-2 text-xl font-semibold text-foreground">
+            <div className="section-stat">
+              <p className="section-stat-label">Period</p>
+              <p className="section-stat-value text-base">
                 {salesPeriod === "day" ? "Today" : "This Month"}
               </p>
               <p className="text-xs text-muted-foreground mt-1">{new Date().toLocaleDateString()}</p>
             </div>
           </div>
 
-          {/* Top Selling Products */}
           {salesAnalytics.topProducts.length > 0 && (
             <div>
-              <h3 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2">
+              <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
                 <TrendingUp className="w-4 h-4 text-primary" />
-                Top Selling Products
+                Top Products
               </h3>
               <div className="space-y-2">
                 {salesAnalytics.topProducts.map((product, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between p-4 bg-card border border-border rounded-xl hover:border-primary/30 transition-colors"
+                    className="flex items-center justify-between p-3 rounded-lg border border-border/60 hover:bg-muted/30 transition-colors"
                   >
-                    <div className="flex-1">
-                      <p className="font-bold text-foreground">{product.name}</p>
-                      <p className="text-sm text-muted-foreground">
-                        Sold: {product.quantity} units
-                      </p>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-foreground truncate">{product.name}</p>
+                      <p className="text-xs text-muted-foreground">{product.quantity} sold</p>
                     </div>
-                    <div className="text-right">
-                      <p className="font-bold text-success text-lg">
-                        ₹{product.revenue.toLocaleString()}
-                      </p>
-                      <p className="text-sm text-accent font-semibold">
-                        Profit: ₹{product.profit.toLocaleString()}
-                      </p>
+                    <div className="text-right shrink-0 ml-4">
+                      <p className="font-semibold text-success tabular-nums">₹{product.revenue.toLocaleString()}</p>
+                      <p className="text-xs text-muted-foreground tabular-nums">Profit ₹{product.profit.toLocaleString()}</p>
                     </div>
                   </div>
                 ))}
@@ -278,69 +261,42 @@ export default function DashboardTab() {
           )}
 
           {salesAnalytics.invoiceCount === 0 && (
-            <div className="text-center py-6 text-slate-600 dark:text-slate-400">
-              <TrendingDown className="w-12 h-12 mx-auto mb-2 opacity-50" />
-              <p>No sales recorded for {salesPeriod === "day" ? "today" : "this month"}</p>
-            </div>
+            <EmptyState
+              icon={TrendingDown}
+              title={`No sales ${salesPeriod === "day" ? "today" : "this month"}`}
+            />
           )}
-        </CardContent>
-      </Card>
+      </SectionCard>
 
-      {/* AI-Powered Product Price Search */}
-      <Card className="premium-card border-accent/20 bg-gradient-to-br from-accent/5 to-accent/10">
-        <CardHeader className="pb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-accent" />
-            </div>
-            <CardTitle className="font-display">Instant Product Price Search</CardTitle>
-          </div>
-          <p className="text-sm text-muted-foreground mt-2">
-            Search by name, SKU, brand, category, or use natural language queries like "products under 500" or "low stock items"
-          </p>
-        </CardHeader>
-        <CardContent>
+      <SectionCard title="Product Search" icon={Search}>
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
-              placeholder="Try: 'brake pad', 'products under 500', 'low stock', 'maruti', etc."
+              placeholder="Search by name, code, brand, or HSN..."
               value={searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
-              className="pl-10 h-12 text-base bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600"
+              className="pl-9 input-modern"
               data-testid="input-ai-search"
             />
           </div>
           
-          {/* Search Results */}
           {searchResults.length > 0 && (
-            <div className="mt-4 space-y-3">
-              <p className="text-sm font-bold text-foreground">
-                Found {searchResults.length} result{searchResults.length !== 1 ? 's' : ''}:
-              </p>
+            <div className="mt-4 space-y-2">
               {searchResults.map((product) => (
                 <div
                   key={product.id}
-                  className="flex items-center justify-between p-4 bg-card border border-border rounded-xl hover:border-accent/50 hover:shadow-lg transition-all"
+                  className="flex items-center justify-between p-3 rounded-lg border border-border/60 hover:bg-muted/30 transition-colors"
                   data-testid={`search-result-${product.id}`}
                 >
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                        <Tag className="w-4 h-4 text-primary" />
-                      </div>
-                      <p className="font-bold text-foreground">{product.name}</p>
-                    </div>
-                    <p className="text-sm text-muted-foreground mt-1 ml-10">
-                      {product.brand} • Code: {product.code} • HSN: {product.hsnCode || '8708'}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-foreground truncate">{product.name}</p>
+                    <p className="text-xs text-muted-foreground truncate">
+                      {product.brand} · {product.code}
                     </p>
                   </div>
-                  <div className="text-right ml-4">
-                    <p className="text-2xl font-display font-black text-primary">
-                      ₹{product.sellingPrice}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Stock: <span className={product.stock < 10 ? "text-warning font-bold" : "text-success font-bold"}>{product.stock}</span> units
-                    </p>
+                  <div className="text-right shrink-0 ml-4">
+                    <p className="font-semibold text-primary tabular-nums">₹{product.sellingPrice}</p>
+                    <p className="text-xs text-muted-foreground">Stock: {product.stock}</p>
                   </div>
                 </div>
               ))}
@@ -348,101 +304,74 @@ export default function DashboardTab() {
           )}
           
           {searchQuery && searchResults.length === 0 && (
-            <div className="mt-4 p-4 bg-muted/50 rounded-xl text-center border border-border">
-              <p className="text-muted-foreground">
-                No products found matching "{searchQuery}"
-              </p>
-            </div>
+            <p className="mt-4 text-sm text-muted-foreground text-center py-4">
+              No products found
+            </p>
           )}
-        </CardContent>
-      </Card>
+      </SectionCard>
 
-      {/* Low Stock Alert Section - Collapsible */}
       {lowStockItems.length > 0 && (
-        <Card className="premium-card border-warning/20 bg-gradient-to-br from-warning/5 to-warning/10" data-testid="card-low-stock-alert">
-          <CardHeader className="pb-4 border-b border-border/30">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-warning/10 border border-warning/20 flex items-center justify-center">
-                  <AlertCircle className="w-5 h-5 text-warning" />
-                </div>
-                <div>
-                  <CardTitle className="font-display">Low Stock Alert</CardTitle>
-                  <span className="text-sm text-warning font-semibold">({lowStockItems.length} items)</span>
-                </div>
-              </div>
-              {lowStockItems.length > 2 && (
+        <SectionCard
+          title={`Low Stock (${lowStockItems.length})`}
+          icon={AlertCircle}
+          headerClassName="border-warning/20"
+          actions={
+              lowStockItems.length > 2 ? (
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setLowStockExpanded(!lowStockExpanded)}
-                  className="text-warning hover:bg-warning/10"
+                  className="text-warning h-8"
                 >
                   {lowStockExpanded ? (
-                    <>
-                      <ChevronUp className="w-4 h-4 mr-1" />
-                      Show Less
-                    </>
+                    <><ChevronUp className="w-4 h-4 mr-1" />Less</>
                   ) : (
-                    <>
-                      <ChevronDown className="w-4 h-4 mr-1" />
-                      Show All
-                    </>
+                    <><ChevronDown className="w-4 h-4 mr-1" />All</>
                   )}
                 </Button>
-              )}
-            </div>
-          </CardHeader>
-          <CardContent className="pt-6">
-            <div className="space-y-3">
+              ) : undefined
+          }
+          data-testid="card-low-stock-alert"
+        >
+            <div className="space-y-2">
               {(lowStockExpanded ? lowStockItems : lowStockItems.slice(0, 2)).map((item: any) => (
                 <div
                   key={item.id}
-                  className="flex items-center justify-between p-4 bg-card border border-border rounded-xl hover:border-warning/30 hover:shadow-md transition-all"
+                  className="flex items-center justify-between p-3 rounded-lg border border-border/60"
                   data-testid={`text-low-stock-${item.id}`}
                 >
-                  <div>
-                    <p className="font-bold text-foreground">{item.name}</p>
-                    <p className="text-sm text-muted-foreground">{item.code}</p>
+                  <div className="min-w-0">
+                    <p className="font-medium text-foreground truncate">{item.name}</p>
+                    <p className="text-xs text-muted-foreground">{item.code}</p>
                   </div>
-                  <div className="text-right">
-                    <p className="font-bold text-warning text-lg">{item.stock} units</p>
-                    <p className="text-xs text-muted-foreground">⚠️ Below 2</p>
-                  </div>
+                  <p className="font-semibold text-warning shrink-0 ml-4">{item.stock} left</p>
                 </div>
               ))}
             </div>
             {!lowStockExpanded && lowStockItems.length > 2 && (
-              <p className="text-center text-sm text-warning font-semibold mt-3">
-                +{lowStockItems.length - 2} more items
+              <p className="text-center text-xs text-muted-foreground mt-3">
+                +{lowStockItems.length - 2} more
               </p>
             )}
-          </CardContent>
-        </Card>
+        </SectionCard>
       )}
 
-      {/* Quick Stats */}
-      <Card className="premium-card">
-        <CardHeader>
-          <CardTitle className="font-display">Inventory Summary</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="space-y-2 p-4 bg-muted/30 rounded-xl border border-border">
-              <p className="text-sm text-muted-foreground font-bold uppercase tracking-wide">Average Stock Level</p>
-              <p className="text-3xl font-display font-black text-accent">{(totalStockUnits / totalProducts).toFixed(1)}</p>
+      <SectionCard title="Inventory Summary" icon={Package}>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="section-stat">
+              <p className="section-stat-label">Avg Stock</p>
+              <p className="section-stat-value">{totalProducts ? (totalStockUnits / totalProducts).toFixed(1) : "0"}</p>
             </div>
-            <div className="space-y-2 p-4 bg-muted/30 rounded-xl border border-border">
-              <p className="text-sm text-muted-foreground font-bold uppercase tracking-wide">Products with Stock</p>
-              <p className="text-3xl font-display font-black text-success">{products.filter(p => p.stock > 0).length}</p>
+            <div className="section-stat">
+              <p className="section-stat-label">In Stock</p>
+              <p className="section-stat-value text-success">{products.filter(p => p.stock > 0).length}</p>
             </div>
-            <div className="space-y-2 p-4 bg-muted/30 rounded-xl border border-border">
-              <p className="text-sm text-muted-foreground font-bold uppercase tracking-wide">Out of Stock</p>
-              <p className="text-3xl font-display font-black text-destructive">{products.filter(p => p.stock === 0).length}</p>
+            <div className="section-stat">
+              <p className="section-stat-label">Out of Stock</p>
+              <p className="section-stat-value text-destructive">{products.filter(p => p.stock === 0).length}</p>
             </div>
           </div>
-        </CardContent>
-      </Card>
+      </SectionCard>
     </div>
   );
 }

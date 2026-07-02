@@ -6,6 +6,8 @@ import { queryClient, apiRequest } from "@/lib/queryClient";
 import { api } from "@shared/routes";
 import { useState } from "react";
 import PageHeader from "@/components/shop/PageHeader";
+import EmptyState from "@/components/shop/EmptyState";
+import StatCard from "@/components/shop/StatCard";
 import { Package, Search, Loader2, Trash2, Edit2, Check, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -69,10 +71,10 @@ export default function InventoryTab() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <PageHeader
         title="Inventory"
-        description={`Manage ${products.length} products — search, edit stock, and pricing.`}
+        description={`${products.length} products`}
         icon={Package}
         actions={
           <div className="relative w-full sm:w-72">
@@ -91,11 +93,7 @@ export default function InventoryTab() {
       <Card className="surface-card overflow-hidden">
         <CardContent className="p-0">
           {products.length === 0 ? (
-            <div className="text-center py-12 text-slate-500 dark:text-slate-400">
-              <Package className="w-16 h-16 mx-auto mb-4 opacity-20" />
-              <p className="text-lg font-medium mb-2">No products yet</p>
-              <p className="text-sm">Add your first product to get started!</p>
-            </div>
+            <EmptyState icon={Package} title="No products yet" description="Add your first product" />
           ) : (
             <div className="relative">
               {/* Scrollable table container with fixed header */}
@@ -117,11 +115,7 @@ export default function InventoryTab() {
                     {filteredProducts.length === 0 ? (
                       <tr>
                         <td colSpan={8} className="p-12 text-center">
-                          <div className="text-slate-500 dark:text-slate-400">
-                            <Search className="w-12 h-12 mx-auto mb-3 opacity-20" />
-                            <p className="font-medium mb-1">No products found</p>
-                            <p className="text-sm">Try adjusting your search terms</p>
-                          </div>
+                          <EmptyState icon={Search} title="No products found" />
                         </td>
                       </tr>
                     ) : (
@@ -215,7 +209,7 @@ export default function InventoryTab() {
                                 size="sm"
                                 variant="outline"
                                 onClick={() => setEditingId(null)}
-                                className="h-8 w-8 p-0 border-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                                className="h-8 w-8 p-0"
                               >
                                 <X className="w-4 h-4" />
                               </Button>
@@ -257,37 +251,29 @@ export default function InventoryTab() {
               
               {/* Scroll indicator */}
               {products.length > 10 && (
-                <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-white dark:from-slate-950 to-transparent pointer-events-none" />
+                <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-card to-transparent pointer-events-none" />
               )}
             </div>
           )}
         </CardContent>
       </Card>
       
-      {/* Summary footer */}
       {products.length > 0 && (
-        <Card className="premium-card">
-          <CardContent className="p-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-              <div className="text-center p-3 bg-accent/5 rounded-lg border border-accent/20">
-                <p className="text-muted-foreground font-semibold uppercase text-xs tracking-wide mb-1">Total Products</p>
-                <p className="text-2xl font-display font-black text-accent">{products.length}</p>
-              </div>
-              <div className="text-center p-3 bg-warning/5 rounded-lg border border-warning/20">
-                <p className="text-muted-foreground font-semibold uppercase text-xs tracking-wide mb-1">Low Stock Items</p>
-                <p className="text-2xl font-display font-black text-warning">
-                  {products.filter((p: any) => p.stock < 10).length}
-                </p>
-              </div>
-              <div className="text-center p-3 bg-success/5 rounded-lg border border-success/20">
-                <p className="text-muted-foreground font-semibold uppercase text-xs tracking-wide mb-1">Total Stock Value</p>
-                <p className="text-2xl font-display font-black text-success">
-                  ₹{products.reduce((sum: number, p: any) => sum + (Number(p.purchasePrice) * p.stock), 0).toLocaleString()}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <StatCard label="Total Products" value={products.length} icon={Package} variant="accent" />
+          <StatCard
+            label="Low Stock"
+            value={products.filter((p: any) => p.stock < 10).length}
+            icon={Package}
+            variant="warning"
+          />
+          <StatCard
+            label="Stock Value"
+            value={`₹${products.reduce((sum: number, p: any) => sum + (Number(p.purchasePrice) * p.stock), 0).toLocaleString()}`}
+            icon={Package}
+            variant="success"
+          />
+        </div>
       )}
     </div>
   );

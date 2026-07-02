@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import PageHeader from "@/components/shop/PageHeader";
+import SectionCard from "@/components/shop/SectionCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -87,9 +88,9 @@ export default function SettingsTab() {
     },
   });
 
-  const handleUnlockAttempt = () => {
-    const correctPassword = "admin12345";
-    if (passwordInput === correctPassword) {
+  const handleUnlockAttempt = async () => {
+    try {
+      await apiRequest("POST", api.auth.verifyPassword.path, { password: passwordInput });
       setIsUnlocked(true);
       setShowPasswordDialog(false);
       setPasswordInput("");
@@ -97,10 +98,10 @@ export default function SettingsTab() {
         title: "Unlocked!",
         description: "Settings are now unlocked for editing",
       });
-    } else {
+    } catch {
       toast({
         title: "Incorrect Password",
-        description: "Please enter the correct password to edit settings",
+        description: "Enter your login password to unlock settings",
         variant: "destructive",
       });
       setPasswordInput("");
@@ -286,13 +287,12 @@ export default function SettingsTab() {
 
   return (
     <div className="max-w-3xl space-y-6">
-      {/* Password Dialog */}
       <AlertDialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Enter Password</AlertDialogTitle>
             <AlertDialogDescription>
-              Please enter the administrator password to unlock settings for editing.
+              Enter your login password to unlock settings for editing.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="py-4">
@@ -316,310 +316,179 @@ export default function SettingsTab() {
         </AlertDialogContent>
       </AlertDialog>
 
-      <Card className="premium-card">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
-                <Settings className="w-6 h-6 text-primary" />
-              </div>
-              <CardTitle className="text-xl font-display">Shop Configuration</CardTitle>
-            </div>
+      <PageHeader
+        title="Settings"
+        icon={Settings}
+        actions={
+          isUnlocked ? (
             <div className="flex items-center gap-2">
-              {isUnlocked ? (
-                <>
-                  <span className="text-sm text-success flex items-center gap-1 font-semibold">
-                    <Unlock className="w-4 h-4" />
-                    Unlocked
-                  </span>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleLock}
-                    className="border-success text-success hover:bg-success/10"
-                  >
-                    <Lock className="w-4 h-4 mr-1" />
-                    Lock
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <span className="text-sm text-warning flex items-center gap-1 font-semibold">
-                    <Lock className="w-4 h-4" />
-                    Locked
-                  </span>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowPasswordDialog(true)}
-                    className="border-warning text-warning hover:bg-warning/10"
-                  >
-                    <Unlock className="w-4 h-4 mr-1" />
-                    Unlock
-                  </Button>
-                </>
-              )}
+              <span className="text-xs text-success flex items-center gap-1">
+                <Unlock className="w-3.5 h-3.5" />
+                Unlocked
+              </span>
+              <Button variant="outline" size="sm" onClick={handleLock}>
+                <Lock className="w-4 h-4 mr-1" />
+                Lock
+              </Button>
             </div>
-          </div>
-        </CardHeader>
-        <CardContent className="pt-8">
-          <div className="space-y-6">
-            {/* Shop Info Section */}
-            <div className="space-y-4">
-              <h3 className="font-semibold text-slate-900 dark:text-white text-sm uppercase tracking-wide text-slate-600 dark:text-slate-400">Business Information</h3>
-              
+          ) : (
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-warning flex items-center gap-1">
+                <Lock className="w-3.5 h-3.5" />
+                Locked
+              </span>
+              <Button variant="outline" size="sm" onClick={() => setShowPasswordDialog(true)}>
+                <Unlock className="w-4 h-4 mr-1" />
+                Unlock
+              </Button>
+            </div>
+          )
+        }
+      />
+
+      <SectionCard title="Business Information" icon={Settings}>
+          <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Shop Name</label>
+                <label className="form-label">Shop Name</label>
                 <Input
                   value={settings.shopName}
                   onChange={(e) => setSettings({ ...settings, shopName: e.target.value })}
-                  className="mt-2"
+                  className="mt-1.5 input-modern"
                   data-testid="input-shop-name"
                   disabled={!isUnlocked}
                 />
               </div>
 
               <div>
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Address</label>
+                <label className="form-label">Address</label>
                 <Input
                   value={settings.shopAddress}
                   onChange={(e) => setSettings({ ...settings, shopAddress: e.target.value })}
-                  className="mt-2"
+                  className="mt-1.5 input-modern"
                   data-testid="input-address"
                   disabled={!isUnlocked}
                 />
               </div>
 
               <div>
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Phone Number</label>
+                <label className="form-label">Phone</label>
                 <Input
                   value={settings.shopPhone}
                   onChange={(e) => setSettings({ ...settings, shopPhone: e.target.value })}
-                  className="mt-2"
+                  className="mt-1.5 input-modern"
                   data-testid="input-phone"
                   disabled={!isUnlocked}
                 />
               </div>
 
               <div>
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">GST Number</label>
+                <label className="form-label">GST Number</label>
                 <Input
                   value={settings.shopGSTIN}
                   onChange={(e) => setSettings({ ...settings, shopGSTIN: e.target.value })}
-                  className="mt-2"
+                  className="mt-1.5 input-modern"
                   data-testid="input-gst-number"
                   disabled={!isUnlocked}
                 />
               </div>
-            </div>
-
-            <div className="border-t border-slate-200/50 dark:border-slate-700/50 pt-6" />
-
-            {/* Terms Section */}
-            <div className="space-y-4">
-              <h3 className="font-semibold text-slate-900 dark:text-white text-sm uppercase tracking-wide text-slate-600 dark:text-slate-400">Terms & Conditions</h3>
-              
+          </div>
+      </SectionCard>
+      <SectionCard title="Terms & Conditions">
+          <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Custom Text 1</label>
+                <label className="form-label">Line 1</label>
                 <Input
                   value={settings.customText1}
                   onChange={(e) => setSettings({ ...settings, customText1: e.target.value })}
-                  className="mt-2"
-                  placeholder="e.g., All goods once sold will not be taken back"
+                  className="mt-1.5 input-modern"
                   disabled={!isUnlocked}
                 />
               </div>
-              
               <div>
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Custom Text 2</label>
+                <label className="form-label">Line 2</label>
                 <Input
                   value={settings.customText2}
                   onChange={(e) => setSettings({ ...settings, customText2: e.target.value })}
-                  className="mt-2"
-                  placeholder="e.g., Warranty as per manufacturer terms"
+                  className="mt-1.5 input-modern"
                   disabled={!isUnlocked}
                 />
               </div>
-              
               <div>
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Custom Text 3</label>
+                <label className="form-label">Line 3</label>
                 <Input
                   value={settings.customText3}
                   onChange={(e) => setSettings({ ...settings, customText3: e.target.value })}
-                  className="mt-2"
-                  placeholder="e.g., Payment due within 30 days"
+                  className="mt-1.5 input-modern"
                   disabled={!isUnlocked}
                 />
               </div>
-            </div>
+          </div>
+      </SectionCard>
 
-            <div className="border-t border-slate-200/50 dark:border-slate-700/50 pt-6" />
-
-            {/* Branding Section */}
-            <div className="space-y-4">
-              <h3 className="font-semibold text-slate-900 dark:text-white text-sm uppercase tracking-wide text-slate-600 dark:text-slate-400">Brothers Enterprises Branding</h3>
-              
-              {/* Logo Upload */}
+      <SectionCard title="Branding" icon={ImageIcon}>
+          <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Company Logo</label>
-                <div className="mt-2 flex items-center gap-4">
-                  <input
-                    ref={logoInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={handleLogoUpload}
-                    className="hidden"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => logoInputRef.current?.click()}
-                    className="flex items-center gap-2"
-                    disabled={!isUnlocked}
-                  >
-                    <Upload className="w-4 h-4" />
-                    Upload Logo
+                <label className="form-label">Company Logo</label>
+                <div className="mt-1.5 flex items-center gap-3">
+                  <input ref={logoInputRef} type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
+                  <Button type="button" variant="outline" size="sm" onClick={() => logoInputRef.current?.click()} disabled={!isUnlocked}>
+                    <Upload className="w-4 h-4 mr-2" />
+                    Upload
                   </Button>
-                  {settings.logoPath && (
-                    <div className="flex items-center gap-2">
-                      <ImageIcon className="w-4 h-4 text-green-600" />
-                      <span className="text-sm text-green-600">Logo uploaded</span>
-                    </div>
-                  )}
+                  {settings.logoPath && <span className="text-xs text-success">Uploaded</span>}
                 </div>
                 {settings.logoPath && (
-                  <div className="mt-3 p-4 border border-slate-200 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-900">
-                    <img 
-                      src={settings.logoPath} 
-                      alt="Company Logo" 
-                      className="max-h-24 object-contain"
-                    />
+                  <div className="mt-3 p-3 border border-border/60 rounded-lg bg-muted/20">
+                    <img src={settings.logoPath} alt="Logo" className="max-h-20 object-contain" />
                   </div>
                 )}
               </div>
-
-              {/* Signature Upload */}
               <div>
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Authorized Signature</label>
-                <div className="mt-2 flex items-center gap-4">
-                  <input
-                    ref={signatureInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={handleSignatureUpload}
-                    className="hidden"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => signatureInputRef.current?.click()}
-                    className="flex items-center gap-2"
-                    disabled={!isUnlocked}
-                  >
-                    <Upload className="w-4 h-4" />
-                    Upload Signature
+                <label className="form-label">Signature</label>
+                <div className="mt-1.5 flex items-center gap-3">
+                  <input ref={signatureInputRef} type="file" accept="image/*" onChange={handleSignatureUpload} className="hidden" />
+                  <Button type="button" variant="outline" size="sm" onClick={() => signatureInputRef.current?.click()} disabled={!isUnlocked}>
+                    <Upload className="w-4 h-4 mr-2" />
+                    Upload
                   </Button>
-                  {settings.signaturePath && (
-                    <div className="flex items-center gap-2">
-                      <ImageIcon className="w-4 h-4 text-green-600" />
-                      <span className="text-sm text-green-600">Signature uploaded</span>
-                    </div>
-                  )}
+                  {settings.signaturePath && <span className="text-xs text-success">Uploaded</span>}
                 </div>
                 {settings.signaturePath && (
-                  <div className="mt-3 p-4 border border-slate-200 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-900">
-                    <img 
-                      src={settings.signaturePath} 
-                      alt="Authorized Signature" 
-                      className="max-h-24 object-contain"
-                    />
+                  <div className="mt-3 p-3 border border-border/60 rounded-lg bg-muted/20">
+                    <img src={settings.signaturePath} alt="Signature" className="max-h-20 object-contain" />
                   </div>
                 )}
               </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex gap-3 pt-6 border-t border-slate-200/50 dark:border-slate-700/50">
-              <Button 
-                onClick={handleSave}
-                disabled={saveMutation.isPending || !isUnlocked}
-                className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg"
-                data-testid="button-save-settings"
-              >
-                {saveMutation.isPending ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Saving...
-                  </>
-                ) : (
-                  <>
-                    <Save className="w-4 h-4 mr-2" />
-                    Save Settings
-                  </>
-                )}
-              </Button>
-              <Button 
-                onClick={handleReset}
-                disabled={saveMutation.isPending || !isUnlocked}
-                variant="outline"
-                className="border-slate-300 dark:border-slate-600"
-              >
-                Reset to Defaults
-              </Button>
-            </div>
           </div>
-        </CardContent>
-      </Card>
+      </SectionCard>
 
-      {/* User Management Section */}
-      <Card className="premium-card">
-        <CardHeader>
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center">
-              <Users className="w-6 h-6 text-accent" />
-            </div>
-            <CardTitle className="text-xl font-display">User Management</CardTitle>
-          </div>
-        </CardHeader>
-        <CardContent className="pt-8">
-          {/* Create New User */}
-          <div className="mb-8 pb-8 border-b border-slate-200/50 dark:border-slate-700/50">
-            <h3 className="font-semibold text-slate-900 dark:text-white text-sm uppercase tracking-wide text-slate-600 dark:text-slate-400 mb-4">
-              <UserPlus className="w-4 h-4 inline mr-2" />
-              Create New User
-            </h3>
+      <div className="flex gap-3">
+        <Button onClick={handleSave} disabled={saveMutation.isPending || !isUnlocked} data-testid="button-save-settings">
+          {saveMutation.isPending ? (
+            <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Saving...</>
+          ) : (
+            <><Save className="w-4 h-4 mr-2" />Save</>
+          )}
+        </Button>
+        <Button onClick={handleReset} disabled={saveMutation.isPending || !isUnlocked} variant="outline">
+          Reset
+        </Button>
+      </div>
+
+      <SectionCard title={`Users (${users.length})`} icon={Users}>
+          <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Username</label>
-                <Input
-                  value={newUsername}
-                  onChange={(e) => setNewUsername(e.target.value)}
-                  placeholder="Enter username (min 3 characters)"
-                  className="mt-2"
-                />
+                <label className="form-label">Username</label>
+                <Input value={newUsername} onChange={(e) => setNewUsername(e.target.value)} placeholder="Min 3 characters" className="mt-1.5 input-modern" />
               </div>
               <div>
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Password</label>
-                <Input
-                  type="password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="Enter password (min 6 characters)"
-                  className="mt-2"
-                />
+                <label className="form-label">Password</label>
+                <Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="Min 6 characters" className="mt-1.5 input-modern" />
               </div>
               <div className="md:col-span-2">
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Email Address</label>
-                <Input
-                  type="email"
-                  value={newEmail}
-                  onChange={(e) => setNewEmail(e.target.value)}
-                  placeholder="Enter email (e.g., user@example.com)"
-                  className="mt-2"
-                />
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                  Welcome email will be sent to this address
-                </p>
+                <label className="form-label">Email</label>
+                <Input type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} placeholder="user@example.com" className="mt-1.5 input-modern" />
               </div>
             </div>
             <Button
@@ -639,109 +508,57 @@ export default function SettingsTab() {
                 createUserMutation.mutate({ username: newUsername, password: newPassword, email: newEmail });
               }}
               disabled={createUserMutation.isPending || !newUsername || !newPassword || !newEmail}
-              className="mt-4 bg-gradient-to-r from-accent to-accent/90 hover:from-accent/90 hover:to-accent shadow-lg"
             >
               {createUserMutation.isPending ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Creating...
-                </>
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Creating...</>
               ) : (
-                <>
-                  <UserPlus className="w-4 h-4 mr-2" />
-                  Create User
-                </>
+                <><UserPlus className="w-4 h-4 mr-2" />Create User</>
               )}
             </Button>
-          </div>
 
-          {/* Existing Users List */}
-          <div>
-            <h3 className="font-semibold text-slate-900 dark:text-white text-sm uppercase tracking-wide text-slate-600 dark:text-slate-400 mb-4">
-              <Users className="w-4 h-4 inline mr-2" />
-              Existing Users ({users.length})
-            </h3>
-            <div className="space-y-3">
+            <div className="space-y-2 border-t border-border/60 pt-4">
               {users.map((user: any) => (
-                <div
-                  key={user.id}
-                  className="p-4 border border-slate-200 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-900"
-                >
-                  <div className="flex items-center justify-between">
+                <div key={user.id} className="p-3 border border-border/60 rounded-lg bg-muted/20">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div>
-                      <p className="font-medium text-slate-900 dark:text-white">{user.username}</p>
-                      <p className="text-sm text-slate-500 dark:text-slate-400">
-                        {user.id === currentUser?.id && "(Current User)"}
-                      </p>
+                      <p className="font-medium text-foreground">{user.username}</p>
+                      {user.id === currentUser?.id && <p className="text-xs text-muted-foreground">Current user</p>}
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       {changePasswordUserId === user.id ? (
-                        <div className="flex items-center gap-2">
-                          <Input
-                            type="password"
-                            placeholder="Current password"
-                            value={currentPassword}
-                            onChange={(e) => setCurrentPassword(e.target.value)}
-                            className="w-40"
-                          />
-                          <Input
-                            type="password"
-                            placeholder="New password"
-                            value={newUserPassword}
-                            onChange={(e) => setNewUserPassword(e.target.value)}
-                            className="w-40"
-                          />
-                          <Button
-                            size="sm"
-                            onClick={() => {
-                              if (newUserPassword.length < 6) {
-                                toast({ title: "Password must be at least 6 characters", variant: "destructive" });
-                                return;
-                              }
-                              changePasswordMutation.mutate({
-                                userId: user.id,
-                                currentPassword,
-                                newPassword: newUserPassword,
-                              });
-                            }}
-                            disabled={changePasswordMutation.isPending}
-                          >
+                        <>
+                          <Input type="password" placeholder="Current" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} className="w-32 h-8 input-modern" />
+                          <Input type="password" placeholder="New" value={newUserPassword} onChange={(e) => setNewUserPassword(e.target.value)} className="w-32 h-8 input-modern" />
+                          <Button size="sm" onClick={() => {
+                            if (newUserPassword.length < 6) {
+                              toast({ title: "Password must be at least 6 characters", variant: "destructive" });
+                              return;
+                            }
+                            changePasswordMutation.mutate({ userId: user.id, currentPassword, newPassword: newUserPassword });
+                          }} disabled={changePasswordMutation.isPending}>
                             {changePasswordMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save"}
                           </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => {
-                              setChangePasswordUserId("");
-                              setCurrentPassword("");
-                              setNewUserPassword("");
-                            }}
-                          >
+                          <Button size="sm" variant="outline" onClick={() => { setChangePasswordUserId(""); setCurrentPassword(""); setNewUserPassword(""); }}>
                             Cancel
                           </Button>
-                        </div>
+                        </>
                       ) : (
                         <>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => setChangePasswordUserId(user.id)}
-                            className="border-accent text-accent hover:bg-accent/10"
-                          >
+                          <Button size="sm" variant="outline" onClick={() => setChangePasswordUserId(user.id)}>
                             <Key className="w-4 h-4 mr-1" />
-                            Change Password
+                            Password
                           </Button>
                           {user.id !== currentUser?.id && (
                             <Button
                               size="sm"
                               variant="outline"
                               onClick={() => {
-                                if (confirm(`Are you sure you want to delete user "${user.username}"?`)) {
+                                if (confirm(`Delete user "${user.username}"?`)) {
                                   deleteUserMutation.mutate(user.id);
                                 }
                               }}
                               disabled={deleteUserMutation.isPending}
-                              className="border-destructive text-destructive hover:bg-destructive/10"
+                              className="text-destructive hover:text-destructive"
                             >
                               <Trash2 className="w-4 h-4 mr-1" />
                               Delete
@@ -755,8 +572,7 @@ export default function SettingsTab() {
               ))}
             </div>
           </div>
-        </CardContent>
-      </Card>
+      </SectionCard>
     </div>
   );
 }

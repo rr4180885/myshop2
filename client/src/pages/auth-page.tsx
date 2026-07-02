@@ -13,7 +13,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Loader2, Warehouse, Moon, Sun, BarChart3, Package, Receipt } from "lucide-react";
+import { Loader2, Warehouse, Moon, Sun, Package, Receipt, BarChart3 } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { ForgotPasswordDialog } from "@/components/ForgotPasswordDialog";
 
@@ -51,14 +51,14 @@ export default function AuthPage() {
 
       <div className="flex items-center justify-center p-6 sm:p-10 lg:p-16">
         <div className="w-full max-w-md space-y-8">
-          <div className="space-y-2">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+          <div className="space-y-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-primary-foreground">
               <Warehouse className="h-6 w-6" />
             </div>
-            <h1 className="text-2xl font-semibold tracking-tight">Welcome back</h1>
-            <p className="text-sm text-muted-foreground">
-              Sign in to manage inventory, billing, and workshop operations.
-            </p>
+            <div>
+              <h1 className="text-2xl font-semibold tracking-tight">Brothers Enterprises</h1>
+              <p className="text-sm text-muted-foreground mt-1">Sign in to your account</p>
+            </div>
           </div>
 
           <div className="surface-card p-6 sm:p-8">
@@ -71,7 +71,7 @@ export default function AuthPage() {
                     <FormItem>
                       <FormLabel>Username</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter username" className="input-modern" autoComplete="username" {...field} />
+                        <Input placeholder="Username" className="input-modern" autoComplete="username" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -84,7 +84,7 @@ export default function AuthPage() {
                     <FormItem>
                       <FormLabel>Password</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="Enter password" className="input-modern" autoComplete="current-password" {...field} />
+                        <Input type="password" placeholder="Password" className="input-modern" autoComplete="current-password" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -110,34 +110,31 @@ export default function AuthPage() {
       </div>
 
       <div className="hidden lg:flex flex-col justify-center bg-sidebar text-sidebar-foreground p-12 xl:p-16 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-[0.07]" style={{
-          backgroundImage: "radial-gradient(circle at 1px 1px, white 1px, transparent 0)",
-          backgroundSize: "24px 24px",
-        }} />
-        <div className="relative max-w-lg space-y-10">
+        <div
+          className="absolute inset-0 opacity-[0.06]"
+          style={{
+            backgroundImage: "radial-gradient(circle at 1px 1px, white 1px, transparent 0)",
+            backgroundSize: "24px 24px",
+          }}
+        />
+        <div className="relative max-w-md space-y-8">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-sidebar-foreground/50 mb-3">Workshop OS</p>
-            <h2 className="text-4xl font-semibold leading-tight tracking-tight">
-              Stock management built for modern workshops
-            </h2>
-            <p className="mt-4 text-sidebar-foreground/70 leading-relaxed">
-              Track parts, generate GST invoices, monitor low stock, and run your agency from one clean dashboard.
+            <p className="text-xs font-semibold uppercase tracking-widest text-sidebar-foreground/50 mb-2">
+              Brothers Enterprises
             </p>
+            <h2 className="text-3xl font-semibold leading-tight tracking-tight">
+              Stock & Billing
+            </h2>
           </div>
-          <div className="grid gap-4">
+          <div className="space-y-3">
             {[
-              { icon: Package, title: "Real-time inventory", desc: "Live stock levels with smart low-stock alerts." },
-              { icon: Receipt, title: "Fast billing", desc: "Create invoices with misc items and print in seconds." },
-              { icon: BarChart3, title: "Sales insights", desc: "Daily and monthly revenue at a glance." },
-            ].map(({ icon: Icon, title, desc }) => (
-              <div key={title} className="flex gap-4 rounded-xl border border-sidebar-border bg-sidebar-accent/40 p-4">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-sidebar-primary/20 text-sidebar-primary">
-                  <Icon className="h-5 w-5" />
-                </div>
-                <div>
-                  <p className="font-medium text-sm">{title}</p>
-                  <p className="text-xs text-sidebar-foreground/60 mt-0.5">{desc}</p>
-                </div>
+              { icon: Package, label: "Inventory" },
+              { icon: Receipt, label: "GST Invoices" },
+              { icon: BarChart3, label: "Sales Reports" },
+            ].map(({ icon: Icon, label }) => (
+              <div key={label} className="flex items-center gap-3 rounded-lg border border-sidebar-border bg-sidebar-accent/30 px-4 py-3">
+                <Icon className="h-4 w-4 text-sidebar-primary shrink-0" />
+                <span className="text-sm font-medium">{label}</span>
               </div>
             ))}
           </div>

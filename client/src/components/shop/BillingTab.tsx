@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import PageHeader from "@/components/shop/PageHeader";
+import SectionCard from "@/components/shop/SectionCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { api } from "@shared/routes";
 import { useToast } from "@/hooks/use-toast";
-import { Trash2, Plus, Minus, Printer, ShoppingCart, FileText, Search, Calendar } from "lucide-react";
+import { Trash2, Plus, Minus, Printer, ShoppingCart, FileText, Search, Calendar, Package } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatDate } from "@/lib/dateUtils";
 import { Switch } from "@/components/ui/switch";
@@ -672,214 +673,163 @@ export default function BillingTab() {
 
   return (
     <>
+      <PageHeader title="Billing" icon={ShoppingCart} />
+
       <Tabs defaultValue="billing" className="w-full">
-        <TabsList className="grid w-full max-w-sm grid-cols-2 mb-6 h-10 p-1 bg-muted/50">
-          <TabsTrigger value="billing">
+        <TabsList className="page-tabs">
+          <TabsTrigger value="billing" className="text-sm">
             <ShoppingCart className="w-4 h-4 mr-2" />
-            Create Invoice
+            Create
           </TabsTrigger>
-          <TabsTrigger value="history">
+          <TabsTrigger value="history" className="text-sm">
             <FileText className="w-4 h-4 mr-2" />
-            Invoice History
+            History
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="billing">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
             <div className="lg:col-span-2 space-y-4 md:space-y-6">
-              {/* Customer Info */}
-              <Card className="surface-card">
-                <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center gap-2 text-base sm:text-lg font-display">
-                    <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-                    Customer Details
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3 sm:space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <SectionCard title="Customer" icon={ShoppingCart}>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="text-xs sm:text-sm font-medium text-foreground">Name (Optional)</label>
+                      <label className="form-label">Name</label>
                       <Input
-                        placeholder="Customer Name"
+                        placeholder="Customer name"
                         value={customerName}
                         onChange={(e) => setCustomerName(e.target.value)}
-                        className="mt-1.5 h-10 sm:h-11"
+                        className="mt-1.5 input-modern"
                         data-testid="input-customer-name"
                       />
                     </div>
                     <div>
-                      <label className="text-xs sm:text-sm font-medium text-foreground">Phone (Optional)</label>
+                      <label className="form-label">Phone</label>
                       <Input
-                        placeholder="Phone Number"
+                        placeholder="Phone number"
                         value={customerPhone}
                         onChange={(e) => setCustomerPhone(e.target.value)}
-                        className="mt-1.5 h-10 sm:h-11"
+                        className="mt-1.5 input-modern"
                         data-testid="input-customer-phone"
                       />
                     </div>
                     <div className="sm:col-span-2">
-                      <label className="text-xs sm:text-sm font-medium text-foreground">Email (Optional - for invoice copy)</label>
+                      <label className="form-label">Email</label>
                       <Input
                         type="email"
-                        placeholder="customer@example.com"
+                        placeholder="Email for invoice copy"
                         value={customerEmail}
                         onChange={(e) => setCustomerEmail(e.target.value)}
-                        className="mt-1.5 h-10 sm:h-11"
+                        className="mt-1.5 input-modern"
                         data-testid="input-customer-email"
                       />
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Invoice will be sent to this email if provided
-                      </p>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+              </SectionCard>
 
-              {/* Product Search */}
-              <Card className="surface-card">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base sm:text-lg font-display">Search Products</CardTitle>
-                </CardHeader>
-                <CardContent>
+              <SectionCard title="Search Products" icon={Search}>
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
-                      placeholder="Search by name, brand, code, or HSN code..."
+                      placeholder="Name, brand, code, or HSN..."
                       value={search}
                       onChange={(e) => setSearch(e.target.value)}
-                      className="w-full pl-10 h-10 sm:h-11"
+                      className="w-full pl-9 input-modern"
                       data-testid="input-product-search"
                     />
                   </div>
-                </CardContent>
-              </Card>
+              </SectionCard>
 
-              {/* Miscellaneous / Custom Item */}
-              <Card className="surface-card border-dashed border-2 border-warning/40">
-                <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center gap-2 text-base font-semibold text-warning">
-                    <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
-                    Add Miscellaneous / Other Item
-                  </CardTitle>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Add any item not listed in inventory (e.g. labour charges, packaging, service fee)
-                  </p>
-                </CardHeader>
-                <CardContent>
+              <SectionCard title="Misc Item" icon={Plus} className="border-dashed">
                   <div className="flex flex-col sm:flex-row gap-3">
                     <div className="flex-1">
-                      <label className="text-xs font-medium text-foreground">Item Name</label>
+                      <label className="form-label">Item Name</label>
                       <Input
-                        placeholder="e.g. Labour Charges, Packaging..."
+                        placeholder="Labour, packaging, etc."
                         value={miscName}
                         onChange={(e) => setMiscName(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && addMiscToCart()}
-                        className="mt-1.5 h-10"
+                        className="mt-1.5 input-modern"
                       />
                     </div>
                     <div className="w-full sm:w-36">
-                      <label className="text-xs font-medium text-foreground">Amount (₹)</label>
+                      <label className="form-label">Amount (₹)</label>
                       <Input
                         type="number"
                         placeholder="0.00"
                         value={miscAmount}
                         onChange={(e) => setMiscAmount(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && addMiscToCart()}
-                        className="mt-1.5 h-10"
+                        className="mt-1.5 input-modern"
                         min="0"
                         step="0.01"
                       />
                     </div>
                     <div className="sm:self-end">
-                      <Button
-                        onClick={addMiscToCart}
-                        className="w-full sm:w-auto h-10 bg-warning text-warning-foreground hover:bg-warning/90 font-medium mt-1.5 sm:mt-0"
-                      >
+                      <Button onClick={addMiscToCart} className="w-full sm:w-auto h-10 mt-1.5 sm:mt-0">
                         <Plus className="w-4 h-4 mr-1.5" />
-                        Add to Bill
+                        Add
                       </Button>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+              </SectionCard>
 
-              {/* Products List */}
-              <Card className="surface-card">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base sm:text-lg font-display">Available Products ({filteredProducts.length})</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[400px] overflow-y-auto pr-2">
+              <SectionCard title={`Products (${filteredProducts.length})`} icon={Package}>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[400px] overflow-y-auto">
                     {filteredProducts.map(product => (
                       <div 
                         key={product.id} 
-                        className="p-3 sm:p-4 border bg-card rounded-xl hover:border-primary hover:shadow-lg transition-all duration-200 cursor-pointer group"
+                        className="p-3 border border-border/60 rounded-lg hover:border-primary/40 hover:bg-muted/20 transition-colors"
                         data-testid={`card-product-${product.id}`}
                       >
-                        <div className="flex justify-between items-start mb-2 sm:mb-3">
+                        <div className="flex justify-between items-start mb-2">
                           <div className="flex-1 min-w-0 pr-2">
-                            <div className="font-semibold text-foreground text-sm sm:text-base truncate">{product.name}</div>
-                            <div className="text-xs sm:text-sm text-muted-foreground">{product.code}</div>
-                            <div className="text-xs text-muted-foreground">HSN: {product.hsnCode || "8708"}</div>
+                            <div className="font-medium text-foreground text-sm truncate">{product.name}</div>
+                            <div className="text-xs text-muted-foreground">{product.code}</div>
                           </div>
                           <Button
                             size="sm"
                             onClick={() => addToCart(product)}
                             disabled={product.stock === 0}
-                            className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shrink-0"
+                            className="shrink-0 h-8 w-8 p-0"
                             data-testid={`button-add-to-cart-${product.id}`}
                           >
-                            <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
+                            <Plus className="w-4 h-4" />
                           </Button>
                         </div>
-                        <div className="space-y-1 text-xs sm:text-sm">
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Price:</span>
-                            <span className="font-semibold text-foreground">₹{product.sellingPrice}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">GST:</span>
-                            <span className="text-foreground">{product.gstRate}%</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className={`font-semibold ${product.stock < 10 ? "text-red-500" : "text-green-500"}`}>
-                              Stock: {product.stock}
-                            </span>
-                          </div>
+                        <div className="flex justify-between text-xs text-muted-foreground">
+                          <span>₹{product.sellingPrice}</span>
+                          <span className={product.stock < 10 ? "text-warning" : "text-success"}>
+                            Stock {product.stock}
+                          </span>
                         </div>
                       </div>
                     ))}
                   </div>
-                </CardContent>
-              </Card>
+              </SectionCard>
             </div>
 
             {/* Cart Sidebar */}
             <div>
-              <Card className="sticky top-4 surface-card shadow-xl" data-testid="card-cart">
-                <CardHeader className="bg-primary/10 border-b pb-3">
-                  <CardTitle className="flex items-center gap-2 text-base sm:text-lg font-display">
-                    <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-                    Cart ({cart.length})
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="pt-4 sm:pt-6">
-                  <div className="space-y-2 sm:space-y-3 max-h-[250px] sm:max-h-64 overflow-y-auto mb-4 sm:mb-6 pr-1">
+              <div className="sticky top-4 surface-card overflow-hidden" data-testid="card-cart">
+                <div className="flex items-center gap-2 border-b border-border/60 px-5 py-4 bg-primary/5">
+                  <ShoppingCart className="w-4 h-4 text-primary" />
+                  <h2 className="text-sm font-semibold">Cart ({cart.length})</h2>
+                </div>
+                <div className="p-5">
+                  <div className="space-y-2 max-h-64 overflow-y-auto mb-4">
                     {cart.length === 0 ? (
                       <p className="text-center text-muted-foreground py-6 sm:py-8 text-sm">No items in cart</p>
                     ) : (
                       cart.map(item => (
                         <div
                           key={item.id}
-                          className={`p-2.5 sm:p-3 rounded-lg border space-y-2 ${item.isMisc ? "bg-amber-50 dark:bg-amber-950/30 border-amber-300 dark:border-amber-700" : "bg-accent/30"}`}
+                          className={`p-3 rounded-lg border space-y-2 ${item.isMisc ? "bg-warning/5 border-warning/30" : "bg-muted/30 border-border/60"}`}
                           data-testid={`cart-item-${item.id}`}
                         >
                           <div className="flex items-start justify-between gap-1">
                             <div className="font-medium text-foreground text-xs sm:text-sm leading-tight">{item.name}</div>
                             {item.isMisc && (
-                              <span className="shrink-0 text-[10px] font-semibold bg-amber-200 dark:bg-amber-800 text-amber-800 dark:text-amber-200 px-1.5 py-0.5 rounded">
-                                MISC
-                              </span>
+                              <span className="shrink-0 text-[10px] font-medium badge-warning">MISC</span>
                             )}
                           </div>
                           {item.isMisc ? (
@@ -947,21 +897,19 @@ export default function BillingTab() {
                     )}
                   </div>
 
-                  {/* GST Toggle Switch */}
-                  <div className="flex items-center space-x-2 mb-3 p-2 bg-accent/20 rounded-lg">
+                  <div className="flex items-center gap-2 mb-3 p-2 rounded-lg bg-muted/30">
                     <Switch
                       id="hide-gst"
                       checked={hideGST}
                       onCheckedChange={setHideGST}
                       data-testid="switch-hide-gst"
                     />
-                    <Label htmlFor="hide-gst" className="text-xs sm:text-sm cursor-pointer">
-                      Hide GST details in bill
+                    <Label htmlFor="hide-gst" className="text-xs cursor-pointer">
+                      Hide GST on bill
                     </Label>
                   </div>
 
-                  {/* Totals */}
-                  <div className="border-t pt-3 sm:pt-4 space-y-2">
+                  <div className="border-t pt-3 space-y-2">
                     {!hideGST && (
                       <>
                         <div className="flex justify-between text-xs sm:text-sm">
@@ -974,14 +922,14 @@ export default function BillingTab() {
                         </div>
                       </>
                     )}
-                    <div className="flex justify-between text-base sm:text-lg font-bold border-t pt-2 sm:pt-3 mt-2 sm:mt-3">
-                      <span>Total:</span>
-                      <span className="text-primary" data-testid="text-grand-total">₹{hideGST ? subtotal.toFixed(2) : grandTotal.toFixed(2)}</span>
+                    <div className="flex justify-between text-base font-semibold border-t pt-2 mt-2">
+                      <span>Total</span>
+                      <span className="text-primary tabular-nums" data-testid="text-grand-total">₹{hideGST ? subtotal.toFixed(2) : grandTotal.toFixed(2)}</span>
                     </div>
                   </div>
 
                   <Button
-                    className="w-full mt-4 sm:mt-6 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary font-semibold h-10 sm:h-11 shadow-lg"
+                    className="w-full mt-4 h-10"
                     onClick={() => invoiceCounterMutation.mutate(cart)}
                     disabled={cart.length === 0 || invoiceCounterMutation.isPending}
                     data-testid="button-generate-invoice"
@@ -989,59 +937,53 @@ export default function BillingTab() {
                     <Printer className="w-4 h-4 mr-2" />
                     {invoiceCounterMutation.isPending ? "Generating..." : "Generate Invoice"}
                   </Button>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             </div>
           </div>
         </TabsContent>
 
         <TabsContent value="history">
-          <Card className="surface-card">
-            <CardHeader>
-              <CardTitle className="text-base sm:text-lg font-display">Invoice History ({filteredInvoices.length})</CardTitle>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mt-4">
+          <SectionCard title={`Invoices (${filteredInvoices.length})`} icon={FileText} noPadding>
+              <div className="px-5 pt-4 pb-2 grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div className="relative sm:col-span-1">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
-                    placeholder="Search customer or invoice..."
+                    placeholder="Search..."
                     value={invoiceSearch}
                     onChange={(e) => setInvoiceSearch(e.target.value)}
-                    className="pl-10 h-10"
+                    className="pl-9 input-modern"
                   />
                 </div>
                 <div className="relative">
                   <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
                     type="date"
-                    placeholder="From Date"
                     value={dateFrom}
                     onChange={(e) => setDateFrom(e.target.value)}
-                    className="pl-10 h-10"
+                    className="pl-9 input-modern"
                   />
                 </div>
                 <div className="relative">
                   <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
                     type="date"
-                    placeholder="To Date"
                     value={dateTo}
                     onChange={(e) => setDateTo(e.target.value)}
-                    className="pl-10 h-10"
+                    className="pl-9 input-modern"
                   />
                 </div>
               </div>
-            </CardHeader>
-            <CardContent>
               <div className="overflow-x-auto">
-                <table className="w-full text-xs sm:text-sm">
+                <table className="data-table">
                   <thead>
-                    <tr className="border-b">
-                      <th className="text-left p-2 sm:p-3 text-muted-foreground font-semibold">Invoice #</th>
-                      <th className="text-left p-2 sm:p-3 text-muted-foreground font-semibold">Customer</th>
-                      <th className="text-left p-2 sm:p-3 text-muted-foreground font-semibold">Phone</th>
-                      <th className="text-left p-2 sm:p-3 text-muted-foreground font-semibold">Date</th>
-                      <th className="text-right p-2 sm:p-3 text-muted-foreground font-semibold">Amount</th>
-                      <th className="text-center p-2 sm:p-3 text-muted-foreground font-semibold">Action</th>
+                    <tr>
+                      <th>Invoice #</th>
+                      <th>Customer</th>
+                      <th>Phone</th>
+                      <th>Date</th>
+                      <th className="text-right">Amount</th>
+                      <th className="text-center">Print</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1053,20 +995,20 @@ export default function BillingTab() {
                       </tr>
                     ) : (
                       filteredInvoices.map((invoice: any) => (
-                        <tr key={invoice.id} className="border-b hover:bg-accent/30">
-                          <td className="p-2 sm:p-3 text-foreground font-mono text-xs sm:text-sm">{invoice.invoiceNumber}</td>
-                          <td className="p-2 sm:p-3 text-foreground">{invoice.customerName}</td>
-                          <td className="p-2 sm:p-3 text-muted-foreground">{invoice.customerPhone}</td>
-                          <td className="p-2 sm:p-3 text-muted-foreground">{formatDate(invoice.createdAt)}</td>
-                          <td className="p-2 sm:p-3 text-right text-foreground font-semibold">₹{invoice.grandTotal}</td>
-                          <td className="p-2 sm:p-3 text-center">
+                        <tr key={invoice.id}>
+                          <td className="font-mono text-xs">{invoice.invoiceNumber}</td>
+                          <td>{invoice.customerName}</td>
+                          <td className="text-muted-foreground">{invoice.customerPhone}</td>
+                          <td className="text-muted-foreground">{formatDate(invoice.createdAt)}</td>
+                          <td className="text-right font-medium tabular-nums">₹{invoice.grandTotal}</td>
+                          <td className="text-center">
                             <Button
                               size="sm"
                               variant="outline"
                               onClick={() => printInvoice({ ...invoice, items: JSON.parse(invoice.items) })}
-                              className="h-8"
+                              className="h-8 w-8 p-0"
                             >
-                              <Printer className="w-3 h-3 sm:w-4 sm:h-4" />
+                              <Printer className="w-4 h-4" />
                             </Button>
                           </td>
                         </tr>
@@ -1075,8 +1017,7 @@ export default function BillingTab() {
                   </tbody>
                 </table>
               </div>
-            </CardContent>
-          </Card>
+          </SectionCard>
         </TabsContent>
       </Tabs>
 
@@ -1234,14 +1175,10 @@ export default function BillingTab() {
               </div>
             </div>
 
-            {/* Print Actions */}
-            <div className="flex gap-3 sm:gap-4 p-4 sm:p-6 bg-slate-100 border-t sticky bottom-0">
-              <Button
-                onClick={handlePrint}
-                className="flex-1 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary font-semibold shadow-lg"
-              >
+            <div className="flex gap-3 p-4 border-t bg-muted/30 sticky bottom-0">
+              <Button onClick={handlePrint} className="flex-1">
                 <Printer className="w-4 h-4 mr-2" />
-                Print Invoice
+                Print
               </Button>
               <Button
                 onClick={() => {
@@ -1249,7 +1186,7 @@ export default function BillingTab() {
                   setCurrentInvoiceData(null);
                 }}
                 variant="outline"
-                className="flex-1 border-2 border-slate-400 bg-white hover:bg-slate-100 text-slate-900 font-semibold"
+                className="flex-1"
               >
                 Close
               </Button>
