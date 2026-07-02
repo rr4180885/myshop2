@@ -98,9 +98,84 @@ export async function registerRoutes(app: Express): Promise<void> {
   });
 
   // Invoices
-  app.get(api.invoices.list.path, async (req, res) => {
-    const invoices = await storage.getInvoices();
-    res.json(invoices);
+  app.get(api.invoices.list.path, async (_req, res) => {
+    const invoiceList = await storage.listInvoices();
+    res.json(invoiceList);
+  });
+
+  app.get(api.invoices.get.path, async (req, res) => {
+    const id = Number(req.params.id);
+    const invoice = await storage.getInvoice(id);
+    if (!invoice) {
+      return res.status(404).json({ message: "Invoice not found" });
+    }
+    res.json(invoice);
+  });
+
+  app.get("/api/analytics/sales", async (req, res) => {
+    const period = req.query.period === "day" ? "day" : "month";
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const cutoff = period === "day" ? startOfToday : startOfMonth;
+
+    const [allInvoices, allProducts] = await Promise.all([
+      storage.getInvoices(),
+      storage.getProducts(),
+    ]);
+
+    const periodInvoices = allInvoices.filter((inv) => {
+      const invDate = new Date(inv.createdAt ?? 0);
+      return invDate >= cutoff;
+    });
+
+    let totalSales = 0;
+    let totalProfit = 0;
+    const productsSoldMap = new Map<string, { name: string; quantity: number; revenue: number; profit: number }>();
+
+    for (const invoice of periodInvoices) {
+      const items = JSON.parse(invoice.items) as Array<{
+        id: number;
+        name: string;
+        quantity: number;
+        sellingPrice: number;
+        isMisc?: boolean;
+      }>;
+      totalSales += Number(invoice.grandTotal);
+
+      for (const item of items) {
+        if (item.isMisc) continue;
+        const product = allProducts.find((p) => p.id === item.id);
+        if (!product) continue;
+
+        const quantity = Number(item.quantity) || 0;
+        const sellingPrice = Number(item.sellingPrice) || 0;
+        const purchasePrice = Number(product.purchasePrice) || 0;
+        const revenue = quantity * sellingPrice;
+        const profit = quantity * (sellingPrice - purchasePrice);
+        totalProfit += profit;
+
+        const existing = productsSoldMap.get(item.name);
+        if (existing) {
+          existing.quantity += quantity;
+          existing.revenue += revenue;
+          existing.profit += profit;
+        } else {
+          productsSoldMap.set(item.name, { name: item.name, quantity, revenue, profit });
+        }
+      }
+    }
+
+    const topProducts = Array.from(productsSoldMap.values())
+      .sort((a, b) => b.quantity - a.quantity)
+      .slice(0, 5);
+
+    res.json({
+      totalSales,
+      totalProfit,
+      invoiceCount: periodInvoices.length,
+      topProducts,
+    });
   });
 
   app.post(api.invoices.create.path, async (req, res) => {

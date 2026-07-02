@@ -27,12 +27,14 @@ export default function DashboardTab() {
     },
   });
 
-  const { data: invoices = [] } = useQuery({
-    queryKey: [api.invoices.list.path],
+  const { data: salesAnalytics = { totalSales: 0, totalProfit: 0, invoiceCount: 0, topProducts: [] }, isLoading: salesLoading } = useQuery({
+    queryKey: ["/api/analytics/sales", salesPeriod],
     queryFn: async () => {
-      const res = await fetch(api.invoices.list.path);
+      const res = await fetch(`/api/analytics/sales?period=${salesPeriod}`, { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to load sales analytics");
       return res.json();
     },
+    staleTime: 30_000,
   });
 
   // AI-powered smart search function
@@ -85,77 +87,7 @@ export default function DashboardTab() {
     setSearchResults(results.slice(0, 5)); // Limit to top 5 results
   };
 
-  // Calculate sales analytics
-  const calculateSalesAnalytics = () => {
-    const now = new Date();
-    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-
-    let periodInvoices = invoices;
-    
-    if (salesPeriod === "day") {
-      periodInvoices = invoices.filter((inv: any) => {
-        const invDate = new Date(inv.createdAt);
-        return invDate >= startOfToday;
-      });
-    } else {
-      periodInvoices = invoices.filter((inv: any) => {
-        const invDate = new Date(inv.createdAt);
-        return invDate >= startOfMonth;
-      });
-    }
-
-    // Calculate total sales and profit
-    let totalSales = 0;
-    let totalProfit = 0;
-    const productsSoldMap = new Map<string, { name: string; quantity: number; revenue: number; profit: number }>();
-
-    periodInvoices.forEach((invoice: any) => {
-      const items = JSON.parse(invoice.items);
-      const invoiceTotal = Number(invoice.grandTotal);
-      totalSales += invoiceTotal;
-
-      items.forEach((item: any) => {
-        const product = products.find((p: any) => p.id === item.id);
-        if (product) {
-          const quantity = Number(item.quantity) || 0;
-          const sellingPrice = Number(item.sellingPrice) || 0;
-          const purchasePrice = Number(product.purchasePrice) || 0;
-          const revenue = quantity * sellingPrice;
-          const profit = quantity * (sellingPrice - purchasePrice);
-
-          totalProfit += profit;
-
-          const existing = productsSoldMap.get(item.name);
-          if (existing) {
-            existing.quantity += quantity;
-            existing.revenue += revenue;
-            existing.profit += profit;
-          } else {
-            productsSoldMap.set(item.name, {
-              name: item.name,
-              quantity,
-              revenue,
-              profit,
-            });
-          }
-        }
-      });
-    });
-
-    const topProducts = Array.from(productsSoldMap.values())
-      .sort((a, b) => b.quantity - a.quantity)
-      .slice(0, 5);
-
-    return {
-      totalSales,
-      totalProfit,
-      invoiceCount: periodInvoices.length,
-      topProducts,
-    };
-  };
-
-  if (isLoading) {
+  if (isLoading || salesLoading) {
     return <LoadingSpinner label="Loading dashboard..." />;
   }
 
@@ -167,8 +99,6 @@ export default function DashboardTab() {
   const lowStockCount = products.filter((p) => p.stock < 2).length;
   const lowStockItems = products.filter((p) => p.stock < 2);
   const totalStockUnits = products.reduce((sum, p) => sum + p.stock, 0);
-
-  const salesAnalytics = calculateSalesAnalytics();
 
   const stats = [
     { label: "Total Products", value: totalProducts, icon: Package, variant: "default" as const },

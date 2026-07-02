@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import PageHeader from "@/components/shop/PageHeader";
 import PageShell from "@/components/shop/PageShell";
@@ -54,7 +54,7 @@ export default function BillingTab() {
     },
   });
 
-  const { data: invoices = [] } = useQuery({
+  const { data: invoices = [], isLoading: invoicesLoading, isError: invoicesError, refetch: refetchInvoices } = useQuery({
     queryKey: [api.invoices.list.path],
     queryFn: async () => {
       const res = await fetch(api.invoices.list.path, { credentials: "include" });
@@ -62,6 +62,8 @@ export default function BillingTab() {
       const data = await res.json();
       return Array.isArray(data) ? data : [];
     },
+    staleTime: 30_000,
+    retry: 1,
   });
 
   const { data: settings } = useQuery({
@@ -152,11 +154,13 @@ export default function BillingTab() {
 
   // Filter invoices by customer name, phone, invoice number, or date range
   const filteredInvoices = invoices.filter((inv: any) => {
-    const matchesSearch = 
-      inv.invoiceNumber.toLowerCase().includes(invoiceSearch.toLowerCase()) ||
-      inv.customerName?.toLowerCase().includes(invoiceSearch.toLowerCase()) ||
-      inv.customerPhone?.toLowerCase().includes(invoiceSearch.toLowerCase()) ||
-      inv.vehicleNo?.toLowerCase().includes(invoiceSearch.toLowerCase());
+    const q = invoiceSearch.toLowerCase();
+    const matchesSearch =
+      !q ||
+      inv.invoiceNumber?.toLowerCase().includes(q) ||
+      inv.customerName?.toLowerCase().includes(q) ||
+      inv.customerPhone?.toLowerCase().includes(q) ||
+      inv.vehicleNo?.toLowerCase().includes(q);
     
     let matchesDate = true;
     if (dateFrom || dateTo) {
@@ -268,6 +272,26 @@ export default function BillingTab() {
     if (openHistoryAfterPreview) {
       setActiveBillingTab("history");
       setOpenHistoryAfterPreview(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeBillingTab === "history") {
+      refetchInvoices();
+    }
+  }, [activeBillingTab, refetchInvoices]);
+
+  const openInvoiceForPrint = async (invoice: any) => {
+    try {
+      let fullInvoice = invoice;
+      if (!invoice.items) {
+        const res = await fetch(`/api/invoices/${invoice.id}`, { credentials: "include" });
+        if (!res.ok) throw new Error("Failed to load invoice");
+        fullInvoice = await res.json();
+      }
+      printInvoice({ ...fullInvoice, items: JSON.parse(fullInvoice.items) });
+    } catch {
+      toast({ title: "Could not open invoice", variant: "destructive" });
     }
   };
 
@@ -1017,7 +1041,11 @@ export default function BillingTab() {
 
               {/* Mobile: card list */}
               <div className="md:hidden p-3 space-y-2">
-                {filteredInvoices.length === 0 ? (
+                {invoicesLoading ? (
+                  <p className="text-center py-8 text-muted-foreground text-sm">Loading invoices...</p>
+                ) : invoicesError ? (
+                  <p className="text-center py-8 text-destructive text-sm">Failed to load invoices. Pull History again or refresh.</p>
+                ) : filteredInvoices.length === 0 ? (
                   <p className="text-center py-8 text-muted-foreground text-sm">No invoices found</p>
                 ) : (
                   filteredInvoices.map((invoice: any) => (
@@ -1036,7 +1064,7 @@ export default function BillingTab() {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => printInvoice({ ...invoice, items: JSON.parse(invoice.items) })}
+                            onClick={() => openInvoiceForPrint(invoice)}
                             className="h-8 px-2"
                           >
                             <Printer className="w-4 h-4 mr-1" />
@@ -1064,7 +1092,19 @@ export default function BillingTab() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredInvoices.length === 0 ? (
+                    {invoicesLoading ? (
+                      <tr>
+                        <td colSpan={7} className="text-center py-8 text-muted-foreground">
+                          Loading invoices...
+                        </td>
+                      </tr>
+                    ) : invoicesError ? (
+                      <tr>
+                        <td colSpan={7} className="text-center py-8 text-destructive">
+                          Failed to load invoices
+                        </td>
+                      </tr>
+                    ) : filteredInvoices.length === 0 ? (
                       <tr>
                         <td colSpan={7} className="text-center py-8 text-muted-foreground">
                           No invoices found
@@ -1083,7 +1123,7 @@ export default function BillingTab() {
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => printInvoice({ ...invoice, items: JSON.parse(invoice.items) })}
+                              onClick={() => openInvoiceForPrint(invoice)}
                               className="h-8 w-8 p-0"
                             >
                               <Printer className="w-4 h-4" />

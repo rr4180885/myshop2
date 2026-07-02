@@ -131,7 +131,15 @@ export const api = {
       method: "GET" as const,
       path: "/api/invoices",
       responses: {
-        200: z.array(z.custom<typeof invoices.$inferSelect>()),
+        200: z.array(z.custom<Omit<typeof invoices.$inferSelect, "items">>()),
+      },
+    },
+    get: {
+      method: "GET" as const,
+      path: "/api/invoices/:id",
+      responses: {
+        200: z.custom<typeof invoices.$inferSelect>(),
+        404: errorSchemas.notFound,
       },
     },
     create: {

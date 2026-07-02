@@ -3,7 +3,7 @@ import { randomUUID } from "crypto";
 import session from "express-session";
 import createMemoryStore from "memorystore";
 import connectPgSimple from "connect-pg-simple";
-import { eq, sql, like } from "drizzle-orm";
+import { eq, sql, like, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 
@@ -39,6 +39,8 @@ async function ensureSessionTable(db: ReturnType<typeof drizzle>) {
   `);
 }
 
+export type InvoiceSummary = Omit<Invoice, "items">;
+
 export interface IStorage {
   // Users
   getUser(id: string): Promise<User | undefined>;
@@ -62,6 +64,7 @@ export interface IStorage {
   
   // Invoices
   getInvoices(): Promise<Invoice[]>;
+  listInvoices(): Promise<InvoiceSummary[]>;
   getInvoice(id: number): Promise<Invoice | undefined>;
   getNextInvoiceNumber(): Promise<string>;
   createInvoice(invoice: InsertInvoice): Promise<Invoice>;
@@ -260,6 +263,24 @@ export class DBStorage implements IStorage {
   // Invoices
   async getInvoices(): Promise<Invoice[]> {
     return this.db.select().from(invoices);
+  }
+
+  async listInvoices(): Promise<InvoiceSummary[]> {
+    return this.db
+      .select({
+        id: invoices.id,
+        invoiceNumber: invoices.invoiceNumber,
+        customerName: invoices.customerName,
+        customerPhone: invoices.customerPhone,
+        customerEmail: invoices.customerEmail,
+        vehicleNo: invoices.vehicleNo,
+        subtotal: invoices.subtotal,
+        gstAmount: invoices.gstAmount,
+        grandTotal: invoices.grandTotal,
+        createdAt: invoices.createdAt,
+      })
+      .from(invoices)
+      .orderBy(desc(invoices.createdAt));
   }
 
   async getInvoice(id: number): Promise<Invoice | undefined> {
@@ -503,6 +524,11 @@ export class MemStorage implements IStorage {
 
   // Invoices
   async getInvoices(): Promise<Invoice[]> { return Array.from(this.invoices.values()); }
+  async listInvoices(): Promise<InvoiceSummary[]> {
+    return Array.from(this.invoices.values())
+      .map(({ items: _items, ...summary }) => summary)
+      .sort((a, b) => new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime());
+  }
   async getInvoice(id: number): Promise<Invoice | undefined> { return this.invoices.get(id); }
   async getNextInvoiceNumber(): Promise<string> {
     const year = new Date().getFullYear();
