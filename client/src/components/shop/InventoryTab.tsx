@@ -8,7 +8,6 @@ import PageHeader from "@/components/shop/PageHeader";
 import PageShell from "@/components/shop/PageShell";
 import LoadingSpinner from "@/components/shop/LoadingSpinner";
 import EmptyState from "@/components/shop/EmptyState";
-import StatCard from "@/components/shop/StatCard";
 import SectionCard from "@/components/shop/SectionCard";
 import { Package, Search, Loader2, Trash2, Edit2, Check, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -63,184 +62,182 @@ export default function InventoryTab() {
     product.brand.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const stockValue = products.reduce(
+    (sum: number, p: any) => sum + Number(p.purchasePrice) * p.stock,
+    0
+  );
+  const lowStock = products.filter((p: any) => p.stock < 10).length;
+
   if (isLoading) {
     return <LoadingSpinner label="Loading inventory..." />;
   }
 
   return (
-    <PageShell>
+    <PageShell className="page-shell-fill h-[calc(100dvh-3.5rem-2rem)] sm:h-[calc(100dvh-3.5rem-3rem)] lg:h-[calc(100dvh-3.5rem-4rem)]">
       <PageHeader
         title="Inventory"
-        description={`${products.length} products`}
+        description={`${products.length} products · ${lowStock} low stock · ₹${stockValue.toLocaleString()} value`}
         icon={Package}
         actions={
-          <div className="relative w-full sm:w-72">
+          <div className="relative w-full sm:w-56">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
               type="text"
-              placeholder="Search name, code, brand..."
+              placeholder="Search..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 input-modern"
+              className="pl-9 input-modern h-9"
             />
           </div>
         }
       />
 
-      {products.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <StatCard label="Total Products" value={products.length} icon={Package} variant="default" />
-          <StatCard
-            label="Low Stock"
-            value={products.filter((p: any) => p.stock < 10).length}
-            icon={Package}
-            variant="warning"
-          />
-          <StatCard
-            label="Stock Value"
-            value={`₹${products.reduce((sum: number, p: any) => sum + (Number(p.purchasePrice) * p.stock), 0).toLocaleString()}`}
-            icon={Package}
-            variant="success"
-          />
-        </div>
-      )}
-
-      <SectionCard title={`Products (${filteredProducts.length})`} icon={Package} noPadding>
+      <SectionCard
+        title={`Products (${filteredProducts.length})`}
+        icon={Package}
+        noPadding
+        className="flex min-h-0 flex-1 flex-col overflow-hidden"
+        contentClassName="flex min-h-0 flex-1 flex-col overflow-hidden"
+      >
         {products.length === 0 ? (
           <EmptyState icon={Package} title="No products yet" description="Add your first product" />
         ) : (
-          <div className="overflow-x-auto">
-            <table className="data-table">
-              <thead>
+          <div className="inventory-table-wrap">
+          <table className="data-table data-table-compact data-table-sticky w-full">
+            <thead>
+              <tr>
+                <th className="w-[72px]">Code</th>
+                <th>Product</th>
+                <th className="hidden md:table-cell w-[14%]">Brand</th>
+                <th className="text-right w-14">Stock</th>
+                <th className="text-right hidden lg:table-cell w-16">Buy</th>
+                <th className="text-right w-16">Sell</th>
+                <th className="text-right hidden lg:table-cell w-12">GST</th>
+                <th className="text-center w-[68px]">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredProducts.length === 0 ? (
                 <tr>
-                  <th>Code</th>
-                  <th>Product</th>
-                  <th>Brand</th>
-                  <th className="text-right">Stock</th>
-                  <th className="text-right">Buy Price</th>
-                  <th className="text-right">Sell Price</th>
-                  <th className="text-right">GST %</th>
-                  <th className="text-center w-24">Actions</th>
+                  <td colSpan={8} className="p-8 text-center text-muted-foreground text-sm">
+                    No products found
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {filteredProducts.length === 0 ? (
-                  <tr>
-                    <td colSpan={8} className="p-12 text-center">
-                      <EmptyState icon={Search} title="No products found" />
+              ) : (
+                filteredProducts.map((product: any) => (
+                  <tr key={product.id} data-testid={`row-product-${product.id}`}>
+                    <td className="font-mono text-muted-foreground truncate" title={product.code}>
+                      {product.code}
+                    </td>
+                    <td className="font-medium truncate" title={product.name}>
+                      {product.name}
+                    </td>
+                    <td className="text-muted-foreground truncate hidden md:table-cell" title={product.brand}>
+                      {product.brand}
+                    </td>
+                    <td className={`text-right font-medium tabular-nums ${product.stock < 10 ? "text-warning" : "text-success"}`}>
+                      {editingId === product.id ? (
+                        <Input
+                          type="number"
+                          value={editValues.stock}
+                          onChange={(e) => setEditValues({ ...editValues, stock: parseInt(e.target.value) })}
+                          className="w-14 ml-auto h-7 input-modern text-xs px-1"
+                        />
+                      ) : (
+                        product.stock
+                      )}
+                    </td>
+                    <td className="text-right text-muted-foreground tabular-nums hidden lg:table-cell">
+                      {editingId === product.id ? (
+                        <Input
+                          type="number"
+                          value={editValues.purchasePrice}
+                          onChange={(e) => setEditValues({ ...editValues, purchasePrice: e.target.value })}
+                          className="w-16 ml-auto h-7 input-modern text-xs px-1"
+                        />
+                      ) : (
+                        `₹${product.purchasePrice}`
+                      )}
+                    </td>
+                    <td className="text-right font-medium tabular-nums">
+                      {editingId === product.id ? (
+                        <Input
+                          type="number"
+                          value={editValues.sellingPrice}
+                          onChange={(e) => setEditValues({ ...editValues, sellingPrice: e.target.value })}
+                          className="w-16 ml-auto h-7 input-modern text-xs px-1"
+                        />
+                      ) : (
+                        `₹${product.sellingPrice}`
+                      )}
+                    </td>
+                    <td className="text-right text-muted-foreground tabular-nums hidden lg:table-cell">
+                      {editingId === product.id ? (
+                        <Input
+                          type="number"
+                          value={editValues.gstRate}
+                          onChange={(e) => setEditValues({ ...editValues, gstRate: parseInt(e.target.value) })}
+                          className="w-12 ml-auto h-7 input-modern text-xs px-1"
+                        />
+                      ) : (
+                        `${product.gstRate}%`
+                      )}
+                    </td>
+                    <td>
+                      <div className="flex gap-0.5 justify-center">
+                        {editingId === product.id ? (
+                          <>
+                            <Button
+                              size="sm"
+                              onClick={() => saveEdit(product.id)}
+                              disabled={updateMutation.isPending}
+                              className="btn-icon h-7 w-7"
+                              data-testid={`button-save-${product.id}`}
+                            >
+                              {updateMutation.isPending ? (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              ) : (
+                                <Check className="w-3.5 h-3.5" />
+                              )}
+                            </Button>
+                            <Button size="sm" variant="outline" onClick={() => setEditingId(null)} className="btn-icon h-7 w-7">
+                              <X className="w-3.5 h-3.5" />
+                            </Button>
+                          </>
+                        ) : (
+                          <>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => startEdit(product)}
+                              className="btn-icon h-7 w-7"
+                              data-testid={`button-edit-${product.id}`}
+                            >
+                              <Edit2 className="w-3.5 h-3.5" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => deleteMutation.mutate(product.id)}
+                              disabled={deleteMutation.isPending}
+                              className="btn-icon h-7 w-7 text-destructive hover:text-destructive"
+                              data-testid={`button-delete-${product.id}`}
+                            >
+                              {deleteMutation.isPending ? (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              ) : (
+                                <Trash2 className="w-3.5 h-3.5" />
+                              )}
+                            </Button>
+                          </>
+                        )}
+                      </div>
                     </td>
                   </tr>
-                ) : (
-                  filteredProducts.map((product: any) => (
-                    <tr key={product.id} data-testid={`row-product-${product.id}`}>
-                      <td className="font-mono text-xs text-muted-foreground whitespace-nowrap">
-                        {product.code}
-                      </td>
-                      <td className="font-medium whitespace-nowrap">{product.name}</td>
-                      <td className="text-muted-foreground whitespace-nowrap">{product.brand}</td>
-                      <td className={`text-right font-medium whitespace-nowrap ${product.stock < 10 ? "text-warning" : "text-success"}`}>
-                        {editingId === product.id ? (
-                          <Input
-                            type="number"
-                            value={editValues.stock}
-                            onChange={(e) => setEditValues({ ...editValues, stock: parseInt(e.target.value) })}
-                            className="w-20 ml-auto h-8 input-modern"
-                          />
-                        ) : (
-                          product.stock
-                        )}
-                      </td>
-                      <td className="text-right text-muted-foreground whitespace-nowrap">
-                        {editingId === product.id ? (
-                          <Input
-                            type="number"
-                            value={editValues.purchasePrice}
-                            onChange={(e) => setEditValues({ ...editValues, purchasePrice: e.target.value })}
-                            className="w-24 ml-auto h-8 input-modern"
-                          />
-                        ) : (
-                          `₹${product.purchasePrice}`
-                        )}
-                      </td>
-                      <td className="text-right font-medium whitespace-nowrap">
-                        {editingId === product.id ? (
-                          <Input
-                            type="number"
-                            value={editValues.sellingPrice}
-                            onChange={(e) => setEditValues({ ...editValues, sellingPrice: e.target.value })}
-                            className="w-24 ml-auto h-8 input-modern"
-                          />
-                        ) : (
-                          `₹${product.sellingPrice}`
-                        )}
-                      </td>
-                      <td className="text-right text-muted-foreground whitespace-nowrap">
-                        {editingId === product.id ? (
-                          <Input
-                            type="number"
-                            value={editValues.gstRate}
-                            onChange={(e) => setEditValues({ ...editValues, gstRate: parseInt(e.target.value) })}
-                            className="w-16 ml-auto h-8 input-modern"
-                          />
-                        ) : (
-                          `${product.gstRate}%`
-                        )}
-                      </td>
-                      <td>
-                        <div className="flex gap-1 justify-center">
-                          {editingId === product.id ? (
-                            <>
-                              <Button
-                                size="sm"
-                                onClick={() => saveEdit(product.id)}
-                                disabled={updateMutation.isPending}
-                                className="btn-icon"
-                                data-testid={`button-save-${product.id}`}
-                              >
-                                {updateMutation.isPending ? (
-                                  <Loader2 className="w-4 h-4 animate-spin" />
-                                ) : (
-                                  <Check className="w-4 h-4" />
-                                )}
-                              </Button>
-                              <Button size="sm" variant="outline" onClick={() => setEditingId(null)} className="btn-icon">
-                                <X className="w-4 h-4" />
-                              </Button>
-                            </>
-                          ) : (
-                            <>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => startEdit(product)}
-                                className="btn-icon"
-                                data-testid={`button-edit-${product.id}`}
-                              >
-                                <Edit2 className="w-4 h-4" />
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => deleteMutation.mutate(product.id)}
-                                disabled={deleteMutation.isPending}
-                                className="btn-icon text-destructive hover:text-destructive"
-                                data-testid={`button-delete-${product.id}`}
-                              >
-                                {deleteMutation.isPending ? (
-                                  <Loader2 className="w-4 h-4 animate-spin" />
-                                ) : (
-                                  <Trash2 className="w-4 h-4" />
-                                )}
-                              </Button>
-                            </>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                ))
+              )}
+            </tbody>
+          </table>
           </div>
         )}
       </SectionCard>

@@ -76,6 +76,8 @@ async function initializeDatabase() {
         invoice_number TEXT NOT NULL UNIQUE,
         customer_name TEXT,
         customer_phone TEXT,
+        customer_email TEXT,
+        vehicle_no TEXT,
         items TEXT NOT NULL,
         subtotal NUMERIC(12, 2) NOT NULL,
         gst_amount NUMERIC(12, 2) NOT NULL,
@@ -107,6 +109,9 @@ async function initializeDatabase() {
       `);
       await db.execute(sql`
         ALTER TABLE invoices ADD COLUMN IF NOT EXISTS customer_email TEXT;
+      `);
+      await db.execute(sql`
+        ALTER TABLE invoices ADD COLUMN IF NOT EXISTS vehicle_no TEXT;
       `);
       await db.execute(sql`
         CREATE TABLE IF NOT EXISTS user_sessions (

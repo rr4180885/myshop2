@@ -8,6 +8,10 @@ ADD COLUMN IF NOT EXISTS reset_otp_expiry TEXT;
 ALTER TABLE invoices 
 ADD COLUMN IF NOT EXISTS customer_email TEXT;
 
+-- Add vehicle_no column to invoices table
+ALTER TABLE invoices 
+ADD COLUMN IF NOT EXISTS vehicle_no TEXT;
+
 -- Update existing users with default email
 UPDATE users 
 SET email = 'rr4180885@gmail.com' 

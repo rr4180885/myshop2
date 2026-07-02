@@ -47,6 +47,7 @@ export const invoices = pgTable("invoices", {
   customerName: text("customer_name"),
   customerPhone: text("customer_phone"),
   customerEmail: text("customer_email"),
+  vehicleNo: text("vehicle_no"),
   items: text("items").notNull(), // JSON stringified
   subtotal: numeric("subtotal", { precision: 12, scale: 2 }).notNull(),
   gstAmount: numeric("gst_amount", { precision: 12, scale: 2 }).notNull(),

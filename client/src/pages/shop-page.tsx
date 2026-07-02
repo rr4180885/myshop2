@@ -65,7 +65,7 @@ export default function ShopPage() {
   }, {} as Record<string, typeof tabs>);
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="h-screen bg-background flex overflow-hidden">
       {sidebarOpen && (
         <div
           className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
@@ -145,7 +145,7 @@ export default function ShopPage() {
         </div>
       </aside>
 
-      <main className="flex-1 flex flex-col min-w-0 lg:pl-[260px]">
+      <main className="flex min-h-0 flex-1 flex-col min-w-0 lg:pl-[260px]">
         <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b border-border/80 bg-background/80 backdrop-blur-md px-4 sm:px-6">
           <Button variant="outline" size="icon" className="lg:hidden h-9 w-9 shrink-0" onClick={() => setSidebarOpen(true)}>
             <Menu className="h-4 w-4" />
@@ -161,9 +161,11 @@ export default function ShopPage() {
           </Button>
         </header>
 
-        <div className="flex-1 overflow-auto pattern-dots">
+        <div className="flex-1 min-h-0 overflow-hidden">
+          <div className="h-full overflow-y-auto overflow-x-hidden pattern-dots">
           <div className="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8 animate-fadeIn">
             {ActiveComponent && <ActiveComponent />}
+          </div>
           </div>
         </div>
       </main>

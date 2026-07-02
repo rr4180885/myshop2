@@ -32,6 +32,7 @@ export default function BillingTab() {
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [customerEmail, setCustomerEmail] = useState("");
+  const [vehicleNo, setVehicleNo] = useState("");
   const [invoiceSearch, setInvoiceSearch] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
@@ -97,6 +98,7 @@ export default function BillingTab() {
         customerName: customerName || "Walk-in Customer",
         customerPhone: customerPhone || "N/A",
         customerEmail: customerEmail || "",
+        vehicleNo: vehicleNo.trim() || null,
         items: JSON.stringify(cartItems),
         subtotal: subtotal.toFixed(2),
         gstAmount: gstAmount.toFixed(2),
@@ -128,6 +130,7 @@ export default function BillingTab() {
       setCustomerName("");
       setCustomerPhone("");
       setCustomerEmail("");
+      setVehicleNo("");
       toast({ title: "Invoice generated successfully. Email sent if provided!" });
     },
   });
@@ -145,7 +148,8 @@ export default function BillingTab() {
     const matchesSearch = 
       inv.invoiceNumber.toLowerCase().includes(invoiceSearch.toLowerCase()) ||
       inv.customerName?.toLowerCase().includes(invoiceSearch.toLowerCase()) ||
-      inv.customerPhone?.toLowerCase().includes(invoiceSearch.toLowerCase());
+      inv.customerPhone?.toLowerCase().includes(invoiceSearch.toLowerCase()) ||
+      inv.vehicleNo?.toLowerCase().includes(invoiceSearch.toLowerCase());
     
     let matchesDate = true;
     if (dateFrom || dateTo) {
@@ -690,7 +694,7 @@ export default function BillingTab() {
 
         <TabsContent value="billing" className="space-y-4 mt-0">
           <SectionCard title="Customer Details" icon={ShoppingCart}>
-            <div className="form-grid-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
               <div>
                 <label className="form-label">Customer Name</label>
                 <Input
@@ -720,6 +724,16 @@ export default function BillingTab() {
                   onChange={(e) => setCustomerEmail(e.target.value)}
                   className="mt-1.5 input-modern"
                   data-testid="input-customer-email"
+                />
+              </div>
+              <div>
+                <label className="form-label">Vehicle No <span className="text-muted-foreground font-normal">(optional)</span></label>
+                <Input
+                  placeholder="e.g. KA01AB1234"
+                  value={vehicleNo}
+                  onChange={(e) => setVehicleNo(e.target.value.toUpperCase())}
+                  className="mt-1.5 input-modern"
+                  data-testid="input-vehicle-no"
                 />
               </div>
             </div>
@@ -991,6 +1005,7 @@ export default function BillingTab() {
                       <th>Invoice #</th>
                       <th>Customer</th>
                       <th>Phone</th>
+                      <th className="hidden md:table-cell">Vehicle</th>
                       <th>Date</th>
                       <th className="text-right">Amount</th>
                       <th className="text-center">Print</th>
@@ -999,7 +1014,7 @@ export default function BillingTab() {
                   <tbody>
                     {filteredInvoices.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="text-center py-8 text-muted-foreground">
+                        <td colSpan={7} className="text-center py-8 text-muted-foreground">
                           No invoices found
                         </td>
                       </tr>
@@ -1009,6 +1024,7 @@ export default function BillingTab() {
                           <td className="font-mono text-xs">{invoice.invoiceNumber}</td>
                           <td>{invoice.customerName}</td>
                           <td className="text-muted-foreground">{invoice.customerPhone}</td>
+                          <td className="text-muted-foreground hidden md:table-cell">{invoice.vehicleNo || "—"}</td>
                           <td className="text-muted-foreground">{formatDate(invoice.createdAt)}</td>
                           <td className="text-right font-medium tabular-nums">₹{invoice.grandTotal}</td>
                           <td className="text-center">
@@ -1077,7 +1093,12 @@ export default function BillingTab() {
                 <h3 className="text-[10px] font-bold text-slate-700 uppercase mb-1">Bill To:</h3>
                 <div className="bg-slate-50 p-2 rounded customer-box">
                   <p className="font-semibold text-slate-900 text-xs item-name">{currentInvoiceData.customerName}</p>
-                  <p className="text-[10px] text-slate-600">{currentInvoiceData.customerPhone}</p>
+                  {currentInvoiceData.customerPhone && currentInvoiceData.customerPhone !== "N/A" && (
+                    <p className="text-[10px] text-slate-600">Phone: {currentInvoiceData.customerPhone}</p>
+                  )}
+                  {currentInvoiceData.vehicleNo?.trim() && (
+                    <p className="text-[10px] text-slate-600">Vehicle No: {currentInvoiceData.vehicleNo.trim()}</p>
+                  )}
                 </div>
               </div>
 

@@ -152,11 +152,24 @@
   }
 
   .data-table {
-    @apply w-full text-sm;
+    @apply w-full text-sm table-fixed;
+  }
+
+  .data-table-compact {
+    @apply text-xs;
+  }
+
+  .data-table-compact th,
+  .data-table-compact td {
+    @apply px-2 py-1.5 sm:px-2.5 sm:py-2 overflow-hidden;
   }
 
   .data-table thead {
-    @apply bg-muted/50 sticky top-0 z-10;
+    @apply bg-muted/50;
+  }
+
+  .data-table-sticky thead {
+    @apply sticky top-0 z-10;
   }
 
   .data-table th {
@@ -193,6 +206,14 @@
 
   .page-shell {
     @apply space-y-6;
+  }
+
+  .page-shell-fill {
+    @apply flex flex-col gap-4 min-h-0 overflow-hidden;
+  }
+
+  .inventory-table-wrap {
+    @apply min-h-0 flex-1 overflow-y-auto overflow-x-hidden;
   }
 
   .list-row {

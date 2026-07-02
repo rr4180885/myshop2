@@ -145,7 +145,9 @@ export async function generateInvoicePDF(invoice: any, settings?: Settings): Pro
     currentY = 125;
     doc.fontSize(9).font('Helvetica-Bold').text('BILL TO:', 50, currentY);
     currentY += 15;
-    doc.fillColor('#f8fafc').rect(50, currentY, 495, 45).fill();
+    const hasVehicle = Boolean(invoice.vehicleNo?.trim());
+    const customerBoxHeight = hasVehicle ? 57 : 45;
+    doc.fillColor('#f8fafc').rect(50, currentY, 495, customerBoxHeight).fill();
     currentY += 8;
     doc.fillColor('#000000').fontSize(10).font('Helvetica-Bold');
     doc.text(invoice.customerName || 'Walk-in Customer', 58, currentY);
@@ -153,10 +155,14 @@ export async function generateInvoicePDF(invoice: any, settings?: Settings): Pro
     doc.fontSize(9).font('Helvetica');
     if (invoice.customerPhone && invoice.customerPhone !== 'N/A') {
       doc.text(`Phone: ${invoice.customerPhone}`, 58, currentY);
+      currentY += 12;
+    }
+    if (hasVehicle) {
+      doc.text(`Vehicle No: ${invoice.vehicleNo!.trim()}`, 58, currentY);
     }
 
     // Items Table
-    currentY = 190;
+    currentY = 125 + 15 + customerBoxHeight + 20;
     const tableTop = currentY;
     
     // Table Header
