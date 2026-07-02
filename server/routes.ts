@@ -99,8 +99,13 @@ export async function registerRoutes(app: Express): Promise<void> {
 
   // Invoices
   app.get(api.invoices.list.path, async (_req, res) => {
-    const invoiceList = await storage.listInvoices();
-    res.json(invoiceList);
+    try {
+      const invoiceList = await storage.listInvoices();
+      res.json(invoiceList);
+    } catch (err) {
+      console.error("Failed to list invoices:", err);
+      res.status(500).json({ message: "Failed to load invoices" });
+    }
   });
 
   app.get(api.invoices.get.path, async (req, res) => {

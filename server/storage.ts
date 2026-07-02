@@ -3,7 +3,7 @@ import { randomUUID } from "crypto";
 import session from "express-session";
 import createMemoryStore from "memorystore";
 import connectPgSimple from "connect-pg-simple";
-import { eq, sql, like, desc } from "drizzle-orm";
+import { eq, sql, like } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 
@@ -36,6 +36,15 @@ async function ensureSessionTable(db: ReturnType<typeof drizzle>) {
   `);
   await db.execute(sql`
     CREATE INDEX IF NOT EXISTS "IDX_user_sessions_expire" ON user_sessions (expire)
+  `);
+}
+
+async function ensureInvoiceMigrations(db: ReturnType<typeof drizzle>) {
+  await db.execute(sql`
+    ALTER TABLE invoices ADD COLUMN IF NOT EXISTS customer_email TEXT;
+  `);
+  await db.execute(sql`
+    ALTER TABLE invoices ADD COLUMN IF NOT EXISTS vehicle_no TEXT;
   `);
 }
 
@@ -266,21 +275,25 @@ export class DBStorage implements IStorage {
   }
 
   async listInvoices(): Promise<InvoiceSummary[]> {
-    return this.db
-      .select({
-        id: invoices.id,
-        invoiceNumber: invoices.invoiceNumber,
-        customerName: invoices.customerName,
-        customerPhone: invoices.customerPhone,
-        customerEmail: invoices.customerEmail,
-        vehicleNo: invoices.vehicleNo,
-        subtotal: invoices.subtotal,
-        gstAmount: invoices.gstAmount,
-        grandTotal: invoices.grandTotal,
-        createdAt: invoices.createdAt,
-      })
-      .from(invoices)
-      .orderBy(desc(invoices.createdAt));
+    const rows = await this.db.execute(sql`
+      SELECT id, invoice_number, customer_name, customer_phone, customer_email, vehicle_no,
+             subtotal, gst_amount, grand_total, created_at
+      FROM invoices
+      ORDER BY id DESC
+    `);
+
+    return (rows as Array<Record<string, unknown>>).map((row) => ({
+      id: row.id as number,
+      invoiceNumber: row.invoice_number as string,
+      customerName: row.customer_name as string | null,
+      customerPhone: row.customer_phone as string | null,
+      customerEmail: row.customer_email as string | null,
+      vehicleNo: row.vehicle_no as string | null,
+      subtotal: String(row.subtotal),
+      gstAmount: String(row.gst_amount),
+      grandTotal: String(row.grand_total),
+      createdAt: row.created_at as string | null,
+    }));
   }
 
   async getInvoice(id: number): Promise<Invoice | undefined> {
@@ -616,6 +629,9 @@ export async function initializeStorage() {
 
     await ensureSessionTable(db);
     console.log("✓ Session table ready");
+
+    await ensureInvoiceMigrations(db);
+    console.log("✓ Invoice migrations ready");
     
     storage = new DBStorage(db, dbUrl);
     
