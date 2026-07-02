@@ -1,4 +1,7 @@
 // Vercel serverless function entry point
+import { createRequire } from "module";
+
+const require = createRequire(import.meta.url);
 const handler = require("../dist/index.cjs");
 
-module.exports = handler.default || handler;
+export default handler.default || handler;

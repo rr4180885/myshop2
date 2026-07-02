@@ -2,11 +2,28 @@ import { type User, type InsertUser, type Product, type InsertProduct, type Invo
 import { randomUUID } from "crypto";
 import session from "express-session";
 import createMemoryStore from "memorystore";
+import connectPgSimple from "connect-pg-simple";
 import { eq, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 
 const MemoryStore = createMemoryStore(session);
+const PgSession = connectPgSimple(session);
+
+function createSessionStore(dbUrl?: string): session.Store {
+  if (dbUrl && (process.env.NODE_ENV === "production" || process.env.VERCEL)) {
+    return new PgSession({
+      conObject: {
+        connectionString: dbUrl,
+        ssl: { rejectUnauthorized: false },
+      },
+      createTableIfMissing: true,
+      tableName: "user_sessions",
+    });
+  }
+
+  return new MemoryStore({ checkPeriod: 86400000 });
+}
 
 export interface IStorage {
   // Users
@@ -45,9 +62,9 @@ export class DBStorage implements IStorage {
   private db: ReturnType<typeof drizzle>;
   sessionStore: session.Store;
 
-  constructor(db: ReturnType<typeof drizzle>) {
+  constructor(db: ReturnType<typeof drizzle>, dbUrl: string) {
     this.db = db;
-    this.sessionStore = new MemoryStore({ checkPeriod: 86400000 });
+    this.sessionStore = createSessionStore(dbUrl);
   }
 
   /**
@@ -523,7 +540,7 @@ export async function initializeStorage() {
     await db.execute(sql`SELECT 1 as test`);
     console.log("✓ Database connection verified");
     
-    storage = new DBStorage(db);
+    storage = new DBStorage(db, dbUrl);
     
     // Only seed in development or if explicitly allowed
     if (process.env.NODE_ENV !== 'production' || process.env.ALLOW_SEED === 'true') {

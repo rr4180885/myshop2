@@ -4,10 +4,14 @@ import path from "path";
 import fs from "fs";
 
 export function serveStatic(app: Express) {
-  const distPath = path.resolve(__dirname, "public");
-  
-  if (!fs.existsSync(distPath)) {
-    console.warn(`Build directory not found: ${distPath}. Skipping static serving.`);
+  const candidates = [
+    path.resolve(__dirname, "public"),
+    path.resolve(process.cwd(), "dist/public"),
+  ];
+  const distPath = candidates.find((candidate) => fs.existsSync(candidate));
+
+  if (!distPath) {
+    console.warn(`Build directory not found. Tried: ${candidates.join(", ")}`);
     return;
   }
 
