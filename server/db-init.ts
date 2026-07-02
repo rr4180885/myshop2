@@ -108,6 +108,17 @@ async function initializeDatabase() {
       await db.execute(sql`
         ALTER TABLE invoices ADD COLUMN IF NOT EXISTS customer_email TEXT;
       `);
+      await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS user_sessions (
+          sid varchar NOT NULL,
+          sess json NOT NULL,
+          expire timestamp(6) NOT NULL,
+          CONSTRAINT user_sessions_pkey PRIMARY KEY (sid)
+        )
+      `);
+      await db.execute(sql`
+        CREATE INDEX IF NOT EXISTS "IDX_user_sessions_expire" ON user_sessions (expire)
+      `);
       console.log("✓ Email columns added to users and invoices tables");
       
       // Update existing users with default email
