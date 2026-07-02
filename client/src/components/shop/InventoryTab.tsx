@@ -103,17 +103,17 @@ export default function InventoryTab() {
           <EmptyState icon={Package} title="No products yet" description="Add your first product" />
         ) : (
           <div className="inventory-table-wrap">
-          <table className="data-table data-table-compact data-table-sticky">
+          <table className="inventory-table inventory-table-sticky">
             <thead>
               <tr>
-                <th className="col-code">Code</th>
-                <th className="w-[15%]">Product</th>
+                <th className="w-28">Code</th>
+                <th className="w-[20%]">Product</th>
                 <th className="hidden md:table-cell w-[16%]">Brand</th>
-                <th className="text-right col-stock">Stock</th>
-                <th className="text-right hidden lg:table-cell col-price">Buy</th>
-                <th className="text-right col-price">Sell</th>
-                <th className="text-right hidden lg:table-cell col-gst">GST</th>
-                <th className="text-center col-actions">Actions</th>
+                <th className="text-right w-16">Stock</th>
+                <th className="text-right hidden lg:table-cell w-20">Buy</th>
+                <th className="text-right w-20">Sell</th>
+                <th className="text-right hidden lg:table-cell w-14">GST</th>
+                <th className="text-center w-[5.5rem]">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -126,16 +126,16 @@ export default function InventoryTab() {
               ) : (
                 filteredProducts.map((product: any) => (
                   <tr key={product.id} data-testid={`row-product-${product.id}`}>
-                    <td className="font-mono text-muted-foreground truncate col-code" title={product.code}>
+                    <td className="font-mono text-muted-foreground cell-clip" title={product.code}>
                       {product.code}
                     </td>
-                    <td className="font-medium truncate max-w-0" title={product.name}>
+                    <td className="font-medium cell-clip" title={product.name}>
                       {product.name}
                     </td>
-                    <td className="text-muted-foreground truncate hidden md:table-cell max-w-0" title={product.brand}>
+                    <td className="text-muted-foreground cell-clip hidden md:table-cell" title={product.brand}>
                       {product.brand}
                     </td>
-                    <td className={`text-right font-medium tabular-nums col-stock ${product.stock < 10 ? "text-warning" : "text-success"}`}>
+                    <td className={`text-right font-medium tabular-nums whitespace-nowrap ${product.stock < 10 ? "text-warning" : "text-success"}`}>
                       {editingId === product.id ? (
                         <Input
                           type="number"
@@ -147,7 +147,7 @@ export default function InventoryTab() {
                         product.stock
                       )}
                     </td>
-                    <td className="text-right text-muted-foreground tabular-nums hidden lg:table-cell col-price">
+                    <td className="text-right text-muted-foreground tabular-nums whitespace-nowrap hidden lg:table-cell">
                       {editingId === product.id ? (
                         <Input
                           type="number"
@@ -159,7 +159,7 @@ export default function InventoryTab() {
                         `₹${product.purchasePrice}`
                       )}
                     </td>
-                    <td className="text-right font-medium tabular-nums col-price">
+                    <td className="text-right font-medium tabular-nums whitespace-nowrap">
                       {editingId === product.id ? (
                         <Input
                           type="number"
@@ -171,7 +171,7 @@ export default function InventoryTab() {
                         `₹${product.sellingPrice}`
                       )}
                     </td>
-                    <td className="text-right text-muted-foreground tabular-nums hidden lg:table-cell col-gst">
+                    <td className="text-right text-muted-foreground tabular-nums whitespace-nowrap hidden lg:table-cell">
                       {editingId === product.id ? (
                         <Input
                           type="number"
@@ -183,7 +183,7 @@ export default function InventoryTab() {
                         `${product.gstRate}%`
                       )}
                     </td>
-                    <td className="col-actions">
+                    <td className="text-center whitespace-nowrap">
                       <div className="flex gap-0.5 justify-center shrink-0">
                         {editingId === product.id ? (
                           <>

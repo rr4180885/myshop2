@@ -155,6 +155,37 @@
     @apply w-full text-sm;
   }
 
+  .inventory-table {
+    @apply w-full table-auto border-collapse text-xs;
+  }
+
+  @media (min-width: 1024px) {
+    .inventory-table {
+      table-layout: fixed;
+    }
+  }
+
+  .inventory-table th,
+  .inventory-table td {
+    @apply px-2.5 py-2 align-middle border-b border-border/60;
+  }
+
+  .inventory-table thead th {
+    @apply bg-muted/50 text-left text-xs font-semibold uppercase tracking-normal text-muted-foreground whitespace-nowrap;
+  }
+
+  .inventory-table tbody tr {
+    @apply hover:bg-muted/30 transition-colors;
+  }
+
+  .inventory-table-sticky thead {
+    @apply sticky top-0 z-10;
+  }
+
+  .inventory-table .cell-clip {
+    @apply truncate max-w-[1px] whitespace-nowrap;
+  }
+
   .data-table-compact {
     @apply text-xs table-fixed w-full max-w-full;
   }
