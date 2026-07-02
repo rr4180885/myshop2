@@ -673,7 +673,7 @@ export default function BillingTab() {
   return (
     <>
       <Tabs defaultValue="billing" className="w-full">
-        <TabsList className="grid w-full max-w-md grid-cols-2 mb-6">
+        <TabsList className="grid w-full max-w-sm grid-cols-2 mb-6 h-10 p-1 bg-muted/50">
           <TabsTrigger value="billing">
             <ShoppingCart className="w-4 h-4 mr-2" />
             Create Invoice
@@ -688,7 +688,7 @@ export default function BillingTab() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
             <div className="lg:col-span-2 space-y-4 md:space-y-6">
               {/* Customer Info */}
-              <Card className="premium-card">
+              <Card className="surface-card">
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2 text-base sm:text-lg font-display">
                     <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
@@ -736,7 +736,7 @@ export default function BillingTab() {
               </Card>
 
               {/* Product Search */}
-              <Card className="premium-card">
+              <Card className="surface-card">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-base sm:text-lg font-display">Search Products</CardTitle>
                 </CardHeader>
@@ -755,9 +755,9 @@ export default function BillingTab() {
               </Card>
 
               {/* Miscellaneous / Custom Item */}
-              <Card className="premium-card border-dashed border-2 border-amber-400/60">
+              <Card className="surface-card border-dashed border-2 border-warning/40">
                 <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center gap-2 text-base sm:text-lg font-display text-amber-600 dark:text-amber-400">
+                  <CardTitle className="flex items-center gap-2 text-base font-semibold text-warning">
                     <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
                     Add Miscellaneous / Other Item
                   </CardTitle>
@@ -793,7 +793,7 @@ export default function BillingTab() {
                     <div className="sm:self-end">
                       <Button
                         onClick={addMiscToCart}
-                        className="w-full sm:w-auto h-10 bg-amber-500 hover:bg-amber-600 text-white font-semibold mt-1.5 sm:mt-0"
+                        className="w-full sm:w-auto h-10 bg-warning text-warning-foreground hover:bg-warning/90 font-medium mt-1.5 sm:mt-0"
                       >
                         <Plus className="w-4 h-4 mr-1.5" />
                         Add to Bill
@@ -804,7 +804,7 @@ export default function BillingTab() {
               </Card>
 
               {/* Products List */}
-              <Card className="premium-card">
+              <Card className="surface-card">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-base sm:text-lg font-display">Available Products ({filteredProducts.length})</CardTitle>
                 </CardHeader>
@@ -856,7 +856,7 @@ export default function BillingTab() {
 
             {/* Cart Sidebar */}
             <div>
-              <Card className="sticky top-4 premium-card shadow-xl" data-testid="card-cart">
+              <Card className="sticky top-4 surface-card shadow-xl" data-testid="card-cart">
                 <CardHeader className="bg-primary/10 border-b pb-3">
                   <CardTitle className="flex items-center gap-2 text-base sm:text-lg font-display">
                     <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
@@ -996,7 +996,7 @@ export default function BillingTab() {
         </TabsContent>
 
         <TabsContent value="history">
-          <Card className="premium-card">
+          <Card className="surface-card">
             <CardHeader>
               <CardTitle className="text-base sm:text-lg font-display">Invoice History ({filteredInvoices.length})</CardTitle>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mt-4">

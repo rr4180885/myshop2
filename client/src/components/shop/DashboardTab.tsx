@@ -4,7 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { api } from "@shared/routes";
-import { TrendingUp, Package, AlertCircle, DollarSign, Search, Sparkles, Tag, Loader2, ShoppingCart, TrendingDown, Calendar, ChevronDown, ChevronUp } from "lucide-react";
+import StatCard from "@/components/shop/StatCard";
+import PageHeader from "@/components/shop/PageHeader";
+import { TrendingUp, Package, AlertCircle, DollarSign, Search, Sparkles, Tag, Loader2, ShoppingCart, TrendingDown, Calendar, ChevronDown, ChevronUp, LayoutDashboard } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function DashboardTab() {
@@ -172,108 +174,73 @@ export default function DashboardTab() {
   const salesAnalytics = calculateSalesAnalytics();
 
   const stats = [
-    {
-      title: "Total Products",
-      value: totalProducts,
-      icon: Package,
-      color: "from-accent to-accent/80",
-      bg: "bg-accent/10",
-      textColor: "text-accent",
-    },
-    {
-      title: "Stock Value",
-      value: `₹${totalStockValue.toLocaleString()}`,
-      icon: DollarSign,
-      color: "from-success to-success/80",
-      bg: "bg-success/10",
-      textColor: "text-success",
-    },
-    {
-      title: "Total Units",
-      value: totalStockUnits,
-      icon: TrendingUp,
-      color: "from-primary to-primary/80",
-      bg: "bg-primary/10",
-      textColor: "text-primary",
-    },
-    {
-      title: "Low Stock Alert",
-      value: lowStockCount,
-      icon: AlertCircle,
-      color: "from-warning to-warning/80",
-      bg: "bg-warning/10",
-      textColor: "text-warning",
-    },
+    { label: "Total Products", value: totalProducts, icon: Package, variant: "accent" as const },
+    { label: "Stock Value", value: `₹${totalStockValue.toLocaleString()}`, icon: DollarSign, variant: "success" as const },
+    { label: "Total Units", value: totalStockUnits, icon: TrendingUp, variant: "default" as const },
+    { label: "Low Stock", value: lowStockCount, icon: AlertCircle, variant: "warning" as const, hint: lowStockCount > 0 ? "Needs attention" : "All good" },
   ];
 
   return (
     <div className="space-y-6">
-      {/* Sales Summary Card */}
-      <Card className="premium-card border-success/20 bg-gradient-to-br from-success/5 to-success/10">
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-success/10 border border-success/20 flex items-center justify-center">
-                <ShoppingCart className="w-5 h-5 text-success" />
-              </div>
-              <CardTitle className="font-display">Sales Summary</CardTitle>
+      <PageHeader
+        title="Dashboard"
+        description="Overview of sales, inventory health, and quick product lookup."
+        icon={LayoutDashboard}
+        actions={
+          <Select value={salesPeriod} onValueChange={setSalesPeriod}>
+            <SelectTrigger className="w-36 h-9">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="day">Today</SelectItem>
+              <SelectItem value="month">This Month</SelectItem>
+            </SelectContent>
+          </Select>
+        }
+      />
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        {stats.map((stat) => (
+          <StatCard key={stat.label} {...stat} />
+        ))}
+      </div>
+
+      {/* Sales Summary */}
+      <Card className="surface-card">
+        <CardHeader className="pb-3 border-b border-border/60">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-success/10 text-success">
+              <ShoppingCart className="h-4 w-4" />
             </div>
-            <Select value={salesPeriod} onValueChange={setSalesPeriod}>
-              <SelectTrigger className="w-32">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="day">Today</SelectItem>
-                <SelectItem value="month">This Month</SelectItem>
-              </SelectContent>
-            </Select>
+            <CardTitle className="text-base font-semibold">Sales Summary</CardTitle>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-5">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div className="bg-card/50 border border-border/50 p-5 rounded-xl hover:border-success/30 transition-colors">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-8 h-8 rounded-lg bg-success/10 flex items-center justify-center">
-                  <ShoppingCart className="w-4 h-4 text-success" />
-                </div>
-                <p className="text-sm font-semibold text-muted-foreground">Total Sales</p>
-              </div>
-              <p className="text-3xl font-display font-black text-success">
+            <div className="rounded-lg border border-border/60 bg-muted/20 p-4">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Total Sales</p>
+              <p className="mt-2 text-2xl font-semibold text-success tabular-nums">
                 ₹{salesAnalytics.totalSales.toLocaleString()}
               </p>
-              <p className="text-xs text-muted-foreground mt-2">
-                {salesAnalytics.invoiceCount} invoice{salesAnalytics.invoiceCount !== 1 ? 's' : ''}
+              <p className="text-xs text-muted-foreground mt-1">
+                {salesAnalytics.invoiceCount} invoice{salesAnalytics.invoiceCount !== 1 ? "s" : ""}
               </p>
             </div>
-            
-            <div className="bg-card/50 border border-border/50 p-5 rounded-xl hover:border-accent/30 transition-colors">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center">
-                  <TrendingUp className="w-4 h-4 text-accent" />
-                </div>
-                <p className="text-sm font-semibold text-muted-foreground">Total Profit</p>
-              </div>
-              <p className="text-3xl font-display font-black text-accent">
+            <div className="rounded-lg border border-border/60 bg-muted/20 p-4">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Total Profit</p>
+              <p className="mt-2 text-2xl font-semibold text-accent tabular-nums">
                 ₹{salesAnalytics.totalProfit.toLocaleString()}
               </p>
-              <p className="text-xs text-muted-foreground mt-2">
-                {salesAnalytics.totalProfit > 0 ? `${((salesAnalytics.totalProfit / salesAnalytics.totalSales) * 100).toFixed(1)}% margin` : 'No sales'}
+              <p className="text-xs text-muted-foreground mt-1">
+                {salesAnalytics.totalProfit > 0 ? `${((salesAnalytics.totalProfit / salesAnalytics.totalSales) * 100).toFixed(1)}% margin` : "No sales"}
               </p>
             </div>
-            
-            <div className="bg-card/50 border border-border/50 p-5 rounded-xl hover:border-primary/30 transition-colors">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <Calendar className="w-4 h-4 text-primary" />
-                </div>
-                <p className="text-sm font-semibold text-muted-foreground">Period</p>
-              </div>
-              <p className="text-2xl font-display font-black text-primary">
+            <div className="rounded-lg border border-border/60 bg-muted/20 p-4">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Period</p>
+              <p className="mt-2 text-xl font-semibold text-foreground">
                 {salesPeriod === "day" ? "Today" : "This Month"}
               </p>
-              <p className="text-xs text-muted-foreground mt-2">
-                {new Date().toLocaleDateString()}
-              </p>
+              <p className="text-xs text-muted-foreground mt-1">{new Date().toLocaleDateString()}</p>
             </div>
           </div>
 
@@ -389,32 +356,6 @@ export default function DashboardTab() {
           )}
         </CardContent>
       </Card>
-
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, idx) => {
-          const Icon = stat.icon;
-          return (
-            <Card 
-              key={idx} 
-              className="premium-card group hover:scale-[1.02] transition-all duration-300"
-              data-testid={`card-${stat.title.toLowerCase().replace(/\s+/g, "-")}`}
-            >
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.color} shadow-lg group-hover:scale-110 transition-transform`}>
-                    <Icon className="w-6 h-6 text-white" />
-                  </div>
-                </div>
-                <p className="text-sm text-muted-foreground font-bold uppercase tracking-wide">{stat.title}</p>
-                <p className="text-4xl font-display font-black text-foreground mt-2">
-                  {stat.value}
-                </p>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
 
       {/* Low Stock Alert Section - Collapsible */}
       {lowStockItems.length > 0 && (

@@ -9,6 +9,7 @@ import { api } from "@shared/routes";
 import { insertProductSchema, type InsertProduct } from "@shared/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/hooks/use-toast";
+import PageHeader from "@/components/shop/PageHeader";
 import { Plus, Loader2, AlertCircle } from "lucide-react";
 import { useState, useEffect } from "react";
 
@@ -88,17 +89,14 @@ export default function AddProductTab() {
   });
 
   return (
-    <div className="max-w-2xl">
-      <Card className="premium-card">
-        <CardHeader>
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
-              <Plus className="w-6 h-6 text-primary" />
-            </div>
-            <CardTitle className="text-xl font-display">Add New Product</CardTitle>
-          </div>
-        </CardHeader>
-        <CardContent className="pt-8">
+    <div className="max-w-3xl">
+      <PageHeader
+        title="Add Product"
+        description="Add a new spare part or accessory to your inventory."
+        icon={Plus}
+      />
+      <Card className="surface-card">
+        <CardContent className="pt-6">
           <Form {...form}>
             <form onSubmit={form.handleSubmit((data) => mutation.mutate(data))} className="space-y-6">
               <div className="grid grid-cols-2 gap-6">

@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { api } from "@shared/routes";
 import { useState } from "react";
-import { Trash2, Edit2, Check, X, Loader2, Package, Search } from "lucide-react";
+import PageHeader from "@/components/shop/PageHeader";
+import { Package, Search, Loader2, Trash2, Edit2, Check, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function InventoryTab() {
@@ -69,44 +70,25 @@ export default function InventoryTab() {
 
   return (
     <div className="space-y-4">
-      <Card className="premium-card">
-        <CardHeader className="pb-4">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
-                <Package className="w-6 h-6 text-primary" />
-              </div>
-              <div>
-                <CardTitle className="text-xl font-display">Product Inventory</CardTitle>
-                <p className="text-sm text-muted-foreground mt-1 font-medium">
-                  Manage your products ({products.length} total)
-                </p>
-              </div>
-            </div>
-            
-            {/* Search Bar */}
-            <div className="relative w-full sm:w-72">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <Input
-                type="text"
-                placeholder="Search by name, code, or brand..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 h-10 bg-white dark:bg-slate-900"
-              />
-              {searchQuery && (
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => setSearchQuery("")}
-                  className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 p-0"
-                >
-                  <X className="w-4 h-4" />
-                </Button>
-              )}
-            </div>
+      <PageHeader
+        title="Inventory"
+        description={`Manage ${products.length} products — search, edit stock, and pricing.`}
+        icon={Package}
+        actions={
+          <div className="relative w-full sm:w-72">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Search name, code, brand..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 input-modern"
+            />
           </div>
-        </CardHeader>
+        }
+      />
+
+      <Card className="surface-card overflow-hidden">
         <CardContent className="p-0">
           {products.length === 0 ? (
             <div className="text-center py-12 text-slate-500 dark:text-slate-400">
@@ -118,36 +100,20 @@ export default function InventoryTab() {
             <div className="relative">
               {/* Scrollable table container with fixed header */}
               <div className="overflow-auto max-h-[600px]" style={{ scrollbarGutter: 'stable' }}>
-                <table className="w-full relative">
-                  <thead className="sticky top-0 z-10 bg-gradient-to-r from-primary to-primary/90">
-                    <tr className="border-b-2 border-primary-foreground/20">
-                      <th className="text-left p-3 font-bold text-primary-foreground text-xs uppercase tracking-wider whitespace-nowrap">
-                        Code
-                      </th>
-                      <th className="text-left p-3 font-bold text-primary-foreground text-xs uppercase tracking-wider whitespace-nowrap">
-                        Product
-                      </th>
-                      <th className="text-left p-3 font-bold text-primary-foreground text-xs uppercase tracking-wider whitespace-nowrap">
-                        Brand
-                      </th>
-                      <th className="text-right p-3 font-bold text-primary-foreground text-xs uppercase tracking-wider whitespace-nowrap">
-                        Stock
-                      </th>
-                      <th className="text-right p-3 font-bold text-primary-foreground text-xs uppercase tracking-wider whitespace-nowrap">
-                        Buy Price
-                      </th>
-                      <th className="text-right p-3 font-bold text-primary-foreground text-xs uppercase tracking-wider whitespace-nowrap">
-                        Sell Price
-                      </th>
-                      <th className="text-right p-3 font-bold text-primary-foreground text-xs uppercase tracking-wider whitespace-nowrap">
-                        GST %
-                      </th>
-                      <th className="text-center p-3 font-bold text-primary-foreground text-xs uppercase tracking-wider whitespace-nowrap">
-                        Actions
-                      </th>
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th>Code</th>
+                      <th>Product</th>
+                      <th>Brand</th>
+                      <th className="text-right">Stock</th>
+                      <th className="text-right">Buy Price</th>
+                      <th className="text-right">Sell Price</th>
+                      <th className="text-right">GST %</th>
+                      <th className="text-center">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white dark:bg-slate-950">
+                  <tbody>
                     {filteredProducts.length === 0 ? (
                       <tr>
                         <td colSpan={8} className="p-12 text-center">
