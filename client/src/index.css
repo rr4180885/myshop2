@@ -152,32 +152,71 @@
   }
 
   .data-table {
-    @apply w-full text-sm table-fixed;
+    @apply w-full text-sm;
   }
 
   .data-table-compact {
-    @apply text-xs;
+    @apply text-xs table-fixed w-full max-w-full;
   }
 
   .data-table-compact th,
   .data-table-compact td {
-    @apply px-2 py-1.5 sm:px-2.5 sm:py-2 overflow-hidden;
+    @apply px-2 py-1.5 overflow-hidden;
+  }
+
+  .data-table-compact th {
+    @apply py-2 text-left text-xs font-semibold uppercase tracking-normal text-muted-foreground border-b border-border bg-muted/50;
+  }
+
+  .data-table-compact td {
+    @apply border-b border-border/60;
+  }
+
+  .data-table-compact .col-actions {
+    @apply px-1;
+    width: 76px;
+    min-width: 76px;
+    max-width: 76px;
+  }
+
+  .data-table-compact .col-code {
+    width: 88px;
+    min-width: 88px;
+    max-width: 88px;
+  }
+
+  .data-table-compact .col-stock {
+    width: 52px;
+    min-width: 52px;
+    max-width: 52px;
+  }
+
+  .data-table-compact .col-price {
+    width: 72px;
+    min-width: 72px;
+    max-width: 72px;
+  }
+
+  .data-table-compact .col-gst {
+    width: 44px;
+    min-width: 44px;
+    max-width: 44px;
   }
 
   .data-table thead {
     @apply bg-muted/50;
   }
 
-  .data-table-sticky thead {
-    @apply sticky top-0 z-10;
-  }
-
-  .data-table th {
+  .data-table:not(.data-table-compact) th {
     @apply px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground border-b border-border;
   }
 
-  .data-table td {
+  .data-table:not(.data-table-compact) td {
     @apply px-4 py-3 border-b border-border/60;
+  }
+
+  .data-table-sticky thead {
+    @apply sticky top-0 z-10;
   }
 
   .data-table tbody tr {
@@ -213,7 +252,7 @@
   }
 
   .inventory-table-wrap {
-    @apply min-h-0 flex-1 overflow-y-auto overflow-x-hidden;
+    @apply min-h-0 min-w-0 flex-1 w-full max-w-full overflow-y-auto overflow-x-hidden;
   }
 
   .list-row {

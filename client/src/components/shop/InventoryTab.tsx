@@ -103,17 +103,17 @@ export default function InventoryTab() {
           <EmptyState icon={Package} title="No products yet" description="Add your first product" />
         ) : (
           <div className="inventory-table-wrap">
-          <table className="data-table data-table-compact data-table-sticky w-full">
+          <table className="data-table data-table-compact data-table-sticky">
             <thead>
               <tr>
-                <th className="w-[72px]">Code</th>
-                <th>Product</th>
-                <th className="hidden md:table-cell w-[14%]">Brand</th>
-                <th className="text-right w-14">Stock</th>
-                <th className="text-right hidden lg:table-cell w-16">Buy</th>
-                <th className="text-right w-16">Sell</th>
-                <th className="text-right hidden lg:table-cell w-12">GST</th>
-                <th className="text-center w-[68px]">Actions</th>
+                <th className="col-code">Code</th>
+                <th className="w-[15%]">Product</th>
+                <th className="hidden md:table-cell w-[16%]">Brand</th>
+                <th className="text-right col-stock">Stock</th>
+                <th className="text-right hidden lg:table-cell col-price">Buy</th>
+                <th className="text-right col-price">Sell</th>
+                <th className="text-right hidden lg:table-cell col-gst">GST</th>
+                <th className="text-center col-actions">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -126,16 +126,16 @@ export default function InventoryTab() {
               ) : (
                 filteredProducts.map((product: any) => (
                   <tr key={product.id} data-testid={`row-product-${product.id}`}>
-                    <td className="font-mono text-muted-foreground truncate" title={product.code}>
+                    <td className="font-mono text-muted-foreground truncate col-code" title={product.code}>
                       {product.code}
                     </td>
-                    <td className="font-medium truncate" title={product.name}>
+                    <td className="font-medium truncate max-w-0" title={product.name}>
                       {product.name}
                     </td>
-                    <td className="text-muted-foreground truncate hidden md:table-cell" title={product.brand}>
+                    <td className="text-muted-foreground truncate hidden md:table-cell max-w-0" title={product.brand}>
                       {product.brand}
                     </td>
-                    <td className={`text-right font-medium tabular-nums ${product.stock < 10 ? "text-warning" : "text-success"}`}>
+                    <td className={`text-right font-medium tabular-nums col-stock ${product.stock < 10 ? "text-warning" : "text-success"}`}>
                       {editingId === product.id ? (
                         <Input
                           type="number"
@@ -147,7 +147,7 @@ export default function InventoryTab() {
                         product.stock
                       )}
                     </td>
-                    <td className="text-right text-muted-foreground tabular-nums hidden lg:table-cell">
+                    <td className="text-right text-muted-foreground tabular-nums hidden lg:table-cell col-price">
                       {editingId === product.id ? (
                         <Input
                           type="number"
@@ -159,7 +159,7 @@ export default function InventoryTab() {
                         `₹${product.purchasePrice}`
                       )}
                     </td>
-                    <td className="text-right font-medium tabular-nums">
+                    <td className="text-right font-medium tabular-nums col-price">
                       {editingId === product.id ? (
                         <Input
                           type="number"
@@ -171,7 +171,7 @@ export default function InventoryTab() {
                         `₹${product.sellingPrice}`
                       )}
                     </td>
-                    <td className="text-right text-muted-foreground tabular-nums hidden lg:table-cell">
+                    <td className="text-right text-muted-foreground tabular-nums hidden lg:table-cell col-gst">
                       {editingId === product.id ? (
                         <Input
                           type="number"
@@ -183,25 +183,25 @@ export default function InventoryTab() {
                         `${product.gstRate}%`
                       )}
                     </td>
-                    <td>
-                      <div className="flex gap-0.5 justify-center">
+                    <td className="col-actions">
+                      <div className="flex gap-0.5 justify-center shrink-0">
                         {editingId === product.id ? (
                           <>
                             <Button
                               size="sm"
                               onClick={() => saveEdit(product.id)}
                               disabled={updateMutation.isPending}
-                              className="btn-icon h-7 w-7"
+                              className="h-6 w-6 p-0 shrink-0"
                               data-testid={`button-save-${product.id}`}
                             >
                               {updateMutation.isPending ? (
-                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                <Loader2 className="w-3 h-3 animate-spin" />
                               ) : (
-                                <Check className="w-3.5 h-3.5" />
+                                <Check className="w-3 h-3" />
                               )}
                             </Button>
-                            <Button size="sm" variant="outline" onClick={() => setEditingId(null)} className="btn-icon h-7 w-7">
-                              <X className="w-3.5 h-3.5" />
+                            <Button size="sm" variant="outline" onClick={() => setEditingId(null)} className="h-6 w-6 p-0 shrink-0">
+                              <X className="w-3 h-3" />
                             </Button>
                           </>
                         ) : (
@@ -210,23 +210,23 @@ export default function InventoryTab() {
                               size="sm"
                               variant="outline"
                               onClick={() => startEdit(product)}
-                              className="btn-icon h-7 w-7"
+                              className="h-6 w-6 p-0 shrink-0"
                               data-testid={`button-edit-${product.id}`}
                             >
-                              <Edit2 className="w-3.5 h-3.5" />
+                              <Edit2 className="w-3 h-3" />
                             </Button>
                             <Button
                               size="sm"
                               variant="outline"
                               onClick={() => deleteMutation.mutate(product.id)}
                               disabled={deleteMutation.isPending}
-                              className="btn-icon h-7 w-7 text-destructive hover:text-destructive"
+                              className="h-6 w-6 p-0 shrink-0 text-destructive hover:text-destructive"
                               data-testid={`button-delete-${product.id}`}
                             >
                               {deleteMutation.isPending ? (
-                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                <Loader2 className="w-3 h-3 animate-spin" />
                               ) : (
-                                <Trash2 className="w-3.5 h-3.5" />
+                                <Trash2 className="w-3 h-3" />
                               )}
                             </Button>
                           </>
