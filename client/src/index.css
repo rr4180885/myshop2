@@ -156,26 +156,25 @@
   }
 
   .inventory-table {
-    @apply w-full table-auto border-collapse text-xs;
-  }
-
-  @media (min-width: 1024px) {
-    .inventory-table {
-      table-layout: fixed;
-    }
+    @apply w-full table-fixed border-collapse text-xs;
   }
 
   .inventory-table th,
   .inventory-table td {
-    @apply px-2.5 py-2 align-middle border-b border-border/60;
+    @apply px-3 py-2.5 align-middle border-b border-border/60;
   }
 
   .inventory-table thead th {
     @apply bg-muted/50 text-left text-xs font-semibold uppercase tracking-normal text-muted-foreground whitespace-nowrap;
   }
 
+  .inventory-table thead th.num,
+  .inventory-table td.num {
+    @apply text-right tabular-nums;
+  }
+
   .inventory-table tbody tr {
-    @apply hover:bg-muted/30 transition-colors;
+    @apply cursor-pointer hover:bg-muted/40 transition-colors;
   }
 
   .inventory-table-sticky thead {

@@ -51,14 +51,41 @@ export default function AuthPage() {
 
       <div className="flex items-center justify-center p-6 sm:p-10 lg:p-16 pattern-dots">
         <div className="w-full max-w-md space-y-8">
-          <div className="space-y-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-              <Warehouse className="h-6 w-6" />
+          <div className="space-y-4 text-center lg:text-left">
+            <div className="flex flex-col items-center lg:items-start gap-3">
+              <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-md">
+                <Warehouse className="h-7 w-7" />
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary mb-1">
+                  Welcome to
+                </p>
+                <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-foreground">
+                  Brothers Enterprises
+                </h1>
+                <p className="text-base text-muted-foreground mt-2 font-medium">
+                  Stock & Billing Management
+                </p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-2xl font-semibold tracking-tight">Brothers Enterprises</h1>
-              <p className="text-sm text-muted-foreground mt-1">Sign in to your account</p>
-            </div>
+            <p className="text-sm text-muted-foreground">Sign in to your account</p>
+          </div>
+
+          {/* Mobile feature highlights */}
+          <div className="grid grid-cols-3 gap-2 lg:hidden">
+            {[
+              { icon: Package, label: "Inventory" },
+              { icon: Receipt, label: "Invoices" },
+              { icon: BarChart3, label: "Reports" },
+            ].map(({ icon: Icon, label }) => (
+              <div
+                key={label}
+                className="flex flex-col items-center gap-1.5 rounded-lg border border-border/60 bg-card px-2 py-3 text-center"
+              >
+                <Icon className="h-4 w-4 text-primary shrink-0" />
+                <span className="text-[10px] font-medium text-muted-foreground">{label}</span>
+              </div>
+            ))}
           </div>
 
           <div className="surface-card p-6 sm:p-8">
@@ -119,12 +146,12 @@ export default function AuthPage() {
         />
         <div className="relative max-w-md space-y-8">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-sidebar-foreground/50 mb-2">
+            <h2 className="text-4xl xl:text-5xl font-semibold leading-tight tracking-tight">
               Brothers Enterprises
-            </p>
-            <h2 className="text-3xl font-semibold leading-tight tracking-tight">
-              Stock & Billing
             </h2>
+            <p className="text-lg text-sidebar-foreground/70 mt-3 font-medium">
+              Stock & Billing Management
+            </p>
           </div>
           <div className="space-y-3">
             {[
