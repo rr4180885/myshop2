@@ -1,5 +1,6 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQuery } from "@tanstack/react-query";
 import { useLogin, useUser } from "@/hooks/use-auth";
 import { Redirect } from "wouter";
 import { api, type LoginInput } from "@shared/routes";
@@ -21,6 +22,20 @@ export default function AuthPage() {
   const { data: user, isLoading: isUserLoading } = useUser();
   const { mutate: login, isPending } = useLogin();
   const { theme, toggleTheme } = useTheme();
+
+  const { data: settings, isLoading: settingsLoading } = useQuery({
+    queryKey: [api.settings.get.path],
+    queryFn: async () => {
+      const res = await fetch(api.settings.get.path);
+      if (!res.ok) throw new Error("Failed to load settings");
+      return res.json();
+    },
+    staleTime: 5 * 60_000,
+    retry: 1,
+  });
+
+  const shopName = settings?.shopName || "Brothers Enterprises";
+  const logoPath = settings?.logoPath?.trim() || "";
 
   const form = useForm<LoginInput>({
     resolver: zodResolver(api.auth.login.input),
@@ -53,15 +68,25 @@ export default function AuthPage() {
         <div className="w-full max-w-md space-y-8">
           <div className="space-y-4 text-center lg:text-left">
             <div className="flex flex-col items-center lg:items-start gap-3">
-              <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-md">
-                <Warehouse className="h-7 w-7" />
-              </div>
+              {settingsLoading ? (
+                <div className="h-16 w-40 rounded-xl bg-muted animate-pulse" />
+              ) : logoPath ? (
+                <img
+                  src={logoPath}
+                  alt={shopName}
+                  className="h-16 w-auto max-w-[220px] object-contain"
+                />
+              ) : (
+                <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-md">
+                  <Warehouse className="h-7 w-7" />
+                </div>
+              )}
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary mb-1">
                   Welcome to
                 </p>
                 <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-foreground">
-                  Brothers Enterprises
+                  {shopName}
                 </h1>
                 <p className="text-base text-muted-foreground mt-2 font-medium">
                   Stock & Billing Management
@@ -146,9 +171,17 @@ export default function AuthPage() {
         />
         <div className="relative max-w-md space-y-8">
           <div>
-            <h2 className="text-4xl xl:text-5xl font-semibold leading-tight tracking-tight">
-              Brothers Enterprises
-            </h2>
+            {logoPath ? (
+              <img
+                src={logoPath}
+                alt={shopName}
+                className="h-24 xl:h-28 w-auto max-w-full object-contain rounded-xl bg-white/95 p-4 shadow-md"
+              />
+            ) : (
+              <h2 className="text-4xl xl:text-5xl font-semibold leading-tight tracking-tight text-sidebar-foreground">
+                {shopName}
+              </h2>
+            )}
             <p className="text-lg text-sidebar-foreground/70 mt-3 font-medium">
               Stock & Billing Management
             </p>
