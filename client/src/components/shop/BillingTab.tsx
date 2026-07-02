@@ -20,6 +20,7 @@ interface CartItem {
   quantity: number;
   sellingPrice: number;
   gstRate: number;
+  isMisc?: boolean;
 }
 
 export default function BillingTab() {
@@ -35,6 +36,8 @@ export default function BillingTab() {
   const [showInvoicePreview, setShowInvoicePreview] = useState(false);
   const [currentInvoiceData, setCurrentInvoiceData] = useState<any>(null);
   const [hideGST, setHideGST] = useState(false); // Toggle to hide GST details
+  const [miscName, setMiscName] = useState("");
+  const [miscAmount, setMiscAmount] = useState("");
 
   const { data: products = [] } = useQuery({
     queryKey: [api.products.list.path],
@@ -62,8 +65,9 @@ export default function BillingTab() {
 
   const invoiceCounterMutation = useMutation({
     mutationFn: async (items: CartItem[]) => {
-      // Final stock validation before generating invoice
+      // Final stock validation before generating invoice (skip misc items)
       for (const item of items) {
+        if (item.isMisc) continue;
         const product = products.find((p: any) => p.id === item.id);
         if (!product || item.quantity > product.stock) {
           throw new Error(`Insufficient stock for ${item.name}. Only ${product?.stock || 0} units available.`);
@@ -106,6 +110,7 @@ export default function BillingTab() {
       await apiRequest("POST", api.invoices.create.path, invoiceData);
 
       for (const item of items) {
+        if (item.isMisc) continue;
         const product = products.find(p => p.id === item.id);
         if (product) {
           await apiRequest("PUT", api.products.update.path.replace(":id", String(item.id)), {
@@ -186,6 +191,32 @@ export default function BillingTab() {
     }
   };
 
+  const addMiscToCart = () => {
+    const amount = parseFloat(miscAmount);
+    if (!miscName.trim()) {
+      toast({ title: "Please enter an item name", variant: "destructive" });
+      return;
+    }
+    if (isNaN(amount) || amount <= 0) {
+      toast({ title: "Please enter a valid amount", variant: "destructive" });
+      return;
+    }
+    // Use a negative timestamp-based id to avoid conflict with product ids
+    const miscId = -(Date.now());
+    setCart(prev => [...prev, {
+      id: miscId,
+      name: miscName.trim(),
+      code: "-",
+      hsnCode: "-",
+      quantity: 1,
+      sellingPrice: amount,
+      gstRate: 0,
+      isMisc: true,
+    }]);
+    setMiscName("");
+    setMiscAmount("");
+  };
+
   const removeFromCart = (id: number) => {
     setCart(cart.filter(item => item.id !== id));
   };
@@ -194,15 +225,18 @@ export default function BillingTab() {
     if (quantity <= 0) {
       removeFromCart(id);
     } else {
-      // Check stock before updating quantity
-      const product = products.find((p: any) => p.id === id);
-      if (product && quantity > product.stock) {
-        toast({ 
-          title: "Insufficient stock", 
-          description: `Only ${product.stock} units available`,
-          variant: "destructive" 
-        });
-        return;
+      const cartItem = cart.find(item => item.id === id);
+      if (!cartItem?.isMisc) {
+        // Check stock before updating quantity for regular products
+        const product = products.find((p: any) => p.id === id);
+        if (product && quantity > product.stock) {
+          toast({ 
+            title: "Insufficient stock", 
+            description: `Only ${product.stock} units available`,
+            variant: "destructive" 
+          });
+          return;
+        }
       }
       setCart(cart.map(item => item.id === id ? { ...item, quantity } : item));
     }
@@ -724,6 +758,55 @@ export default function BillingTab() {
                 </CardContent>
               </Card>
 
+              {/* Miscellaneous / Custom Item */}
+              <Card className="premium-card border-dashed border-2 border-amber-400/60">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-base sm:text-lg font-display text-amber-600 dark:text-amber-400">
+                    <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+                    Add Miscellaneous / Other Item
+                  </CardTitle>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Add any item not listed in inventory (e.g. labour charges, packaging, service fee)
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <div className="flex-1">
+                      <label className="text-xs font-medium text-foreground">Item Name</label>
+                      <Input
+                        placeholder="e.g. Labour Charges, Packaging..."
+                        value={miscName}
+                        onChange={(e) => setMiscName(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && addMiscToCart()}
+                        className="mt-1.5 h-10"
+                      />
+                    </div>
+                    <div className="w-full sm:w-36">
+                      <label className="text-xs font-medium text-foreground">Amount (₹)</label>
+                      <Input
+                        type="number"
+                        placeholder="0.00"
+                        value={miscAmount}
+                        onChange={(e) => setMiscAmount(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && addMiscToCart()}
+                        className="mt-1.5 h-10"
+                        min="0"
+                        step="0.01"
+                      />
+                    </div>
+                    <div className="sm:self-end">
+                      <Button
+                        onClick={addMiscToCart}
+                        className="w-full sm:w-auto h-10 bg-amber-500 hover:bg-amber-600 text-white font-semibold mt-1.5 sm:mt-0"
+                      >
+                        <Plus className="w-4 h-4 mr-1.5" />
+                        Add to Bill
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
               {/* Products List */}
               <Card className="premium-card">
                 <CardHeader className="pb-3">
@@ -790,49 +873,79 @@ export default function BillingTab() {
                       <p className="text-center text-muted-foreground py-6 sm:py-8 text-sm">No items in cart</p>
                     ) : (
                       cart.map(item => (
-                        <div key={item.id} className="p-2.5 sm:p-3 bg-accent/30 rounded-lg border space-y-2" data-testid={`cart-item-${item.id}`}>
-                          <div className="font-medium text-foreground text-xs sm:text-sm">{item.name}</div>
-                          <div className="flex gap-1.5 sm:gap-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                              className="flex-1 h-8"
-                              data-testid={`button-decrease-${item.id}`}
-                            >
-                              <Minus className="w-3 h-3" />
-                            </Button>
-                            <Input
-                              type="number"
-                              value={item.quantity}
-                              onChange={(e) => updateQuantity(item.id, parseInt(e.target.value))}
-                              className="w-10 sm:w-12 h-8 text-center p-0"
-                              data-testid={`input-quantity-${item.id}`}
-                            />
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                              className="flex-1 h-8"
-                              data-testid={`button-increase-${item.id}`}
-                            >
-                              <Plus className="w-3 h-3" />
-                            </Button>
+                        <div
+                          key={item.id}
+                          className={`p-2.5 sm:p-3 rounded-lg border space-y-2 ${item.isMisc ? "bg-amber-50 dark:bg-amber-950/30 border-amber-300 dark:border-amber-700" : "bg-accent/30"}`}
+                          data-testid={`cart-item-${item.id}`}
+                        >
+                          <div className="flex items-start justify-between gap-1">
+                            <div className="font-medium text-foreground text-xs sm:text-sm leading-tight">{item.name}</div>
+                            {item.isMisc && (
+                              <span className="shrink-0 text-[10px] font-semibold bg-amber-200 dark:bg-amber-800 text-amber-800 dark:text-amber-200 px-1.5 py-0.5 rounded">
+                                MISC
+                              </span>
+                            )}
                           </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-xs sm:text-sm font-semibold text-foreground">
-                              ₹{(item.quantity * item.sellingPrice).toFixed(2)}
-                            </span>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => removeFromCart(item.id)}
-                              className="text-destructive hover:text-destructive hover:bg-destructive/10 h-7 px-2"
-                              data-testid={`button-remove-${item.id}`}
-                            >
-                              <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
-                            </Button>
-                          </div>
+                          {item.isMisc ? (
+                            <div className="flex justify-between items-center">
+                              <span className="text-xs sm:text-sm font-semibold text-foreground">
+                                ₹{item.sellingPrice.toFixed(2)}
+                              </span>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => removeFromCart(item.id)}
+                                className="text-destructive hover:text-destructive hover:bg-destructive/10 h-7 px-2"
+                                data-testid={`button-remove-${item.id}`}
+                              >
+                                <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
+                              </Button>
+                            </div>
+                          ) : (
+                            <>
+                              <div className="flex gap-1.5 sm:gap-2">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                                  className="flex-1 h-8"
+                                  data-testid={`button-decrease-${item.id}`}
+                                >
+                                  <Minus className="w-3 h-3" />
+                                </Button>
+                                <Input
+                                  type="number"
+                                  value={item.quantity}
+                                  onChange={(e) => updateQuantity(item.id, parseInt(e.target.value))}
+                                  className="w-10 sm:w-12 h-8 text-center p-0"
+                                  data-testid={`input-quantity-${item.id}`}
+                                />
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                  className="flex-1 h-8"
+                                  data-testid={`button-increase-${item.id}`}
+                                >
+                                  <Plus className="w-3 h-3" />
+                                </Button>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                <span className="text-xs sm:text-sm font-semibold text-foreground">
+                                  ₹{(item.quantity * item.sellingPrice).toFixed(2)}
+                                </span>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => removeFromCart(item.id)}
+                                  className="text-destructive hover:text-destructive hover:bg-destructive/10 h-7 px-2"
+                                  data-testid={`button-remove-${item.id}`}
+                                >
+                                  <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
+                                </Button>
+                              </div>
+                            </>
+                          )}
                         </div>
                       ))
                     )}
