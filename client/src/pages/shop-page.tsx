@@ -146,9 +146,16 @@ export default function ShopPage() {
       </aside>
 
       <main className="flex min-h-0 flex-1 flex-col min-w-0 lg:pl-[260px]">
-        <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b border-border/80 bg-background/80 backdrop-blur-md px-4 sm:px-6">
-          <Button variant="outline" size="icon" className="lg:hidden h-9 w-9 shrink-0" onClick={() => setSidebarOpen(true)}>
-            <Menu className="h-4 w-4" />
+        <header className="sticky top-0 z-40 flex h-14 shrink-0 items-center gap-3 border-b border-border bg-background px-4 sm:px-6 shadow-sm">
+          <Button
+            variant="outline"
+            size="icon"
+            className="flex h-10 w-10 shrink-0 border-border bg-background shadow-sm lg:hidden"
+            onClick={() => setSidebarOpen(true)}
+            data-testid="button-open-sidebar"
+            aria-label="Open menu"
+          >
+            <Menu className="h-5 w-5" />
           </Button>
 
           <div className="flex-1 min-w-0">

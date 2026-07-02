@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import PageHeader from "@/components/shop/PageHeader";
 import PageShell from "@/components/shop/PageShell";
+import ListRow from "@/components/shop/ListRow";
 import SectionCard from "@/components/shop/SectionCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,6 +34,8 @@ export default function BillingTab() {
   const [customerPhone, setCustomerPhone] = useState("");
   const [customerEmail, setCustomerEmail] = useState("");
   const [vehicleNo, setVehicleNo] = useState("");
+  const [activeBillingTab, setActiveBillingTab] = useState("billing");
+  const [openHistoryAfterPreview, setOpenHistoryAfterPreview] = useState(false);
   const [invoiceSearch, setInvoiceSearch] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
@@ -45,7 +48,8 @@ export default function BillingTab() {
   const { data: products = [] } = useQuery({
     queryKey: [api.products.list.path],
     queryFn: async () => {
-      const res = await fetch(api.products.list.path);
+      const res = await fetch(api.products.list.path, { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to load products");
       return res.json();
     },
   });
@@ -53,8 +57,10 @@ export default function BillingTab() {
   const { data: invoices = [] } = useQuery({
     queryKey: [api.invoices.list.path],
     queryFn: async () => {
-      const res = await fetch(api.invoices.list.path);
-      return res.json();
+      const res = await fetch(api.invoices.list.path, { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to load invoices");
+      const data = await res.json();
+      return Array.isArray(data) ? data : [];
     },
   });
 
@@ -126,6 +132,7 @@ export default function BillingTab() {
       queryClient.invalidateQueries({ queryKey: [api.invoices.list.path] });
       setCurrentInvoiceData(data);
       setShowInvoicePreview(true);
+      setOpenHistoryAfterPreview(true);
       setCart([]);
       setCustomerName("");
       setCustomerPhone("");
@@ -254,6 +261,15 @@ export default function BillingTab() {
   }, 0);
 
   const grandTotal = cart.reduce((sum, item) => sum + item.quantity * item.sellingPrice, 0);
+
+  const closeInvoicePreview = () => {
+    setShowInvoicePreview(false);
+    setCurrentInvoiceData(null);
+    if (openHistoryAfterPreview) {
+      setActiveBillingTab("history");
+      setOpenHistoryAfterPreview(false);
+    }
+  };
 
   const printInvoice = (invoiceData: any) => {
     // Ensure all numeric fields are properly converted and handle missing fields
@@ -680,14 +696,14 @@ export default function BillingTab() {
     <PageShell>
       <PageHeader title="Billing" description="Create invoices and view history" icon={ShoppingCart} />
 
-      <Tabs defaultValue="billing" className="w-full">
-        <TabsList className="page-tabs">
+      <Tabs value={activeBillingTab} onValueChange={setActiveBillingTab} className="w-full">
+        <TabsList className="page-tabs sticky top-0 z-20 bg-background/95 backdrop-blur-sm py-1">
           <TabsTrigger value="billing" className="text-sm">
-            <ShoppingCart className="w-4 h-4 mr-2" />
+            <ShoppingCart className="w-4 h-4 mr-2 shrink-0" />
             Create
           </TabsTrigger>
           <TabsTrigger value="history" className="text-sm">
-            <FileText className="w-4 h-4 mr-2" />
+            <FileText className="w-4 h-4 mr-2 shrink-0" />
             History
           </TabsTrigger>
         </TabsList>
@@ -967,9 +983,9 @@ export default function BillingTab() {
           </div>
         </TabsContent>
 
-        <TabsContent value="history">
+        <TabsContent value="history" className="mt-0">
           <SectionCard title={`Invoices (${filteredInvoices.length})`} icon={FileText} noPadding>
-              <div className="px-5 pt-4 pb-2 grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="px-4 sm:px-5 pt-4 pb-2 grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div className="relative sm:col-span-1">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
@@ -998,7 +1014,43 @@ export default function BillingTab() {
                   />
                 </div>
               </div>
-              <div className="overflow-x-auto">
+
+              {/* Mobile: card list */}
+              <div className="md:hidden p-3 space-y-2">
+                {filteredInvoices.length === 0 ? (
+                  <p className="text-center py-8 text-muted-foreground text-sm">No invoices found</p>
+                ) : (
+                  filteredInvoices.map((invoice: any) => (
+                    <ListRow
+                      key={invoice.id}
+                      title={invoice.invoiceNumber}
+                      subtitle={[
+                        invoice.customerName,
+                        invoice.customerPhone !== "N/A" ? invoice.customerPhone : null,
+                        invoice.vehicleNo?.trim() ? `Vehicle: ${invoice.vehicleNo}` : null,
+                        formatDate(invoice.createdAt),
+                      ].filter(Boolean).join(" · ")}
+                      right={
+                        <div className="flex flex-col items-end gap-1.5">
+                          <span className="font-semibold tabular-nums text-sm">₹{invoice.grandTotal}</span>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => printInvoice({ ...invoice, items: JSON.parse(invoice.items) })}
+                            className="h-8 px-2"
+                          >
+                            <Printer className="w-4 h-4 mr-1" />
+                            Print
+                          </Button>
+                        </div>
+                      }
+                    />
+                  ))
+                )}
+              </div>
+
+              {/* Desktop: table */}
+              <div className="hidden md:block overflow-x-auto">
                 <table className="data-table">
                   <thead>
                     <tr>
@@ -1049,8 +1101,20 @@ export default function BillingTab() {
 
       {/* Professional Invoice Print Preview */}
       {showInvoicePreview && currentInvoiceData && (
-        <div id="invoice-print-modal" className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-start justify-center p-4 overflow-y-auto">
-          <div id="invoice-print-content" className="bg-white text-slate-900 w-full max-w-4xl my-4 rounded-lg shadow-2xl">
+        <div id="invoice-print-modal" className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex flex-col">
+          <div className="flex shrink-0 items-center justify-between gap-3 border-b border-white/10 bg-slate-950/95 px-4 py-3 text-white lg:hidden">
+            <span className="text-sm font-medium truncate">{currentInvoiceData.invoiceNumber}</span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={closeInvoicePreview}
+              className="shrink-0 h-8 border-white/20 bg-white/10 text-white hover:bg-white/20 hover:text-white"
+            >
+              Close
+            </Button>
+          </div>
+          <div className="flex-1 overflow-y-auto p-4">
+          <div id="invoice-print-content" className="bg-white text-slate-900 w-full max-w-4xl mx-auto my-0 sm:my-4 rounded-lg shadow-2xl">
             <div className="p-6 invoice-container">
               {/* Header - Logo beside shop name at top */}
               <div className="mb-3 pb-2 border-b-2 border-slate-800 invoice-header">
@@ -1212,16 +1276,14 @@ export default function BillingTab() {
                 Print
               </Button>
               <Button
-                onClick={() => {
-                  setShowInvoicePreview(false);
-                  setCurrentInvoiceData(null);
-                }}
+                onClick={closeInvoicePreview}
                 variant="outline"
                 className="flex-1"
               >
                 Close
               </Button>
             </div>
+          </div>
           </div>
         </div>
       )}
