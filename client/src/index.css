@@ -371,6 +371,124 @@
   }
 }
 
+/* —— Saha Electricals auth landing (E-Rickshaw parts) —— */
+.auth-landing {
+  --auth-ink: #0c1f1a;
+  --auth-forest: #134e3a;
+  --auth-volt: #0d9488;
+  --auth-mint: #5eead4;
+  --auth-amber: #f59e0b;
+  --auth-sand: #f3f0e8;
+  --auth-panel: #fbfaf6;
+  font-family: "DM Sans", var(--font-body);
+}
+
+.auth-landing .auth-brand {
+  font-family: "Syne", var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 0.95;
+}
+
+.auth-landing .auth-hero {
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 20%, rgba(94, 234, 212, 0.22), transparent 55%),
+    radial-gradient(ellipse 70% 50% at 90% 80%, rgba(245, 158, 11, 0.18), transparent 50%),
+    linear-gradient(155deg, #0c1f1a 0%, #134e3a 42%, #0f766e 100%);
+  animation: authGradientShift 14s ease-in-out infinite alternate;
+}
+
+@keyframes authGradientShift {
+  from { filter: hue-rotate(0deg) saturate(1); }
+  to { filter: hue-rotate(8deg) saturate(1.08); }
+}
+
+.auth-landing .auth-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 20%, transparent 75%);
+}
+
+.auth-landing .auth-rise {
+  animation: authRise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.auth-landing .auth-rise-delay {
+  animation: authRise 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both;
+}
+
+.auth-landing .auth-rise-delay-2 {
+  animation: authRise 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.22s both;
+}
+
+@keyframes authRise {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.auth-landing .auth-bolt {
+  animation: authBolt 2.4s ease-in-out infinite;
+}
+
+@keyframes authBolt {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.06); }
+}
+
+.auth-landing .auth-wheel {
+  animation: authSpin 18s linear infinite;
+  transform-origin: center;
+}
+
+@keyframes authSpin {
+  to { transform: rotate(360deg); }
+}
+
+.auth-landing .auth-form-shell {
+  background: color-mix(in srgb, var(--auth-panel) 92%, white);
+  border: 1px solid rgba(12, 31, 26, 0.08);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.7) inset,
+    0 24px 48px -28px rgba(12, 31, 26, 0.35);
+}
+
+.dark .auth-landing .auth-form-shell {
+  background: hsl(var(--card));
+  border-color: hsl(var(--border));
+  box-shadow: none;
+}
+
+.auth-landing .auth-submit {
+  background: linear-gradient(135deg, #0f766e, #0d9488 55%, #14b8a6);
+  color: white;
+  border: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+  box-shadow: 0 10px 24px -12px rgba(13, 148, 136, 0.7);
+}
+
+.auth-landing .auth-submit:hover:not(:disabled) {
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+}
+
+.auth-landing .auth-submit:disabled {
+  opacity: 0.75;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-landing .auth-hero,
+  .auth-landing .auth-bolt,
+  .auth-landing .auth-wheel,
+  .auth-landing .auth-rise,
+  .auth-landing .auth-rise-delay,
+  .auth-landing .auth-rise-delay-2 {
+    animation: none !important;
+    filter: none !important;
+  }
+}
+
 /* Print styles for invoice — unchanged */
 @media print {
   @page { size: A4; margin: 8mm; }
