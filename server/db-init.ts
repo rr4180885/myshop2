@@ -6,6 +6,7 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import postgres from "postgres";
 import { sql } from "drizzle-orm";
+import { pathToFileURL } from "url";
 import { DEFAULT_SHOP_NAME, DEFAULT_SHOP_PHONE, DEFAULT_SHOP_GSTIN } from "@shared/shop-config";
 
 async function initializeDatabase() {
@@ -149,8 +150,9 @@ async function initializeDatabase() {
   }
 }
 
-// Run if called directly
-if (import.meta.url === `file://${process.argv[1]}`) {
+// Run if called directly (path comparison works on Windows + POSIX)
+const isDirectRun = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
+if (isDirectRun) {
   initializeDatabase();
 }
 
