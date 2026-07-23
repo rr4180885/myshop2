@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Settings, Save, Upload, Image as ImageIcon, Loader2, Lock, Unlock, Users, UserPlus, Key, Trash2 } from "lucide-react";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { api, buildUrl } from "@shared/routes";
+import { DEFAULT_SETTINGS, DEFAULT_SHOP_NAME, DEFAULT_SHOP_PHONE, DEFAULT_SHOP_GSTIN, ENABLE_EMAIL } from "@shared/shop-config";
 import { useUser } from "@/hooks/use-auth";
 import {
   AlertDialog,
@@ -41,15 +42,7 @@ export default function SettingsTab() {
   const [passwordInput, setPasswordInput] = useState("");
   const [isVerifyingPassword, setIsVerifyingPassword] = useState(false);
   const [settings, setSettings] = useState<SettingsForm>({
-    shopName: "Brothers Enterprises",
-    shopAddress: "",
-    shopPhone: "+91 98765 43210",
-    shopGSTIN: "29XXXXX1234X1Z5",
-    customText1: "All goods once sold will not be taken back",
-    customText2: "Warranty as per manufacturer terms",
-    customText3: "Payment due within 30 days",
-    logoPath: "",
-    signaturePath: "",
+    ...DEFAULT_SETTINGS,
   });
   const logoInputRef = useRef<HTMLInputElement>(null);
   const signatureInputRef = useRef<HTMLInputElement>(null);
@@ -64,13 +57,13 @@ export default function SettingsTab() {
     if (dbSettings) {
       const data = dbSettings as any;
       setSettings({
-        shopName: data.shopName || "Brothers Enterprises",
+        shopName: data.shopName || DEFAULT_SHOP_NAME,
         shopAddress: data.shopAddress || "",
-        shopPhone: data.shopPhone || "+91 98765 43210",
-        shopGSTIN: data.shopGSTIN || "29XXXXX1234X1Z5",
-        customText1: data.customText1 || "All goods once sold will not be taken back",
-        customText2: data.customText2 || "Warranty as per manufacturer terms",
-        customText3: data.customText3 || "Payment due within 30 days",
+        shopPhone: data.shopPhone || DEFAULT_SHOP_PHONE,
+        shopGSTIN: data.shopGSTIN || DEFAULT_SHOP_GSTIN,
+        customText1: data.customText1 || DEFAULT_SETTINGS.customText1,
+        customText2: data.customText2 || DEFAULT_SETTINGS.customText2,
+        customText3: data.customText3 || DEFAULT_SETTINGS.customText3,
         logoPath: data.logoPath || "",
         signaturePath: data.signaturePath || "",
       });
@@ -156,15 +149,7 @@ export default function SettingsTab() {
       return;
     }
     const defaultSettings: SettingsForm = {
-      shopName: "Brothers Enterprises",
-      shopAddress: "",
-      shopPhone: "+91 98765 43210",
-      shopGSTIN: "29XXXXX1234X1Z5",
-      customText1: "All goods once sold will not be taken back",
-      customText2: "Warranty as per manufacturer terms",
-      customText3: "Payment due within 30 days",
-      logoPath: "",
-      signaturePath: "",
+      ...DEFAULT_SETTINGS,
     };
     setSettings(defaultSettings);
     saveMutation.mutate(defaultSettings);
@@ -225,7 +210,7 @@ export default function SettingsTab() {
 
   // Create user mutation
   const createUserMutation = useMutation({
-    mutationFn: async (data: { username: string; password: string; email: string }) => {
+    mutationFn: async (data: { username: string; password: string; email?: string }) => {
       return apiRequest("POST", api.users.create.path, data);
     },
     onSuccess: () => {
@@ -235,7 +220,9 @@ export default function SettingsTab() {
       setNewEmail("");
       toast({
         title: "User Created!",
-        description: "New user has been created successfully. Welcome email sent!",
+        description: ENABLE_EMAIL
+          ? "New user has been created successfully. Welcome email sent!"
+          : "New user has been created successfully.",
       });
     },
     onError: (error: any) => {
@@ -509,10 +496,12 @@ export default function SettingsTab() {
                 <label className="form-label">Password</label>
                 <Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="Min 6 characters" className="mt-1.5 input-modern" />
               </div>
-              <div className="md:col-span-2">
-                <label className="form-label">Email</label>
-                <Input type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} placeholder="user@example.com" className="mt-1.5 input-modern" />
-              </div>
+              {ENABLE_EMAIL && (
+                <div className="md:col-span-2">
+                  <label className="form-label">Email</label>
+                  <Input type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} placeholder="user@example.com" className="mt-1.5 input-modern" />
+                </div>
+              )}
             </div>
             <Button
               onClick={() => {
@@ -524,13 +513,17 @@ export default function SettingsTab() {
                   toast({ title: "Password must be at least 6 characters", variant: "destructive" });
                   return;
                 }
-                if (!newEmail || !newEmail.includes('@')) {
+                if (ENABLE_EMAIL && (!newEmail || !newEmail.includes('@'))) {
                   toast({ title: "Please enter a valid email address", variant: "destructive" });
                   return;
                 }
-                createUserMutation.mutate({ username: newUsername, password: newPassword, email: newEmail });
+                createUserMutation.mutate({
+                  username: newUsername,
+                  password: newPassword,
+                  ...(ENABLE_EMAIL ? { email: newEmail } : {}),
+                });
               }}
-              disabled={createUserMutation.isPending || !newUsername || !newPassword || !newEmail}
+              disabled={createUserMutation.isPending || !newUsername || !newPassword || (ENABLE_EMAIL && !newEmail)}
             >
               {createUserMutation.isPending ? (
                 <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Creating...</>

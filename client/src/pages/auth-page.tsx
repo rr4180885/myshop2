@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useLogin, useUser } from "@/hooks/use-auth";
 import { Redirect } from "wouter";
 import { api, type LoginInput } from "@shared/routes";
+import { DEFAULT_SHOP_NAME, ENABLE_EMAIL } from "@shared/shop-config";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -34,7 +35,7 @@ export default function AuthPage() {
     retry: 1,
   });
 
-  const shopName = settings?.shopName || "Brothers Enterprises";
+  const shopName = settings?.shopName || DEFAULT_SHOP_NAME;
   const logoPath = settings?.logoPath?.trim() || "";
 
   const form = useForm<LoginInput>({
@@ -142,9 +143,11 @@ export default function AuthPage() {
                     </FormItem>
                   )}
                 />
-                <div className="flex justify-end">
-                  <ForgotPasswordDialog />
-                </div>
+                {ENABLE_EMAIL && (
+                  <div className="flex justify-end">
+                    <ForgotPasswordDialog />
+                  </div>
+                )}
                 <Button type="submit" className="w-full h-10" disabled={isPending}>
                   {isPending ? (
                     <>

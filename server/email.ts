@@ -5,6 +5,7 @@ import PDFDocument from 'pdfkit';
 import type { Invoice } from '@shared/schema';
 import https from 'https';
 import http from 'http';
+import { DEFAULT_SHOP_NAME, ENABLE_EMAIL } from '@shared/shop-config';
 
 // Mailgun configuration
 const MAILGUN_API_KEY = process.env.MAILGUN_API_KEY || '42b8ce75-291b2041';
@@ -27,9 +28,14 @@ interface EmailOptions {
 }
 
 export async function sendEmail(options: EmailOptions) {
+  if (!ENABLE_EMAIL) {
+    console.log('Email disabled for this shop — skipping send to', options.to);
+    return { success: false, skipped: true as const };
+  }
+
   try {
     const messageData = {
-      from: `Brothers Enterprises <noreply@${MAILGUN_DOMAIN}>`,
+      from: `${DEFAULT_SHOP_NAME} <noreply@${MAILGUN_DOMAIN}>`,
       to: options.to,
       subject: options.subject,
       html: options.html,
@@ -90,7 +96,7 @@ export async function generateInvoicePDF(invoice: any, settings?: Settings): Pro
     doc.on('end', () => resolve(Buffer.concat(buffers)));
     doc.on('error', reject);
 
-    const shopName = settings?.shopName || 'Brothers Enterprises';
+    const shopName = settings?.shopName || DEFAULT_SHOP_NAME;
     const shopAddress = settings?.shopAddress || '';
     const shopPhone = settings?.shopPhone || '';
     const shopGSTIN = settings?.shopGSTIN || '';
@@ -307,7 +313,7 @@ export async function generateInvoicePDF(invoice: any, settings?: Settings): Pro
 
 // Email Templates - Minimalistic & Clean Design
 export function getWelcomeEmailTemplate(username: string, settings?: Settings): string {
-  const shopName = settings?.shopName || 'Brothers Enterprises';
+  const shopName = settings?.shopName || DEFAULT_SHOP_NAME;
   
   return `
 <!DOCTYPE html>
@@ -363,7 +369,7 @@ export function getWelcomeEmailTemplate(username: string, settings?: Settings): 
 }
 
 export function getPasswordResetEmailTemplate(username: string, otp: string, settings?: Settings): string {
-  const shopName = settings?.shopName || 'Brothers Enterprises';
+  const shopName = settings?.shopName || DEFAULT_SHOP_NAME;
   
   return `
 <!DOCTYPE html>
@@ -426,7 +432,7 @@ export function getInvoiceEmailTemplate(
   grandTotal: string,
   settings?: Settings
 ): string {
-  const shopName = settings?.shopName || 'Brothers Enterprises';
+  const shopName = settings?.shopName || DEFAULT_SHOP_NAME;
   
   return `
 <!DOCTYPE html>

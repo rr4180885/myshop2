@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { api } from "@shared/routes";
+import { DEFAULT_SHOP_NAME, ENABLE_EMAIL } from "@shared/shop-config";
 import { useToast } from "@/hooks/use-toast";
 import { Trash2, Plus, Minus, Printer, ShoppingCart, FileText, Search, Calendar, Package } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -118,7 +119,7 @@ export default function BillingTab() {
       const invoice = await res.json();
 
       // Send email in a separate request so invoice creation stays fast on Vercel
-      if (customerEmail?.trim() && invoice.id) {
+      if (ENABLE_EMAIL && customerEmail?.trim() && invoice.id) {
         fetch(`/api/invoices/${invoice.id}/send-email`, {
           method: "POST",
           credentials: "include",
@@ -755,17 +756,19 @@ export default function BillingTab() {
                   data-testid="input-customer-phone"
                 />
               </div>
-              <div>
-                <label className="form-label">Email</label>
-                <Input
-                  type="email"
-                  placeholder="For invoice copy"
-                  value={customerEmail}
-                  onChange={(e) => setCustomerEmail(e.target.value)}
-                  className="mt-1.5 input-modern"
-                  data-testid="input-customer-email"
-                />
-              </div>
+              {ENABLE_EMAIL && (
+                <div>
+                  <label className="form-label">Email</label>
+                  <Input
+                    type="email"
+                    placeholder="For invoice copy"
+                    value={customerEmail}
+                    onChange={(e) => setCustomerEmail(e.target.value)}
+                    className="mt-1.5 input-modern"
+                    data-testid="input-customer-email"
+                  />
+                </div>
+              )}
               <div>
                 <label className="form-label">Vehicle No <span className="text-muted-foreground font-normal">(optional)</span></label>
                 <Input
@@ -1170,7 +1173,7 @@ export default function BillingTab() {
                     )}
                     <div>
                       <h1 className="text-xl font-bold text-slate-900 leading-tight shop-name">
-                        {settings?.shopName || "Brother Enterprises"}
+                        {settings?.shopName || DEFAULT_SHOP_NAME}
                       </h1>
                     </div>
                   </div>

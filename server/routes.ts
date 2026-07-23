@@ -5,6 +5,7 @@ import { api } from "@shared/routes";
 import { z } from "zod";
 import { insertProductSchema, insertInvoiceSchema, insertSettingsSchema, insertUserSchema, type Invoice } from "@shared/schema";
 import { sendEmail, generateOTP, getWelcomeEmailTemplate, getPasswordResetEmailTemplate, getInvoiceEmailTemplate, generateInvoicePDF } from "./email";
+import { DEFAULT_SHOP_NAME, ENABLE_EMAIL } from "@shared/shop-config";
 import { scrypt, randomBytes } from "crypto";
 import { promisify } from "util";
 
@@ -28,6 +29,7 @@ async function updateStockFromInvoiceItems(itemsJson: string) {
 }
 
 async function sendInvoiceEmailAsync(invoice: Invoice) {
+  if (!ENABLE_EMAIL) return;
   const settings = await storage.getSettings();
   const pdfBuffer = await generateInvoicePDF(invoice, settings);
   const emailHtml = getInvoiceEmailTemplate(
@@ -38,7 +40,7 @@ async function sendInvoiceEmailAsync(invoice: Invoice) {
   );
   await sendEmail({
     to: invoice.customerEmail!,
-    subject: `Invoice ${invoice.invoiceNumber} - ${settings?.shopName || "Brothers Enterprises"}`,
+    subject: `Invoice ${invoice.invoiceNumber} - ${settings?.shopName || DEFAULT_SHOP_NAME}`,
     html: emailHtml,
     attachments: [{
       filename: `Invoice-${invoice.invoiceNumber}.pdf`,
@@ -208,6 +210,9 @@ export async function registerRoutes(app: Express): Promise<void> {
 
   app.post("/api/invoices/:id/send-email", async (req, res) => {
     try {
+      if (!ENABLE_EMAIL) {
+        return res.status(503).json({ message: "Email is disabled for this shop" });
+      }
       const id = Number(req.params.id);
       const invoice = await storage.getInvoice(id);
       if (!invoice) {
@@ -267,14 +272,14 @@ export async function registerRoutes(app: Express): Promise<void> {
       const user = await storage.createUser({ ...input, password: hashedPassword });
       const { password, ...sanitizedUser } = user;
       
-      // Send welcome email if email is provided
-      if (user.email && user.email.trim() !== '') {
+      // Send welcome email if email is provided and email is enabled for this shop
+      if (ENABLE_EMAIL && user.email && user.email.trim() !== '') {
         try {
           const settings = await storage.getSettings();
           const emailHtml = getWelcomeEmailTemplate(user.username, settings);
           await sendEmail({
             to: user.email,
-            subject: `Welcome to ${settings?.shopName || 'Brothers Enterprises'}!`,
+            subject: `Welcome to ${settings?.shopName || DEFAULT_SHOP_NAME}!`,
             html: emailHtml,
           });
           console.log(`✉️ Welcome email sent successfully`);
@@ -337,6 +342,12 @@ export async function registerRoutes(app: Express): Promise<void> {
   // Password Reset Routes
   app.post(api.auth.requestPasswordReset.path, async (req, res) => {
     try {
+      if (!ENABLE_EMAIL) {
+        return res.status(503).json({
+          message: "Password reset by email is disabled. Contact your admin to change your password.",
+        });
+      }
+
       const { email } = req.body;
       
       const user = await storage.getUserByEmail(email);

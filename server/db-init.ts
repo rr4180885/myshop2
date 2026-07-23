@@ -6,6 +6,7 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import postgres from "postgres";
 import { sql } from "drizzle-orm";
+import { DEFAULT_SHOP_NAME, DEFAULT_SHOP_PHONE, DEFAULT_SHOP_GSTIN } from "@shared/shop-config";
 
 async function initializeDatabase() {
   const dbUrl = process.env.DATABASE_URL;
@@ -54,13 +55,13 @@ async function initializeDatabase() {
       );
     `);
 
-    await db.execute(sql`
+    await db.execute(sql.raw(`
       CREATE TABLE IF NOT EXISTS settings (
         id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-        shop_name TEXT DEFAULT 'Brothers Enterprises',
+        shop_name TEXT DEFAULT '${DEFAULT_SHOP_NAME.replace(/'/g, "''")}',
         shop_address TEXT DEFAULT '',
-        shop_phone TEXT DEFAULT '+91 98765 43210',
-        shop_gstin TEXT DEFAULT '29XXXXX1234X1Z5',
+        shop_phone TEXT DEFAULT '${DEFAULT_SHOP_PHONE.replace(/'/g, "''")}',
+        shop_gstin TEXT DEFAULT '${DEFAULT_SHOP_GSTIN.replace(/'/g, "''")}',
         custom_text_1 TEXT DEFAULT 'All goods once sold will not be taken back',
         custom_text_2 TEXT DEFAULT 'Warranty as per manufacturer terms',
         custom_text_3 TEXT DEFAULT 'Payment due within 30 days',
@@ -68,7 +69,7 @@ async function initializeDatabase() {
         signature_path TEXT DEFAULT '',
         updated_at TEXT DEFAULT CURRENT_TIMESTAMP
       );
-    `);
+    `));
 
     await db.execute(sql`
       CREATE TABLE IF NOT EXISTS invoices (
@@ -126,11 +127,13 @@ async function initializeDatabase() {
       `);
       console.log("✓ Email columns added to users and invoices tables");
       
-      // Update existing users with default email
-      await db.execute(sql`
-        UPDATE users SET email = 'rr4180885@gmail.com' WHERE email = '' OR email IS NULL;
-      `);
-      console.log("✓ Default email set for existing users");
+      // Brothers-only seed of a default admin email is skipped when email is disabled for this shop.
+      if (process.env.ENABLE_EMAIL === "true") {
+        await db.execute(sql`
+          UPDATE users SET email = 'rr4180885@gmail.com' WHERE email = '' OR email IS NULL;
+        `);
+        console.log("✓ Default email set for existing users");
+      }
       
       console.log("✓ Migrations completed successfully");
     } catch (error) {

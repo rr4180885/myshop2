@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { api } from "@shared/routes";
+import { DEFAULT_SHOP_NAME } from "@shared/shop-config";
 import DashboardTab from "@/components/shop/DashboardTab";
 import BillingTab from "@/components/shop/BillingTab";
 import InventoryTab from "@/components/shop/InventoryTab";
@@ -49,7 +50,7 @@ export default function ShopPage() {
     },
   });
 
-  const shopName = settings?.shopName || "Brothers Enterprises";
+  const shopName = settings?.shopName || DEFAULT_SHOP_NAME;
   const activeTabObj = tabs.find((t) => t.id === activeTab);
   const ActiveComponent = activeTabObj?.component;
 

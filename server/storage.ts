@@ -1,4 +1,5 @@
 import { type User, type InsertUser, type Product, type InsertProduct, type Invoice, type InsertInvoice, type Settings, type InsertSettings, users, products, invoices, settings } from "@shared/schema";
+import { DEFAULT_SETTINGS } from "@shared/shop-config";
 import { randomUUID } from "crypto";
 import session from "express-session";
 import createMemoryStore from "memorystore";
@@ -331,17 +332,7 @@ export class DBStorage implements IStorage {
     const result = await this.db.select().from(settings);
     // If no settings exist, create default settings
     if (result.length === 0) {
-      const defaultSettings = {
-        shopName: "Brothers Enterprises",
-        shopAddress: "",
-        shopPhone: "+91 98765 43210",
-        shopGSTIN: "29XXXXX1234X1Z5",
-        customText1: "All goods once sold will not be taken back",
-        customText2: "Warranty as per manufacturer terms",
-        customText3: "Payment due within 30 days",
-        logoPath: "",
-        signaturePath: "",
-      };
+      const defaultSettings = { ...DEFAULT_SETTINGS };
       const created = await this.db.insert(settings).values(defaultSettings).returning();
       return created[0];
     }
@@ -377,15 +368,7 @@ export class MemStorage implements IStorage {
     this.sessionStore = new MemoryStore({ checkPeriod: 86400000 });
     this.settings = {
       id: 1,
-      shopName: "Brothers Enterprises",
-      shopAddress: "",
-      shopPhone: "+91 98765 43210",
-      shopGSTIN: "29XXXXX1234X1Z5",
-      customText1: "All goods once sold will not be taken back",
-      customText2: "Warranty as per manufacturer terms",
-      customText3: "Payment due within 30 days",
-      logoPath: "",
-      signaturePath: "",
+      ...DEFAULT_SETTINGS,
       updatedAt: null,
     };
     this.seedProducts();

@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import { pgTable, text, varchar, integer, numeric } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+import { DEFAULT_SHOP_NAME, DEFAULT_SHOP_PHONE, DEFAULT_SHOP_GSTIN } from "./shop-config";
 
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -29,10 +30,10 @@ export const products = pgTable("products", {
 
 export const settings = pgTable("settings", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
-  shopName: text("shop_name").default("Brothers Enterprises"),
+  shopName: text("shop_name").default(DEFAULT_SHOP_NAME),
   shopAddress: text("shop_address").default(""),
-  shopPhone: text("shop_phone").default("+91 98765 43210"),
-  shopGSTIN: text("shop_gstin").default("29XXXXX1234X1Z5"),
+  shopPhone: text("shop_phone").default(DEFAULT_SHOP_PHONE),
+  shopGSTIN: text("shop_gstin").default(DEFAULT_SHOP_GSTIN),
   customText1: text("custom_text_1").default("All goods once sold will not be taken back"),
   customText2: text("custom_text_2").default("Warranty as per manufacturer terms"),
   customText3: text("custom_text_3").default("Payment due within 30 days"),
