@@ -70,13 +70,13 @@ export function setupAuth(app: Express) {
     }
   });
 
-  // Seed Admin User
+  // Seed Admin User (Saha Electricals)
   (async () => {
-    const admin = await storage.getUserByUsername("vivek01");
+    const admin = await storage.getUserByUsername("rahul01");
     if (!admin) {
-      const hashedPassword = await hashPassword("Vivek@9572");
-      await storage.createUser({ username: "vivek01", password: hashedPassword });
-      console.log("Admin user seeded: vivek01 / Vivek@9572");
+      const hashedPassword = await hashPassword("Rahul@2001");
+      await storage.createUser({ username: "rahul01", password: hashedPassword });
+      console.log("Admin user seeded: rahul01");
     }
   })();
 
