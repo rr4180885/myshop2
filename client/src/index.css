@@ -1,97 +1,135 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
-
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,400;0,500;0,600;0,700;1,400&family=Syne:wght@600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-display: 'Plus Jakarta Sans', sans-serif;
+  /* Saha Electricals — E-Rickshaw workshop palette */
+  --font-body: 'DM Sans', system-ui, sans-serif;
+  --font-display: 'Syne', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 
-  --background: 210 20% 98%;
-  --foreground: 222 47% 11%;
+  --background: 45 28% 96%;
+  --foreground: 162 45% 9%;
 
-  --primary: 221 83% 53%;
+  --primary: 175 84% 32%;
   --primary-foreground: 0 0% 100%;
 
-  --secondary: 214 32% 91%;
-  --secondary-foreground: 222 47% 11%;
+  --secondary: 160 18% 91%;
+  --secondary-foreground: 162 40% 14%;
 
-  --muted: 210 40% 96%;
-  --muted-foreground: 215 16% 47%;
+  --muted: 160 16% 92%;
+  --muted-foreground: 162 10% 36%;
 
-  --accent: 221 83% 53%;
-  --accent-foreground: 0 0% 100%;
+  --accent: 38 92% 48%;
+  --accent-foreground: 162 45% 9%;
 
-  --destructive: 0 72% 51%;
+  --destructive: 0 72% 48%;
   --destructive-foreground: 0 0% 100%;
 
-  --success: 160 84% 39%;
+  --success: 160 70% 32%;
   --success-foreground: 0 0% 100%;
 
-  --warning: 38 92% 50%;
-  --warning-foreground: 222 47% 11%;
+  --warning: 38 92% 46%;
+  --warning-foreground: 162 45% 9%;
 
-  --border: 214 32% 91%;
-  --input: 214 32% 91%;
-  --ring: 221 83% 53%;
+  --border: 160 14% 84%;
+  --input: 160 14% 84%;
+  --ring: 175 84% 32%;
 
-  --card: 0 0% 100%;
-  --card-foreground: 222 47% 11%;
+  --card: 48 40% 99%;
+  --card-foreground: 162 45% 9%;
 
-  --sidebar: 222 47% 11%;
-  --sidebar-foreground: 210 40% 98%;
-  --sidebar-border: 217 33% 17%;
-  --sidebar-accent: 217 33% 17%;
-  --sidebar-accent-foreground: 210 40% 98%;
-  --sidebar-primary: 221 83% 53%;
+  --popover: 48 40% 99%;
+  --popover-foreground: 162 45% 9%;
+  --popover-border: 160 14% 84%;
+
+  --sidebar: 162 50% 10%;
+  --sidebar-foreground: 160 20% 96%;
+  --sidebar-border: 162 35% 16%;
+  --sidebar-accent: 162 32% 15%;
+  --sidebar-accent-foreground: 160 20% 96%;
+  --sidebar-primary: 175 72% 38%;
   --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-ring: 221 83% 53%;
+  --sidebar-ring: 175 72% 38%;
+
+  --chart-1: 175 84% 32%;
+  --chart-2: 38 92% 48%;
+  --chart-3: 160 55% 40%;
+  --chart-4: 199 70% 42%;
+  --chart-5: 12 70% 50%;
+
+  --button-outline: hsl(160 14% 78%);
+  --primary-border: hsl(175 84% 28%);
+  --secondary-border: hsl(160 14% 82%);
+  --muted-border: hsl(160 12% 86%);
+  --accent-border: hsl(38 80% 42%);
+  --destructive-border: hsl(0 65% 42%);
+  --sidebar-primary-border: hsl(175 72% 32%);
+  --sidebar-accent-border: hsl(162 30% 20%);
 
   --radius: 0.625rem;
 }
 
 .dark {
-  --background: 222 47% 7%;
-  --foreground: 210 40% 98%;
+  --background: 162 38% 6%;
+  --foreground: 160 18% 95%;
 
-  --primary: 217 91% 60%;
-  --primary-foreground: 222 47% 11%;
+  --primary: 174 62% 46%;
+  --primary-foreground: 0 0% 100%;
 
-  --secondary: 217 33% 17%;
-  --secondary-foreground: 210 40% 98%;
+  --secondary: 162 22% 14%;
+  --secondary-foreground: 160 18% 95%;
 
-  --muted: 217 33% 14%;
-  --muted-foreground: 215 20% 65%;
+  --muted: 162 20% 12%;
+  --muted-foreground: 160 10% 68%;
 
-  --accent: 217 91% 60%;
-  --accent-foreground: 222 47% 11%;
+  --accent: 38 90% 55%;
+  --accent-foreground: 162 40% 8%;
 
-  --destructive: 0 63% 51%;
-  --destructive-foreground: 210 40% 98%;
+  --destructive: 0 68% 55%;
+  --destructive-foreground: 0 0% 100%;
 
-  --success: 160 84% 45%;
-  --success-foreground: 222 47% 11%;
+  --success: 160 60% 42%;
+  --success-foreground: 0 0% 100%;
 
-  --warning: 38 92% 55%;
-  --warning-foreground: 222 47% 11%;
+  --warning: 38 90% 55%;
+  --warning-foreground: 162 40% 8%;
 
-  --border: 217 33% 17%;
-  --input: 217 33% 17%;
-  --ring: 217 91% 60%;
+  --border: 162 18% 18%;
+  --input: 162 18% 18%;
+  --ring: 174 62% 46%;
 
-  --card: 222 47% 9%;
-  --card-foreground: 210 40% 98%;
+  --card: 162 30% 9%;
+  --card-foreground: 160 18% 95%;
 
-  --sidebar: 222 47% 6%;
-  --sidebar-foreground: 210 40% 98%;
-  --sidebar-border: 217 33% 14%;
-  --sidebar-accent: 217 33% 14%;
-  --sidebar-accent-foreground: 210 40% 98%;
-  --sidebar-primary: 217 91% 60%;
-  --sidebar-primary-foreground: 222 47% 11%;
-  --sidebar-ring: 217 91% 60%;
+  --popover: 162 30% 9%;
+  --popover-foreground: 160 18% 95%;
+  --popover-border: 162 18% 18%;
+
+  --sidebar: 162 42% 5%;
+  --sidebar-foreground: 160 18% 95%;
+  --sidebar-border: 162 24% 12%;
+  --sidebar-accent: 162 24% 12%;
+  --sidebar-accent-foreground: 160 18% 95%;
+  --sidebar-primary: 174 62% 42%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-ring: 174 62% 46%;
+
+  --chart-1: 174 62% 46%;
+  --chart-2: 38 90% 55%;
+  --chart-3: 160 50% 45%;
+  --chart-4: 199 70% 55%;
+  --chart-5: 12 70% 55%;
+
+  --button-outline: hsl(162 18% 24%);
+  --primary-border: hsl(174 62% 38%);
+  --secondary-border: hsl(162 18% 22%);
+  --muted-border: hsl(162 16% 20%);
+  --accent-border: hsl(38 80% 45%);
+  --destructive-border: hsl(0 60% 45%);
+  --sidebar-primary-border: hsl(174 62% 36%);
+  --sidebar-accent-border: hsl(162 22% 16%);
 }
 
 @layer base {
@@ -147,7 +185,7 @@
   }
 
   .input-modern {
-    @apply h-10 rounded-lg border-border/80 bg-background shadow-sm;
+    @apply h-10 rounded-lg border-border/80 bg-background text-foreground shadow-sm placeholder:text-muted-foreground;
     @apply focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary/50;
   }
 
@@ -161,7 +199,7 @@
 
   .inventory-table th,
   .inventory-table td {
-    @apply px-3 py-2.5 align-middle border-b border-border/60;
+    @apply px-3 py-2.5 align-middle border-b border-border/60 text-foreground;
   }
 
   .inventory-table thead th {
@@ -199,7 +237,7 @@
   }
 
   .data-table-compact td {
-    @apply border-b border-border/60;
+    @apply border-b border-border/60 text-foreground;
   }
 
   .data-table-compact .col-actions {
@@ -242,7 +280,7 @@
   }
 
   .data-table:not(.data-table-compact) td {
-    @apply px-4 py-3 border-b border-border/60;
+    @apply px-4 py-3 border-b border-border/60 text-foreground;
   }
 
   .data-table-sticky thead {
@@ -344,8 +382,15 @@
   }
 
   .pattern-dots {
-    background-image: radial-gradient(circle at 1px 1px, hsl(var(--primary) / 0.04) 1px, transparent 0);
-    background-size: 20px 20px;
+    background-image: radial-gradient(circle at 1px 1px, hsl(var(--primary) / 0.07) 1px, transparent 0);
+    background-size: 22px 22px;
+  }
+
+  .app-shell-bg {
+    background:
+      radial-gradient(ellipse 60% 40% at 100% 0%, hsl(var(--primary) / 0.06), transparent 55%),
+      radial-gradient(ellipse 50% 35% at 0% 100%, hsl(var(--accent) / 0.05), transparent 50%),
+      hsl(var(--background));
   }
 
   .badge-success {
@@ -373,14 +418,16 @@
 
 /* —— Saha Electricals auth landing (E-Rickshaw parts) —— */
 .auth-landing {
-  --auth-ink: #0c1f1a;
-  --auth-forest: #134e3a;
-  --auth-volt: #0d9488;
+  --auth-ink: hsl(var(--foreground));
+  --auth-forest: hsl(var(--sidebar));
+  --auth-volt: hsl(var(--primary));
   --auth-mint: #5eead4;
-  --auth-amber: #f59e0b;
-  --auth-sand: #f3f0e8;
-  --auth-panel: #fbfaf6;
-  font-family: "DM Sans", var(--font-body);
+  --auth-amber: hsl(var(--accent));
+  --auth-sand: hsl(var(--background));
+  --auth-panel: hsl(var(--card));
+  font-family: var(--font-body);
+  color: hsl(var(--foreground));
+  background: hsl(var(--background));
 }
 
 .auth-landing .auth-brand {
@@ -447,25 +494,18 @@
 }
 
 .auth-landing .auth-form-shell {
-  background: color-mix(in srgb, var(--auth-panel) 92%, white);
-  border: 1px solid rgba(12, 31, 26, 0.08);
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.7) inset,
-    0 24px 48px -28px rgba(12, 31, 26, 0.35);
-}
-
-.dark .auth-landing .auth-form-shell {
   background: hsl(var(--card));
-  border-color: hsl(var(--border));
-  box-shadow: none;
+  border: 1px solid hsl(var(--border));
+  color: hsl(var(--card-foreground));
+  box-shadow: 0 24px 48px -28px hsl(var(--foreground) / 0.18);
 }
 
 .auth-landing .auth-submit {
-  background: linear-gradient(135deg, #0f766e, #0d9488 55%, #14b8a6);
-  color: white;
+  background: linear-gradient(135deg, hsl(175 70% 28%), hsl(var(--primary)) 55%, hsl(174 60% 42%));
+  color: hsl(var(--primary-foreground));
   border: none;
   transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
-  box-shadow: 0 10px 24px -12px rgba(13, 148, 136, 0.7);
+  box-shadow: 0 10px 24px -12px hsl(var(--primary) / 0.55);
 }
 
 .auth-landing .auth-submit:hover:not(:disabled) {

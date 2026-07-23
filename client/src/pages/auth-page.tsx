@@ -113,8 +113,8 @@ export default function AuthPage() {
 
   if (isUserLoading) {
     return (
-      <div className="auth-landing min-h-screen flex items-center justify-center bg-[var(--auth-sand)]">
-        <Loader2 className="h-8 w-8 animate-spin text-[var(--auth-volt)]" />
+      <div className="auth-landing min-h-screen flex items-center justify-center bg-background text-foreground">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -122,12 +122,12 @@ export default function AuthPage() {
   if (user) return <Redirect to="/" />;
 
   return (
-    <div className="auth-landing min-h-screen lg:grid lg:grid-cols-[1.15fr_0.85fr] bg-[var(--auth-sand)]">
+    <div className="auth-landing min-h-screen lg:grid lg:grid-cols-[1.15fr_0.85fr] bg-background text-foreground">
       <Button
         onClick={toggleTheme}
         variant="outline"
         size="icon"
-        className="fixed top-4 right-4 z-50 h-9 w-9 border-[var(--auth-ink)]/10 bg-white/80 backdrop-blur-sm"
+        className="fixed top-4 right-4 z-50 h-9 w-9 border-border bg-card/90 text-foreground backdrop-blur-sm"
         aria-label="Toggle theme"
       >
         {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
@@ -178,13 +178,13 @@ export default function AuthPage() {
       <section className="flex items-center justify-center px-6 py-10 sm:px-10 lg:px-12 xl:px-16">
         <div className="w-full max-w-md space-y-8 auth-rise">
           <div className="space-y-2">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--auth-volt)]">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
               Staff access
             </p>
-            <h2 className="auth-brand text-3xl sm:text-4xl text-[var(--auth-ink)] dark:text-foreground">
+            <h2 className="auth-brand text-3xl sm:text-4xl text-foreground">
               Sign in
             </h2>
-            <p className="text-sm text-[var(--auth-ink)]/55 dark:text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               Manage E-Rickshaw parts stock and daily billing.
             </p>
           </div>

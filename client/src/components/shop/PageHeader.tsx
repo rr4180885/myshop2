@@ -15,7 +15,7 @@ export default function PageHeader({ title, description, icon: Icon, actions }: 
           <Icon className="h-4 w-4" />
         </div>
         <div className="min-w-0">
-          <h1 className="text-xl font-semibold tracking-tight text-foreground">{title}</h1>
+          <h1 className="text-xl font-display font-bold tracking-tight text-foreground">{title}</h1>
           {description && (
             <p className="text-sm text-muted-foreground truncate">{description}</p>
           )}

@@ -23,7 +23,7 @@ export default function StatCard({ label, value, hint, icon: Icon, variant = "de
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{label}</p>
-          <p className="mt-2 text-2xl font-semibold tracking-tight text-foreground tabular-nums">{value}</p>
+          <p className="mt-2 text-2xl font-display font-bold tracking-tight text-foreground tabular-nums">{value}</p>
           {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
         </div>
         <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ring-1", variantStyles[variant])}>

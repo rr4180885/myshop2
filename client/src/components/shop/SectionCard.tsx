@@ -38,7 +38,7 @@ export default function SectionCard({
               <Icon className="h-4 w-4" />
             </div>
           )}
-          <h2 className="text-sm font-semibold text-foreground truncate">{title}</h2>
+          <h2 className="text-sm font-display font-bold tracking-tight text-foreground truncate">{title}</h2>
         </div>
         {actions && <div className="shrink-0">{actions}</div>}
       </div>

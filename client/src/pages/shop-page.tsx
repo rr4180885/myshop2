@@ -14,7 +14,7 @@ import {
   X,
   Sun,
   Moon,
-  Warehouse,
+  Zap,
   ChevronRight,
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -66,10 +66,10 @@ export default function ShopPage() {
   }, {} as Record<string, typeof tabs>);
 
   return (
-    <div className="h-screen bg-background flex overflow-hidden">
+    <div className="h-screen app-shell-bg flex overflow-hidden text-foreground">
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
+          className="fixed inset-0 bg-foreground/40 backdrop-blur-sm z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
@@ -80,15 +80,16 @@ export default function ShopPage() {
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        <div className="flex h-16 items-center gap-3 border-b border-sidebar-border px-5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-            <Warehouse className="h-5 w-5" />
+        <div className="relative overflow-hidden flex h-16 items-center gap-3 border-b border-sidebar-border px-5">
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-sidebar-primary/25 via-transparent to-accent/10" />
+          <div className="relative flex h-9 w-9 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground shadow-sm">
+            <Zap className="h-5 w-5" />
           </div>
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold">{shopName}</p>
-            <p className="text-xs text-sidebar-foreground/50">Stock & Billing</p>
+          <div className="relative min-w-0 flex-1">
+            <p className="truncate text-sm font-display font-bold tracking-tight">{shopName}</p>
+            <p className="text-xs text-sidebar-foreground/55">E-Rickshaw Parts</p>
           </div>
-          <Button variant="ghost" size="icon" className="lg:hidden text-sidebar-foreground hover:bg-sidebar-accent h-8 w-8" onClick={() => setSidebarOpen(false)}>
+          <Button variant="ghost" size="icon" className="relative lg:hidden text-sidebar-foreground hover:bg-sidebar-accent h-8 w-8" onClick={() => setSidebarOpen(false)}>
             <X className="h-4 w-4" />
           </Button>
         </div>
@@ -96,7 +97,7 @@ export default function ShopPage() {
         <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-6">
           {Object.entries(groupedTabs).map(([group, groupTabs]) => (
             <div key={group}>
-              <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-widest text-sidebar-foreground/40">
+              <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-widest text-sidebar-foreground/45">
                 {group}
               </p>
               <div className="space-y-0.5">
@@ -129,15 +130,15 @@ export default function ShopPage() {
               </AvatarFallback>
             </Avatar>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium">{user?.username}</p>
-              <p className="text-xs text-sidebar-foreground/50">Administrator</p>
+              <p className="truncate text-sm font-medium text-sidebar-foreground">{user?.username}</p>
+              <p className="text-xs text-sidebar-foreground/55">Administrator</p>
             </div>
           </div>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => logout()}
-            className="w-full justify-start text-sidebar-foreground/70 hover:bg-destructive/10 hover:text-destructive"
+            className="w-full justify-start text-sidebar-foreground/75 hover:bg-destructive/15 hover:text-destructive"
             data-testid="button-logout"
           >
             <LogOut className="mr-2 h-4 w-4" />
@@ -147,11 +148,11 @@ export default function ShopPage() {
       </aside>
 
       <main className="flex min-h-0 flex-1 flex-col min-w-0 lg:pl-[260px]">
-        <header className="sticky top-0 z-40 flex h-14 shrink-0 items-center gap-3 border-b border-border bg-background px-4 sm:px-6 shadow-sm">
+        <header className="sticky top-0 z-40 flex h-14 shrink-0 items-center gap-3 border-b border-border bg-background/85 backdrop-blur-md px-4 sm:px-6">
           <Button
             variant="outline"
             size="icon"
-            className="flex h-10 w-10 shrink-0 border-border bg-background shadow-sm lg:hidden"
+            className="flex h-10 w-10 shrink-0 border-border bg-card text-foreground shadow-sm lg:hidden"
             onClick={() => setSidebarOpen(true)}
             data-testid="button-open-sidebar"
             aria-label="Open menu"
@@ -160,11 +161,11 @@ export default function ShopPage() {
           </Button>
 
           <div className="flex-1 min-w-0">
-            <h1 className="text-sm font-semibold truncate">{activeTabObj?.label}</h1>
+            <h1 className="text-sm font-display font-bold tracking-tight truncate text-foreground">{activeTabObj?.label}</h1>
             <p className="text-xs text-muted-foreground truncate">{shopName}</p>
           </div>
 
-          <Button variant="outline" size="icon" className="h-9 w-9 shrink-0" onClick={toggleTheme} title="Toggle theme">
+          <Button variant="outline" size="icon" className="h-9 w-9 shrink-0 bg-card text-foreground" onClick={toggleTheme} title="Toggle theme">
             {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </Button>
         </header>
